@@ -3,90 +3,110 @@ import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { CONFIG } from '../config';
+import { SHAPE_COUNT, shapePosition } from './shapes';
+
+/** Everything the per-frame update needs to drive the object's shaders. */
+export interface FrameUniforms {
+  time: number;
+  fromShape: number;
+  toShape: number;
+  morphT: number;
+  stretchAxis: THREE.Vector3; // object space, unit
+  stretchAmt: number;
+  shock: number; // 0..1 envelope
+  beamPoint: THREE.Vector3; // object space
+  beamActive: number; // 0/1
+  audioBright: number;
+  lineColor: THREE.Color;
+  beamColor: THREE.Color;
+  scale: number;
+}
 
 /**
- * A single morphing wireframe rendered as fat, world-space-width lines
- * (LineSegments2 / LineMaterial) so the grid reads as clean individual lines
- * instead of shimmering 1px hairlines.
- *
- * The geometry is a subdivided cube grid; the GPU morph and a near/far depth
- * fade are injected into LineMaterial's shader via onBeforeCompile:
- *   - `uMorph` blends each endpoint between its cube position and its
- *     normalized (spherified) position (0 = sphere, 1 = cube),
- *   - the far side of the volume fades to `farFade` for a sense of depth.
+ * Morphing wireframe (fat Line2 lines). All 5 shape targets per endpoint are
+ * kept on the CPU; only the active from/to pair lives in GPU attributes (to stay
+ * under MAX_VERTEX_ATTRIBS). The shader blends from→to by `uMorphT`, applies the
+ * shared stretch / shockwave deform, a beam highlight and a depth fade.
  */
 export class WireframeObject {
   public readonly mesh: LineSegments2;
   private material: LineMaterial;
 
-  // Uniform holders shared into the patched shader (mutated every frame).
-  private uMorph = { value: 0 };
-  private uSize = { value: CONFIG.wireframe.size };
-  private uNearDepth = { value: CONFIG.camera.distance - CONFIG.wireframe.size };
-  private uFarDepth = { value: CONFIG.camera.distance + CONFIG.wireframe.size };
-  private uFarFade = { value: CONFIG.wireframe.farFade };
-  private uPulseAmount = { value: CONFIG.wireframe.pulseAmount };
-  private uPulseSpeed = { value: CONFIG.wireframe.pulseSpeed };
-  private uTime = { value: 0 };
+  private starts: Float32Array[] = [];
+  private ends: Float32Array[] = [];
+  private aSF: THREE.InstancedBufferAttribute;
+  private aST: THREE.InstancedBufferAttribute;
+  private aEF: THREE.InstancedBufferAttribute;
+  private aET: THREE.InstancedBufferAttribute;
+  private curFrom = -1;
+  private curTo = -1;
+
+  private u = {
+    uMorphT: { value: 0 },
+    uStretchAxis: { value: new THREE.Vector3(1, 0, 0) },
+    uStretchAmt: { value: 0 },
+    uShock: { value: 0 },
+    uShockAmp: { value: CONFIG.shockwave.amplitude },
+    uNearDepth: { value: CONFIG.camera.distance - CONFIG.wireframe.size },
+    uFarDepth: { value: CONFIG.camera.distance + CONFIG.wireframe.size },
+    uFarFade: { value: CONFIG.wireframe.farFade },
+    uPulseAmount: { value: CONFIG.wireframe.pulseAmount },
+    uPulseSpeed: { value: CONFIG.wireframe.pulseSpeed },
+    uTime: { value: 0 },
+    uBeamPoint: { value: new THREE.Vector3() },
+    uBeamActive: { value: 0 },
+    uBeamRadius: { value: CONFIG.beam.hitRadius },
+    uBeamBright: { value: CONFIG.beam.hitBrightness },
+    uBeamColor: { value: new THREE.Color(0xffffff) },
+    uAudioBright: { value: 0 },
+  };
 
   constructor() {
-    const positions = WireframeObject.buildCubeGridPositions(
-      CONFIG.wireframe.segments,
-      CONFIG.wireframe.size,
-    );
+    const segs = WireframeObject.buildParamSegments(CONFIG.wireframe.segments);
+    const segCount = segs.length / 4;
+
+    for (let s = 0; s < SHAPE_COUNT; s++) {
+      this.starts.push(new Float32Array(segCount * 3));
+      this.ends.push(new Float32Array(segCount * 3));
+    }
+    for (let i = 0; i < segCount; i++) {
+      this.fillShapes(this.starts, i, segs[i * 4], segs[i * 4 + 1]);
+      this.fillShapes(this.ends, i, segs[i * 4 + 2], segs[i * 4 + 3]);
+    }
+
     const geometry = new LineSegmentsGeometry();
-    geometry.setPositions(positions);
+    const base: number[] = [];
+    for (let i = 0; i < segCount; i++) {
+      base.push(
+        this.starts[0][i * 3], this.starts[0][i * 3 + 1], this.starts[0][i * 3 + 2],
+        this.ends[0][i * 3], this.ends[0][i * 3 + 1], this.ends[0][i * 3 + 2],
+      );
+    }
+    geometry.setPositions(base);
+
+    // Only 4 morph attributes (from/to × start/end) — swapped on the CPU.
+    this.aSF = new THREE.InstancedBufferAttribute(this.starts[0].slice(), 3);
+    this.aST = new THREE.InstancedBufferAttribute(this.starts[0].slice(), 3);
+    this.aEF = new THREE.InstancedBufferAttribute(this.ends[0].slice(), 3);
+    this.aET = new THREE.InstancedBufferAttribute(this.ends[0].slice(), 3);
+    geometry.setAttribute('aStartFrom', this.aSF);
+    geometry.setAttribute('aStartTo', this.aST);
+    geometry.setAttribute('aEndFrom', this.aEF);
+    geometry.setAttribute('aEndTo', this.aET);
 
     this.material = new LineMaterial({
-      color: new THREE.Color(CONFIG.wireframe.color).getHex(),
+      color: 0xffffff,
       linewidth: CONFIG.wireframe.lineWidth,
       worldUnits: true,
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
       opacity: CONFIG.wireframe.opacity,
-      dashed: false,
     });
-
-    // Inject GPU morph + depth fade + a subtle brightness pulse.
     this.material.onBeforeCompile = (shader) => {
-      shader.uniforms.uMorph = this.uMorph;
-      shader.uniforms.uSize = this.uSize;
-      shader.uniforms.uNearDepth = this.uNearDepth;
-      shader.uniforms.uFarDepth = this.uFarDepth;
-      shader.uniforms.uFarFade = this.uFarFade;
-      shader.uniforms.uPulseAmount = this.uPulseAmount;
-      shader.uniforms.uPulseSpeed = this.uPulseSpeed;
-      shader.uniforms.uTime = this.uTime;
-
-      shader.vertexShader = shader.vertexShader
-        .replace(
-          'void main() {',
-          'uniform float uMorph;\nuniform float uSize;\nvarying float vViewDepth;\nvoid main() {',
-        )
-        .replace(
-          'vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );',
-          'vec3 mStart = mix( normalize( instanceStart ) * uSize, instanceStart, uMorph );\n\t\t\tvec4 start = modelViewMatrix * vec4( mStart, 1.0 );',
-        )
-        .replace(
-          'vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );',
-          'vec3 mEnd = mix( normalize( instanceEnd ) * uSize, instanceEnd, uMorph );\n\t\t\tvec4 end = modelViewMatrix * vec4( mEnd, 1.0 );\n\t\t\tvViewDepth = -0.5 * ( start.z + end.z );',
-        );
-
-      shader.fragmentShader = shader.fragmentShader
-        .replace(
-          'void main() {',
-          'uniform float uNearDepth;\nuniform float uFarDepth;\nuniform float uFarFade;\nuniform float uPulseAmount;\nuniform float uPulseSpeed;\nuniform float uTime;\nvarying float vViewDepth;\nvoid main() {',
-        )
-        .replace(
-          'gl_FragColor = vec4( diffuseColor.rgb, alpha );',
-          [
-            'float _t = clamp( ( uFarDepth - vViewDepth ) / ( uFarDepth - uNearDepth ), 0.0, 1.0 );',
-            'float _fade = mix( uFarFade, 1.0, _t );',
-            'float _pulse = 1.0 + uPulseAmount * sin( uTime * uPulseSpeed );',
-            'gl_FragColor = vec4( diffuseColor.rgb * _fade * _pulse, alpha );',
-          ].join('\n\t\t\t'),
-        );
+      Object.assign(shader.uniforms, this.u);
+      shader.vertexShader = this.patchVertex(shader.vertexShader);
+      shader.fragmentShader = this.patchFragment(shader.fragmentShader);
     };
 
     this.mesh = new LineSegments2(geometry, this.material);
@@ -94,64 +114,128 @@ export class WireframeObject {
     this.mesh.renderOrder = 0;
   }
 
-  /** morph: 0 = sphere, 1 = cube. time: seconds. scale: current group scale
-   *  (so the depth-fade range tracks the object's apparent size). */
-  update(time: number, morph: number, scale: number): void {
-    this.uMorph.value = morph;
-    this.uTime.value = time;
-    const halfDepth = CONFIG.wireframe.size * scale;
-    this.uNearDepth.value = CONFIG.camera.distance - halfDepth;
-    this.uFarDepth.value = CONFIG.camera.distance + halfDepth;
+  private fillShapes(target: Float32Array[], i: number, s: number, t: number): void {
+    for (let k = 0; k < SHAPE_COUNT; k++) {
+      const q = shapePosition(k, s, t, 1, CONFIG.wireframe.size);
+      target[k][i * 3] = q[0];
+      target[k][i * 3 + 1] = q[1];
+      target[k][i * 3 + 2] = q[2];
+    }
+  }
+
+  private setMorphShapes(from: number, to: number): void {
+    if (from === this.curFrom && to === this.curTo) return;
+    this.aSF.array.set(this.starts[from]);
+    this.aST.array.set(this.starts[to]);
+    this.aEF.array.set(this.ends[from]);
+    this.aET.array.set(this.ends[to]);
+    this.aSF.needsUpdate = true;
+    this.aST.needsUpdate = true;
+    this.aEF.needsUpdate = true;
+    this.aET.needsUpdate = true;
+    this.curFrom = from;
+    this.curTo = to;
+  }
+
+  update(f: FrameUniforms): void {
+    this.setMorphShapes(f.fromShape, f.toShape);
+    this.u.uTime.value = f.time;
+    this.u.uMorphT.value = f.morphT;
+    this.u.uStretchAxis.value.copy(f.stretchAxis);
+    this.u.uStretchAmt.value = f.stretchAmt;
+    this.u.uShock.value = f.shock;
+    this.u.uBeamPoint.value.copy(f.beamPoint);
+    this.u.uBeamActive.value = f.beamActive;
+    this.u.uBeamColor.value.copy(f.beamColor);
+    this.u.uAudioBright.value = f.audioBright;
+    this.material.color.copy(f.lineColor);
+
+    const halfDepth = CONFIG.wireframe.size * f.scale * 1.6;
+    this.u.uNearDepth.value = CONFIG.camera.distance - halfDepth;
+    this.u.uFarDepth.value = CONFIG.camera.distance + halfDepth;
   }
 
   setResolution(w: number, h: number): void {
     this.material.resolution.set(w, h);
   }
 
+  private patchVertex(src: string): string {
+    const decls = `
+      attribute vec3 aStartFrom; attribute vec3 aStartTo;
+      attribute vec3 aEndFrom; attribute vec3 aEndTo;
+      uniform float uMorphT;
+      uniform vec3 uStretchAxis; uniform float uStretchAmt;
+      uniform float uShock; uniform float uShockAmp;
+      uniform vec3 uBeamPoint; uniform float uBeamActive; uniform float uBeamRadius;
+      varying float vViewDepth;
+      varying float vHitGlow;
+      vec3 deform(vec3 p) {
+        p += uStretchAxis * dot(p, uStretchAxis) * uStretchAmt;
+        float r = length(p);
+        if (r > 1e-4) p += (p / r) * uShock * uShockAmp;
+        return p;
+      }
+      void main() {`;
+    src = src.replace('void main() {', decls);
+
+    src = src.replace(
+      'vec4 start = modelViewMatrix * vec4( instanceStart, 1.0 );',
+      `vec3 rawStart = deform(mix(aStartFrom, aStartTo, uMorphT));
+       vec4 start = modelViewMatrix * vec4( rawStart, 1.0 );`,
+    );
+    src = src.replace(
+      'vec4 end = modelViewMatrix * vec4( instanceEnd, 1.0 );',
+      `vec3 rawEnd = deform(mix(aEndFrom, aEndTo, uMorphT));
+       vec4 end = modelViewMatrix * vec4( rawEnd, 1.0 );
+       vViewDepth = -0.5 * ( start.z + end.z );
+       vec3 mid = 0.5 * (rawStart + rawEnd);
+       vHitGlow = uBeamActive * (1.0 - smoothstep(0.0, uBeamRadius, distance(mid, uBeamPoint)));`,
+    );
+    return src;
+  }
+
+  private patchFragment(src: string): string {
+    src = src.replace(
+      'void main() {',
+      `uniform float uNearDepth; uniform float uFarDepth; uniform float uFarFade;
+       uniform float uPulseAmount; uniform float uPulseSpeed; uniform float uTime;
+       uniform float uBeamBright; uniform vec3 uBeamColor; uniform float uAudioBright;
+       varying float vViewDepth; varying float vHitGlow;
+       void main() {`,
+    );
+    src = src.replace(
+      'gl_FragColor = vec4( diffuseColor.rgb, alpha );',
+      `float _t = clamp((uFarDepth - vViewDepth) / (uFarDepth - uNearDepth), 0.0, 1.0);
+       float _fade = mix(uFarFade, 1.0, _t);
+       float _pulse = 1.0 + uPulseAmount * sin(uTime * uPulseSpeed) + uAudioBright;
+       vec3 _rgb = diffuseColor.rgb * _fade * _pulse + uBeamColor * vHitGlow * uBeamBright;
+       gl_FragColor = vec4(_rgb, alpha);`,
+    );
+    return src;
+  }
+
   /**
-   * Build a subdivided-cube grid as flat segment-endpoint pairs
-   * ([x1,y1,z1, x2,y2,z2, …]) suitable for LineSegmentsGeometry.setPositions.
-   * Six faces, each an (n+1)×(n+1) lattice; adjacent points joined h/v.
+   * A parametric (s, t) lattice as flat segments [sA, tA, sB, tB, …]. `s` wraps
+   * (longitude), `t` runs pole-to-pole (open). Shared by every shape so the
+   * grid connectivity is identical and the morph stays 1:1.
    */
-  private static buildCubeGridPositions(n: number, size: number): number[] {
-    const positions: number[] = [];
-
-    type Face = { fixed: 0 | 1 | 2; sign: 1 | -1 };
-    const faces: Face[] = [
-      { fixed: 0, sign: 1 },
-      { fixed: 0, sign: -1 },
-      { fixed: 1, sign: 1 },
-      { fixed: 1, sign: -1 },
-      { fixed: 2, sign: 1 },
-      { fixed: 2, sign: -1 },
-    ];
-
-    const point = (fixed: number, sign: number, u: number, v: number): [number, number, number] => {
-      const free = [0, 1, 2].filter((a) => a !== fixed) as [number, number];
-      const comps: [number, number, number] = [0, 0, 0];
-      comps[fixed] = sign * size;
-      comps[free[0]] = u;
-      comps[free[1]] = v;
-      return comps;
-    };
-
-    const push = (a: [number, number, number], b: [number, number, number]) => {
-      positions.push(a[0], a[1], a[2], b[0], b[1], b[2]);
-    };
-
-    const step = (2 * size) / n;
-    for (const f of faces) {
-      for (let i = 0; i <= n; i++) {
-        const u = -size + i * step;
-        for (let j = 0; j <= n; j++) {
-          const v = -size + j * step;
-          const p = point(f.fixed, f.sign, u, v);
-          if (j < n) push(p, point(f.fixed, f.sign, u, v + step));
-          if (i < n) push(p, point(f.fixed, f.sign, u + step, v));
+  private static buildParamSegments(seg: number): number[] {
+    const gridS = seg * 2;
+    const gridT = seg;
+    const out: number[] = [];
+    for (let j = 0; j <= gridT; j++) {
+      const t = j / gridT;
+      for (let i = 0; i < gridS; i++) {
+        const s = i / gridS;
+        const s2 = (i + 1) / gridS;
+        out.push(s, t, s2, t); // horizontal (wraps at i = gridS-1)
+        if (j < gridT) {
+          const t2 = (j + 1) / gridT;
+          out.push(s, t, s, t2); // vertical
         }
       }
     }
-    return positions;
+    return out;
   }
 
   dispose(): void {

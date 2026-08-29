@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
@@ -8,9 +9,13 @@ import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 
 import { CONFIG } from './config';
 import { Background } from './scene/Background';
-import { WireframeObject } from './scene/WireframeObject';
-import { ParticleCore } from './scene/ParticleCore';
-import { HandTracker, type HandFrame } from './input/HandTracker';
+import { WireframeObject, type FrameUniforms } from './scene/WireframeObject';
+import { ParticleCore, type ParticleFrame } from './scene/ParticleCore';
+import { Beam } from './scene/Beam';
+import { HandTracker } from './input/HandTracker';
+import { AudioInput } from './input/AudioInput';
+import { GestureController } from './gesture/GestureController';
+import { ObjectPhysics } from './physics/ObjectPhysics';
 
 // ── DOM ──────────────────────────────────────────────────────────────────
 const video = document.getElementById('webcam') as HTMLVideoElement;
@@ -18,13 +23,12 @@ const canvas = document.getElementById('scene') as HTMLCanvasElement;
 const gate = document.getElementById('gate') as HTMLDivElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
 const debugEl = document.getElementById('debug') as HTMLDivElement;
+const toastEl = document.getElementById('toast') as HTMLDivElement;
+const hintEl = document.getElementById('hint') as HTMLDivElement;
+const recEl = document.getElementById('rec') as HTMLDivElement;
 
 // ── Renderer + color pipeline ───────────────────────────────────────────────
-const renderer = new THREE.WebGLRenderer({
-  canvas,
-  antialias: false, // SMAA handles AA in the composer
-  powerPreference: 'high-performance',
-});
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
 let pixelRatio = Math.min(window.devicePixelRatio, CONFIG.renderer.maxPixelRatio);
 renderer.setPixelRatio(pixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -34,7 +38,6 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = CONFIG.renderer.toneMappingExposure;
 
 const scene = new THREE.Scene();
-
 const camera = new THREE.PerspectiveCamera(
   CONFIG.camera.fov,
   window.innerWidth / window.innerHeight,
@@ -44,29 +47,31 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 0, CONFIG.camera.distance);
 camera.lookAt(0, 0, 0);
 
-// ── Webcam background (in-scene, auto-exposed) ──────────────────────────────
+// ── Scene contents ──────────────────────────────────────────────────────────
 const background = new Background(video);
 scene.add(background.mesh);
 
-// ── The morphing object (wireframe + interior energy) ───────────────────────
 const objectGroup = new THREE.Group();
 scene.add(objectGroup);
-
 const wireframe = new WireframeObject();
 objectGroup.add(wireframe.mesh);
-
 const core = new ParticleCore();
 objectGroup.add(core.group);
 
-// ── Post-processing: HDR bloom → chromatic aberration + grain → tone map → SMAA
+const beam = new Beam();
+scene.add(beam.mesh);
+
+// ── Post-processing ─────────────────────────────────────────────────────────
 const hdrTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-  type: THREE.HalfFloatType, // HDR so bloom + tone mapping don't clip to white
+  type: THREE.HalfFloatType,
 });
 const composer = new EffectComposer(renderer, hdrTarget);
 composer.setPixelRatio(pixelRatio);
 composer.setSize(window.innerWidth, window.innerHeight);
-
 composer.addPass(new RenderPass(scene, camera));
+
+const afterimagePass = new AfterimagePass(CONFIG.trail.dampRest);
+composer.addPass(afterimagePass);
 
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -76,8 +81,7 @@ const bloomPass = new UnrealBloomPass(
 );
 composer.addPass(bloomPass);
 
-// Chromatic aberration + film grain (operates in linear HDR, pre tone-map).
-const CAGrainShader = {
+const caGrainPass = new ShaderPass({
   uniforms: {
     tDiffuse: { value: null as THREE.Texture | null },
     uAmount: { value: CONFIG.chromaticAberration.amount },
@@ -86,18 +90,11 @@ const CAGrainShader = {
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
+    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
   `,
   fragmentShader: /* glsl */ `
-    uniform sampler2D tDiffuse;
-    uniform float uAmount;
-    uniform float uGrain;
-    uniform float uTime;
+    uniform sampler2D tDiffuse; uniform float uAmount, uGrain, uTime;
     varying vec2 vUv;
-
     void main() {
       vec2 dir = vUv - 0.5;
       vec2 offset = dir * uAmount;
@@ -106,31 +103,22 @@ const CAGrainShader = {
       float b = texture2D(tDiffuse, vUv - offset).b;
       float a = texture2D(tDiffuse, vUv).a;
       vec3 col = vec3(r, g, b);
-
       float n = fract(sin(dot(vUv + fract(uTime), vec2(12.9898, 78.233))) * 43758.5453);
       col += (n - 0.5) * uGrain;
-
       gl_FragColor = vec4(col, a);
     }
   `,
-};
-const caGrainPass = new ShaderPass(CAGrainShader);
+});
 composer.addPass(caGrainPass);
-
-// OutputPass applies ACES tone mapping + sRGB encoding (LDR from here on).
 composer.addPass(new OutputPass());
-
-// SMAA on the final LDR image for crisp line edges.
-const smaaPass = new SMAAPass(
-  window.innerWidth * pixelRatio,
-  window.innerHeight * pixelRatio,
-);
+const smaaPass = new SMAAPass(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio);
 composer.addPass(smaaPass);
 
 wireframe.setResolution(window.innerWidth, window.innerHeight);
+beam.setResolution(window.innerWidth, window.innerHeight);
 background.setResolution(window.innerWidth, window.innerHeight);
 
-// ── Object framing: clamp so it never fills more than N% of frame height ─────
+// ── Object framing clamp ────────────────────────────────────────────────────
 function computeMaxScale(): number {
   const frustumHalfH = Math.tan(THREE.MathUtils.degToRad(CONFIG.camera.fov / 2)) * CONFIG.camera.distance;
   const maxHalfWorld = CONFIG.object.maxScreenFraction * frustumHalfH;
@@ -138,123 +126,157 @@ function computeMaxScale(): number {
 }
 let maxScale = computeMaxScale();
 
-// ── Hand tracking ──────────────────────────────────────────────────────────
+// ── Inputs / control ────────────────────────────────────────────────────────
 const tracker = new HandTracker(video);
+const audio = new AudioInput();
+const gestures = new GestureController();
+const physics = new ObjectPhysics();
 
-// ── Smoothed control state (damped-lerp targets applied every frame) ────────
-interface Control {
-  scale: number;
-  morph: number;
-  energy: number;
-  rotX: number;
-  rotY: number;
-  posX: number;
-  posY: number;
-}
-const ctrl: Control = {
-  scale: CONFIG.idle.neutralScale,
-  morph: CONFIG.idle.neutralMorph,
-  energy: CONFIG.idle.neutralEnergy,
-  rotX: 0,
-  rotY: 0,
-  posX: 0,
-  posY: 0,
+// ── Shape morph controller ──────────────────────────────────────────────────
+const morph = {
+  from: 0,
+  to: 0,
+  t: 1,
+  pending: 0,
+  setTarget(idx: number) {
+    this.pending = idx;
+  },
+  update(dt: number) {
+    if (this.t >= 1) {
+      if (this.pending !== this.to) {
+        this.from = this.to;
+        this.to = this.pending;
+        this.t = 0;
+      }
+    } else {
+      this.t = Math.min(1, this.t + dt / CONFIG.shapes.morphDuration);
+    }
+    const e = this.t < 0.5 ? 2 * this.t * this.t : 1 - Math.pow(-2 * this.t + 2, 2) / 2; // ease in-out
+    return e;
+  },
 };
-let autoYaw = 0; // idle rotation accumulator
-let baseYaw = 0; // always-on slow drift rotation
 
-const mapClamp = (v: number, inA: number, inB: number, outA: number, outB: number): number => {
-  const t = THREE.MathUtils.clamp((v - inA) / (inB - inA), 0, 1);
-  return outA + (outB - outA) * t;
+// ── Themes (interpolated) ───────────────────────────────────────────────────
+let themeIndex = 0;
+const cur = {
+  cool: new THREE.Color(CONFIG.themes.list[0].cool),
+  hot: new THREE.Color(CONFIG.themes.list[0].hot),
+  line: new THREE.Color(CONFIG.themes.list[0].line),
+  disc: new THREE.Color(CONFIG.themes.list[0].disc),
 };
 
-const diag = { handCount: 0 };
+// ── Reusable temporaries ────────────────────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const grabPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -CONFIG.physics.grabDepth);
+const fingerPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -1.2);
+const tmpV = new THREE.Vector3();
+const beamHitWorld = new THREE.Vector3();
+const beamObjPoint = new THREE.Vector3();
+const stretchAxisObj = new THREE.Vector3(1, 0, 0);
+let smoothedEnergy = CONFIG.idle.neutralEnergy;
+let scaleTarget = CONFIG.idle.neutralScale;
 
-/** Compute raw control targets from the hand frame, then damp toward them. */
-function updateControl(frame: HandFrame, dt: number): void {
-  const H = CONFIG.hands;
-  autoYaw += CONFIG.idle.autoRotateSpeed * dt;
-
-  let target: Control;
-  let smooth: number = H.smoothing;
-  diag.handCount = frame.count;
-
-  if (frame.count >= 2) {
-    const a = frame.hands[0];
-    const b = frame.hands[1];
-    const palmDist = Math.hypot(a.palmX - b.palmX, a.palmY - b.palmY);
-    const midX = (a.palmX + b.palmX) * 0.5;
-    const midY = (a.palmY + b.palmY) * 0.5;
-    const openness = (a.openness + b.openness) * 0.5;
-
-    target = {
-      scale: mapClamp(palmDist, H.palmDistMin, H.palmDistMax, H.scaleMin, H.scaleMax),
-      morph: mapClamp(palmDist, H.palmDistMin, H.palmDistMax, 0, 1),
-      energy: mapClamp(openness, H.opennessMin, H.opennessMax, H.energyMin, H.energyMax),
-      rotY: (midX - 0.5) * H.rotYRange,
-      rotX: (midY - 0.5) * H.rotXRange,
-      posX: (midX - 0.5) * H.positionRangeX,
-      posY: -(midY - 0.5) * H.positionRangeY,
-    };
-  } else if (frame.count === 1) {
-    const h = frame.hands[0];
-    target = {
-      scale: mapClamp(h.pinch, H.pinchMin, H.pinchMax, H.scaleMin, H.scaleMax),
-      morph: ctrl.morph + (CONFIG.idle.neutralMorph - ctrl.morph) * 0.5,
-      energy: mapClamp(h.openness, H.opennessMin, H.opennessMax, H.energyMin, H.energyMax),
-      rotY: (h.palmX - 0.5) * H.rotYRange,
-      rotX: (h.palmY - 0.5) * H.rotXRange,
-      posX: 0,
-      posY: 0,
-    };
-  } else {
-    smooth = CONFIG.idle.returnSmoothing;
-    target = {
-      scale: CONFIG.idle.neutralScale,
-      morph: CONFIG.idle.neutralMorph,
-      energy: CONFIG.idle.neutralEnergy,
-      rotY: autoYaw,
-      rotX: Math.sin(autoYaw * (CONFIG.idle.autoRotateSpeedX / CONFIG.idle.autoRotateSpeed)) * 0.2,
-      posX: 0,
-      posY: 0,
-    };
-  }
-
-  const k = 1 - Math.pow(1 - smooth, dt * 60);
-  ctrl.scale += (target.scale - ctrl.scale) * k;
-  ctrl.morph += (target.morph - ctrl.morph) * k;
-  ctrl.energy += (target.energy - ctrl.energy) * k;
-  ctrl.rotX += (target.rotX - ctrl.rotX) * k;
-  ctrl.rotY += (target.rotY - ctrl.rotY) * k;
-  ctrl.posX += (target.posX - ctrl.posX) * k;
-  ctrl.posY += (target.posY - ctrl.posY) * k;
-
-  // Hard clamp so the object always reads as an object in the room.
-  ctrl.scale = Math.min(ctrl.scale, maxScale);
+function screenToRay(x: number, y: number): THREE.Ray {
+  ndc.set(x * 2 - 1, -(y * 2 - 1));
+  raycaster.setFromCamera(ndc, camera);
+  return raycaster.ray;
 }
 
-// ── Debug overlay (toggle with D) ───────────────────────────────────────────
+// ── Debug overlay ───────────────────────────────────────────────────────────
 let debugVisible = false;
 let fps = 0;
 let fpsAccum = 0;
 let fpsFrames = 0;
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'd' || e.key === 'D') {
-    debugVisible = !debugVisible;
-    debugEl.classList.toggle('visible', debugVisible);
-  }
-});
+const diag = { hands: 0 };
 
 function updateDebug(): void {
   if (!debugVisible) return;
   debugEl.textContent =
     `fps      : ${fps.toFixed(0)}\n` +
-    `hands    : ${diag.handCount}\n` +
-    `scale    : ${ctrl.scale.toFixed(2)} / ${maxScale.toFixed(2)}\n` +
-    `morph    : ${ctrl.morph.toFixed(2)}  (0=sphere 1=cube)\n` +
-    `energy   : ${ctrl.energy.toFixed(2)}\n` +
-    `exposure : ${background.currentExposure.toFixed(2)}`;
+    `hands    : ${diag.hands}\n` +
+    `shape    : ${CONFIG.shapes.names[morph.to]}  (t=${morph.t.toFixed(2)})\n` +
+    `scale    : ${physics.scale.toFixed(2)} / ${maxScale.toFixed(2)}\n` +
+    `energy   : ${smoothedEnergy.toFixed(2)}\n` +
+    `spin     : ${physics.angularVel.length().toFixed(2)}\n` +
+    `stretch  : ${physics.stretch.toFixed(2)}  shock:${physics.shock.toFixed(2)}\n` +
+    `exposure : ${background.currentExposure.toFixed(2)}\n` +
+    `audio    : ${audio.available ? audio.level.toFixed(2) : 'off'}\n` +
+    `theme    : ${CONFIG.themes.list[themeIndex].name}`;
 }
+
+// ── Toast (shape / theme name) ──────────────────────────────────────────────
+let toastTimer = 0;
+function showToast(text: string): void {
+  toastEl.textContent = text;
+  toastEl.classList.add('show');
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => toastEl.classList.remove('show'), 1400);
+}
+
+// ── Recording ───────────────────────────────────────────────────────────────
+let recorder: MediaRecorder | null = null;
+let recChunks: Blob[] = [];
+function toggleRecording(): void {
+  if (recorder) {
+    recorder.stop();
+    return;
+  }
+  const stream = canvas.captureStream(CONFIG.record.fps);
+  const mime = CONFIG.record.mimeTypes.find((m) => MediaRecorder.isTypeSupported(m)) || '';
+  try {
+    recorder = new MediaRecorder(stream, { mimeType: mime, bitsPerSecond: CONFIG.record.bitsPerSecond });
+  } catch {
+    showToast('Recording not supported');
+    return;
+  }
+  recChunks = [];
+  recorder.ondataavailable = (e) => e.data.size > 0 && recChunks.push(e.data);
+  recorder.onstop = () => {
+    const blob = new Blob(recChunks, { type: mime || 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wireframe-${Date.now()}.webm`;
+    a.click();
+    URL.revokeObjectURL(url);
+    recorder = null;
+    recEl.classList.remove('on');
+    showToast('Saved recording');
+  };
+  recorder.start();
+  recEl.classList.add('on');
+  showToast('Recording…');
+}
+
+// ── Keyboard ────────────────────────────────────────────────────────────────
+window.addEventListener('keydown', (e) => {
+  switch (e.key) {
+    case 'd':
+    case 'D':
+      debugVisible = !debugVisible;
+      debugEl.classList.toggle('visible', debugVisible);
+      break;
+    case 'c':
+    case 'C':
+      themeIndex = (themeIndex + 1) % CONFIG.themes.list.length;
+      showToast(`Theme · ${CONFIG.themes.list[themeIndex].name}`);
+      break;
+    case 'r':
+    case 'R':
+      toggleRecording();
+      break;
+    case 'h':
+    case 'H':
+      document.body.classList.toggle('hide-ui');
+      break;
+    case '?':
+      hintEl.classList.toggle('show');
+      break;
+    default:
+      break;
+  }
+});
 
 // ── Main loop ───────────────────────────────────────────────────────────────
 const clock = new THREE.Clock();
@@ -277,22 +299,135 @@ function animate(): void {
   }
 
   background.update();
+  audio.update();
 
   const frame = tracker.detect(nowMs);
-  updateControl(frame, dt);
+  diag.hands = frame.count;
+  const g = gestures.update(frame, dt);
 
-  baseYaw += CONFIG.object.baseYawSpeed * dt;
-  const driftX = Math.sin(time * CONFIG.object.driftSpeedX) * CONFIG.object.driftAmpX;
-  const driftY = Math.cos(time * CONFIG.object.driftSpeedY) * CONFIG.object.driftAmpY;
+  // Shape morph.
+  morph.setTarget(g.shapeIndex);
+  const morphT = morph.update(dt);
+  if (g.shapeChanged) showToast(CONFIG.shapes.names[g.shapeIndex]);
 
-  objectGroup.scale.setScalar(ctrl.scale);
-  objectGroup.rotation.set(ctrl.rotX, ctrl.rotY + baseYaw, 0);
-  objectGroup.position.set(ctrl.posX + driftX, ctrl.posY + driftY, 0);
+  // Energy + scale smoothing.
+  smoothedEnergy += (g.energy - smoothedEnergy) * CONFIG.hands.smoothing;
+  if (g.hasScaleInput) scaleTarget += (g.scaleTarget - scaleTarget) * CONFIG.hands.smoothing;
+  else scaleTarget += (CONFIG.idle.neutralScale - scaleTarget) * CONFIG.idle.returnSmoothing;
 
-  wireframe.update(time, ctrl.morph, ctrl.scale);
-  core.update(time, ctrl.morph, ctrl.energy, ctrl.scale);
+  // ── Physics inputs ──
+  const P = CONFIG.physics;
+  physics.addTorque(g.spinInput.x * P.spinGain * dt, g.spinInput.y * P.spinGain * dt, 0);
+  if (g.twist) physics.addTorque(0, 0, g.twist * P.twistGain * dt);
+  if (g.shockwave) {
+    physics.triggerShock();
+    showToast('Shockwave');
+  }
+
+  // Stretch axis in object space (so the stretch tracks the screen axis).
+  if (g.stretchActive && g.stretchAxisScreen) {
+    tmpV.set(g.stretchAxisScreen.x, -g.stretchAxisScreen.y, 0).normalize();
+    tmpV.applyQuaternion(physics.quaternion.clone().invert());
+    stretchAxisObj.copy(tmpV);
+  }
+  physics.setStretch(g.stretchActive ? g.stretchAmount : 0, g.stretchActive);
+
+  // Grab / throw.
+  let grabbing = false;
+  if (g.grab && g.grabScreen) {
+    const ray = screenToRay(g.grabScreen.x, g.grabScreen.y);
+    if (ray.intersectPlane(grabPlane, tmpV)) {
+      physics.grabTo(tmpV, dt);
+      grabbing = true;
+    }
+  }
+  if (g.releaseVelScreen) {
+    const halfH = Math.tan(THREE.MathUtils.degToRad(CONFIG.camera.fov / 2)) * CONFIG.camera.distance;
+    const planeH = 2 * halfH;
+    const planeW = planeH * camera.aspect;
+    physics.releaseThrow(
+      new THREE.Vector3(g.releaseVelScreen.x * planeW, -g.releaseVelScreen.y * planeH, 0),
+    );
+  }
+
+  const audioScale = audio.level * CONFIG.audio.scalePulse;
+  physics.update(dt, { scaleTarget, audioScale, maxScale, grabbing });
+
+  // Apply transform.
+  objectGroup.position.copy(physics.position);
+  objectGroup.quaternion.copy(physics.quaternion);
+  objectGroup.scale.setScalar(physics.scale);
+  objectGroup.updateMatrixWorld();
+
+  // ── Beam ──
+  let beamActive = 0;
+  beamObjPoint.set(0, 0, 0);
+  if (g.beamActive && g.beamScreen) {
+    const ray = screenToRay(g.beamScreen.x, g.beamScreen.y);
+    const sphere = new THREE.Sphere(physics.position, CONFIG.wireframe.size * physics.scale * 1.5);
+    const fingertip = ray.intersectPlane(fingerPlane, new THREE.Vector3()) ?? ray.at(1.0, new THREE.Vector3());
+    if (ray.intersectSphere(sphere, beamHitWorld)) {
+      beamActive = 1;
+      beamObjPoint.copy(objectGroup.worldToLocal(beamHitWorld.clone()));
+      beam.setEndpoints(fingertip, beamHitWorld);
+    } else {
+      beam.setEndpoints(fingertip, ray.at(3.0, tmpV.clone()));
+    }
+    beam.setVisible(true);
+  } else {
+    beam.setVisible(false);
+  }
+
+  // ── Themes (interpolate toward active) ──
+  const th = CONFIG.themes.list[themeIndex];
+  cur.cool.lerp(new THREE.Color(th.cool), CONFIG.themes.lerp);
+  cur.hot.lerp(new THREE.Color(th.hot), CONFIG.themes.lerp);
+  cur.line.lerp(new THREE.Color(th.line), CONFIG.themes.lerp);
+  cur.disc.lerp(new THREE.Color(th.disc), CONFIG.themes.lerp);
+  beam.setColor(cur.hot);
+
+  // Extra brightness from audio beat + shockwave flash.
+  const audioBright = audio.level * CONFIG.audio.brightnessPulse + physics.shock * (CONFIG.shockwave.brightness - 1) * 0.5;
+
+  // Disc visibility (sphere/cube only).
+  const isDisc = (s: number) => (s === 0 || s === 1 ? 1 : 0);
+  const discWeight = isDisc(morph.from) * (1 - morphT) + isDisc(morph.to) * morphT;
+
+  const f: FrameUniforms = {
+    time,
+    fromShape: morph.from,
+    toShape: morph.to,
+    morphT,
+    stretchAxis: stretchAxisObj,
+    stretchAmt: physics.stretch,
+    shock: physics.shock,
+    beamPoint: beamObjPoint,
+    beamActive,
+    audioBright,
+    lineColor: cur.line,
+    beamColor: cur.hot,
+    scale: physics.scale,
+  };
+  wireframe.update(f);
+  const pf: ParticleFrame = {
+    ...f,
+    energy: smoothedEnergy,
+    coolColor: cur.cool,
+    hotColor: cur.hot,
+    discColor: cur.disc,
+    discWeight,
+    columnWeight: discWeight,
+  };
+  core.update(pf);
+
+  // Motion trail damp from speed.
+  afterimagePass.uniforms['damp'].value = THREE.MathUtils.clamp(
+    THREE.MathUtils.mapLinear(physics.speed, 0, CONFIG.trail.speedForFast, CONFIG.trail.dampRest, CONFIG.trail.dampFast),
+    CONFIG.trail.dampRest,
+    CONFIG.trail.dampFast,
+  );
+
   caGrainPass.uniforms.uTime.value = time;
-
   composer.render();
   updateDebug();
 }
@@ -311,6 +446,7 @@ window.addEventListener('resize', () => {
   bloomPass.setSize(w, h);
   smaaPass.setSize(w * pixelRatio, h * pixelRatio);
   wireframe.setResolution(w, h);
+  beam.setResolution(w, h);
   background.setResolution(w, h);
   core.setPixelRatio(pixelRatio);
   maxScale = computeMaxScale();
@@ -331,13 +467,31 @@ async function start(): Promise<void> {
     startBtn.textContent = 'Retry';
     return;
   }
+  // Microphone is optional and requested separately; ignore failure.
+  await audio.start();
   gate.style.display = 'none';
   running = true;
   clock.start();
   animate();
 }
-
 startBtn.addEventListener('click', start);
 
-// Expose for quick console tinkering.
 (window as unknown as { CONFIG: typeof CONFIG }).CONFIG = CONFIG;
+
+// Small console API for tinkering / automated checks (harmless).
+(window as unknown as { app: unknown }).app = {
+  setShape: (i: number) => gestures.forceShape(i),
+  snapShape: (i: number) => {
+    gestures.forceShape(i);
+    morph.from = i;
+    morph.to = i;
+    morph.pending = i;
+    morph.t = 1;
+  },
+  shock: () => physics.triggerShock(),
+  setTheme: (i: number) => {
+    themeIndex = ((i % CONFIG.themes.list.length) + CONFIG.themes.list.length) % CONFIG.themes.list.length;
+  },
+  physics,
+  morph,
+};

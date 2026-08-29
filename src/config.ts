@@ -2,9 +2,8 @@
  * CONFIG — the single source of truth for every tunable number in the effect.
  *
  * Nothing in the logic files hard-codes a color, count, speed, threshold or
- * smoothing factor: they all live here so the whole look can be re-tuned from
- * one place. Grouped by subsystem. See the bottom of the file for a short
- * "tweak these first" cheat-sheet.
+ * smoothing factor: they all live here. Grouped by subsystem. See the bottom of
+ * the file for a short "tweak these first" cheat-sheet.
  */
 
 export const CONFIG = {
@@ -12,118 +11,207 @@ export const CONFIG = {
   // Renderer / camera / color pipeline
   // ────────────────────────────────────────────────────────────────────────
   renderer: {
-    /** Cap devicePixelRatio so 4k/retina panels don't tank the framerate. */
     maxPixelRatio: 2,
     clearColor: 0x000000,
-    /** ACESFilmic tone-mapping exposure. Applied at the END of the pipeline
-     *  (OutputPass), so bloom happens in HDR and highlights roll off in color
-     *  instead of clipping to flat white. */
+    /** ACESFilmic exposure, applied at the end of the pipeline (OutputPass). */
     toneMappingExposure: 1.05,
   },
   camera: {
     fov: 45,
     near: 0.1,
     far: 100,
-    /** Distance back from origin. Larger = object appears smaller / more room. */
     distance: 5.2,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Webcam background (rendered INSIDE the scene as a fullscreen quad through
-  // the same tone-mapping pipeline, with automatic exposure so a bright room
-  // and a dark room both settle to the same low target luminance).
+  // Webcam background (in-scene quad + auto-exposure)
   // ────────────────────────────────────────────────────────────────────────
   background: {
-    /** Requested capture resolution. */
     width: 1920,
     height: 1080,
-    /** Auto-exposure aims the room's average LINEAR luminance at this value.
-     *  Kept very low because ACES tone-mapping lifts midtones afterward — this
-     *  is what makes a bright white wall settle to near-black on screen. */
     targetLuminance: 0.025,
-    /** Clamp on the auto-exposure multiplier (prevents over-darkening or
-     *  blowing up a near-black room's noise). */
     exposureMin: 0.02,
     exposureMax: 1.3,
-    /** Per-sample smoothing of the exposure value (0..1); lower = calmer. */
     exposureSmoothing: 0.12,
-    /** How often to re-measure the room luminance, and at what tiny size. */
     sampleIntervalMs: 200,
     sampleSize: 32,
-    /** Contrast S-curve strength around the target pivot: pushes mid-grey
-     *  walls down toward black while the (brighter) person still reads. */
     contrast: 1.3,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Wireframe object (fat Line2 lines, morph + depth-fade on the GPU)
+  // Morphing shapes (finger count selects one; smooth animated morph)
+  // ────────────────────────────────────────────────────────────────────────
+  shapes: {
+    /** Index → name. Selected by holding up N fingers (N = index + 1). */
+    names: ['Sphere', 'Cube', 'Torus', 'Octahedron', 'Torus Knot'] as const,
+    /** Seconds for one shape→shape morph (eased). */
+    morphDuration: 1.2,
+    /** A finger count must be held this long (ms) before it switches shape. */
+    holdMs: 500,
+    /** Torus major/minor radius as fractions of object size. */
+    torusR: 0.62,
+    torusr: 0.3,
+    /** Torus-knot overall scale + tube radius (fractions of object size). */
+    knotScale: 1.0,
+    knotTube: 0.16,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Wireframe object (fat Line2 lines)
   // ────────────────────────────────────────────────────────────────────────
   wireframe: {
-    /** Segments per cube face edge. Lower than before to avoid moiré. */
     segments: 16,
-    /** Half-extent of the base cube / radius of the base sphere. */
     size: 1.0,
-    /** World-space line thickness (real width, not 1px hairlines). */
     lineWidth: 0.006,
-    /** Line color — white with a slight blue tint. */
-    color: 0xdff2ff,
-    /** Additive line strength. */
     opacity: 0.55,
-    /** Extra hot tint mixed into the lines as they near the pole axis. */
-    coreTint: 0x9fe4ff,
-    /** Far side of the wireframe fades to this fraction of full brightness. */
     farFade: 0.32,
-    /** Slight breathing of line brightness (0 = off). */
     pulseAmount: 0.1,
     pulseSpeed: 1.4,
   },
 
   // ────────────────────────────────────────────────────────────────────────
   // Interior energy — GPU particle core
+  // (Dropped from 40k → 24k to keep 60fps with the new deformations, beam,
+  //  motion trail and audio reactivity all running at once.)
   // ────────────────────────────────────────────────────────────────────────
   particles: {
-    count: 40000,
-    /** Base point size in px. Larger + lower alpha ⇒ distinct streaks, not fog. */
+    count: 24000,
     size: 7.5,
-    /** Downward fall speed (world units / sec at energy = 1). */
     fallSpeed: 0.95,
-    /** Horizontal curl/turbulence amplitude. */
     turbulence: 0.05,
     turbulenceSpeed: 0.5,
-    /** How tightly brightness concentrates onto the vertical center axis
-     *  (higher = narrower, hotter column). */
     coreSharpness: 9.0,
-    /** Cool color of the streaks (cyan-blue). */
-    colorCool: 0x4dd0ff,
-    /** Hottest center color (pure white). */
-    colorHot: 0xffffff,
-    /** Overall additive brightness multiplier. */
     intensity: 1.1,
-    /** Dim ambient glow of off-axis streaks (keeps the interior see-through). */
     baseGlow: 0.03,
-    /** Per-particle sprite alpha (additive). Low ⇒ streaks stay distinct. */
     alpha: 0.15,
-    /** Radial spread of the particle column inside the volume (0..1). */
     radius: 0.86,
-    /** Fist collapse: fraction of radius particles pull to when energy = 0. */
     collapseRadius: 0.18,
-    /** Far particles fade to this fraction of brightness (depth cue). */
     farFade: 0.35,
+    /** How strongly particles are pulled toward the beam hit point (0..1). */
+    beamPull: 0.35,
+    beamRadius: 0.5,
+    beamBrightness: 2.2,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Glowing discs locked to the top & bottom inner faces
+  // Glowing discs (top & bottom) — shown only for sphere/cube shapes
   // ────────────────────────────────────────────────────────────────────────
   discs: {
     radius: 0.8,
-    color: 0xbfefff,
     intensity: 0.9,
-    /** Softness of the radial gradient falloff (higher = tighter bright ring). */
     falloff: 2.8,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Bloom + post FX — HDR bloom before tone mapping
+  // Beam (index-finger pointing)
+  // ────────────────────────────────────────────────────────────────────────
+  beam: {
+    /** Wireframe highlight radius (object space) and brightness. */
+    hitRadius: 0.45,
+    hitBrightness: 2.6,
+    /** Visual beam line width (world units) and additive strength. */
+    lineWidth: 0.02,
+    coreOpacity: 1.2,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Deformations (shared by wireframe + particles)
+  // ────────────────────────────────────────────────────────────────────────
+  shockwave: {
+    /** Peak outward displacement (object-space units) at full blast. */
+    amplitude: 0.6,
+    /** Spring-back: total duration (s) of the blast→return envelope. */
+    duration: 1.0,
+    /** Extra particle brightness during a shockwave. */
+    brightness: 1.8,
+  },
+  stretch: {
+    /** Max deform amount along the two-hand axis. */
+    maxAmount: 1.1,
+    /** Screen-distance-beyond-baseline → deform amount. */
+    gain: 2.5,
+    /** Damped return-to-zero when released (per frame). */
+    releaseSmoothing: 0.12,
+    /** Smoothing while actively stretching. */
+    smoothing: 0.2,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Physics (momentum + damping instead of direct position→rotation mapping)
+  // ────────────────────────────────────────────────────────────────────────
+  physics: {
+    /** Angular velocity damping (per second, exponential). Higher = stops sooner. */
+    angularDamping: 0.9,
+    /** Torque gain from one-hand motion (open hand flick → spin). */
+    spinGain: 9.0,
+    /** Max angular speed (rad/s) to keep it controllable. */
+    maxAngular: 6.0,
+    /** Twist (two-hand roll) gain into Z angular velocity. */
+    twistGain: 2.2,
+    /** Idle base spin (rad/s) so it never looks frozen. */
+    idleSpin: 0.18,
+
+    /** Linear (position) damping per second when free. */
+    linearDamping: 1.6,
+    /** Spring pulling the object back toward screen center when free. */
+    positionSpring: 2.2,
+    /** How quickly a grabbed object chases the hand (per frame lerp). */
+    grabFollow: 0.35,
+    /** Multiplier on release velocity (the "throw"). */
+    throwGain: 1.0,
+    /** Depth (world Z) the grabbed object is held at. */
+    grabDepth: 0,
+
+    /** Scale spring (for shockwave/audio scale pulses). */
+    scaleSpring: 8.0,
+    scaleDamping: 4.0,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Microphone reactivity (optional; app works fine if denied)
+  // ────────────────────────────────────────────────────────────────────────
+  audio: {
+    /** Auto-ask for mic permission on start (still works if denied). */
+    enabled: true,
+    fftSize: 1024,
+    /** Fraction of the low-frequency spectrum treated as "bass". */
+    bassFraction: 0.12,
+    /** Smoothing of the bass envelope (0..1 per frame). */
+    smoothing: 0.2,
+    /** Normalization: raw bass is divided by this before use. */
+    normalize: 180,
+    /** Bass → extra scale (fraction) and → particle brightness. */
+    scalePulse: 0.12,
+    brightnessPulse: 0.8,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Color themes (cycled with C; interpolated, never hard-cut)
+  // ────────────────────────────────────────────────────────────────────────
+  themes: {
+    /** Per-frame lerp toward the active theme's colors. */
+    lerp: 0.05,
+    list: [
+      { name: 'Cyan', cool: 0x4dd0ff, hot: 0xffffff, line: 0xdff2ff, disc: 0xbfefff },
+      { name: 'Amber', cool: 0xffb04d, hot: 0xfff2d6, line: 0xffe4c2, disc: 0xffd9a8 },
+      { name: 'Magenta', cool: 0xff4dd0, hot: 0xffe6fb, line: 0xffd6f2, disc: 0xffc2ec },
+      { name: 'Acid', cool: 0x9dff4d, hot: 0xf2ffd6, line: 0xe4ffc2, disc: 0xd9ffa8 },
+    ],
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Motion trail (afterimage that grows with speed)
+  // ────────────────────────────────────────────────────────────────────────
+  trail: {
+    /** Afterimage damp at rest (low) and at full speed (high = longer trail). */
+    dampRest: 0.0,
+    dampFast: 0.82,
+    /** Object speed (rot + lin proxy) that maps to dampFast. */
+    speedForFast: 4.0,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Bloom + post FX
   // ────────────────────────────────────────────────────────────────────────
   bloom: {
     threshold: 0.75,
@@ -131,83 +219,79 @@ export const CONFIG = {
     radius: 0.6,
   },
   chromaticAberration: {
-    /** Per-channel UV offset, scaling linearly with radius from center. */
     amount: 0.0012,
   },
   grain: {
     amount: 0.04,
   },
-  /** Antialiasing: SMAA in the composer keeps the fat lines crisp. */
 
   // ────────────────────────────────────────────────────────────────────────
-  // Object framing, depth & idle life
+  // Object framing & idle life
   // ────────────────────────────────────────────────────────────────────────
   object: {
-    /** Hard clamp: the object may never occupy more than this fraction of the
-     *  frame HEIGHT, so it always reads as something floating in the room. */
     maxScreenFraction: 0.7,
-    /** Safety factor for rotation/diagonal overshoot when computing max scale. */
     rotationSafety: 1.3,
-    /** Always-on gentle drift so it never feels frozen. */
-    driftAmpX: 0.16,
-    driftAmpY: 0.11,
-    driftSpeedX: 0.13,
-    driftSpeedY: 0.19,
-    /** Always-on slow base yaw (rad/sec) added on top of hand control. */
-    baseYawSpeed: 0.06,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Hand control & gesture mapping
+  // Hand control & gesture recognition (debounced — false triggers are worse
+  // than missed ones)
   // ────────────────────────────────────────────────────────────────────────
   hands: {
-    /** Damped-lerp smoothing factor applied to EVERY input, per frame. */
     smoothing: 0.08,
     maxHands: 2,
 
-    /** ── One-hand pinch → scale ── (thumb↔index, normalized by hand span) */
-    pinchMin: 0.1,
-    pinchMax: 1.1,
+    /** Finger-extension detection: tip must be this much farther from the wrist
+     *  than the PIP joint to count as "extended". */
+    fingerExtendRatio: 1.12,
+    thumbExtendRatio: 1.35,
 
-    /** ── Two-hand palm distance → scale + morph ── */
-    palmDistMin: 0.12, // hands together
-    palmDistMax: 0.72, // hands spread wide
-
-    /** Scale output range (world multiplier; also hard-clamped by object framing). */
+    /** Two-hand distance → scale (open-hand mode). */
+    palmDistMin: 0.12,
+    palmDistMax: 0.72,
     scaleMin: 0.5,
     scaleMax: 1.6,
 
-    /** Rotation sensitivity from hand screen position (radians of range). */
-    rotYRange: Math.PI * 1.1,
-    rotXRange: Math.PI * 0.6,
+    /** Pinch threshold (thumb↔index, normalized) below which a hand is
+     *  "pinched" — used to enter two-hand STRETCH mode. */
+    pinchThreshold: 0.4,
 
-    /** Screen-position drift (two-hand midpoint) in world units. */
-    positionRangeX: 2.2,
-    positionRangeY: 1.3,
-
-    /** Openness (mean fingertip distance from palm, normalized by hand span)
-     *  → energy. Closed fist ≈ 0.5, open palm ≈ 1.4. */
+    /** Openness → energy. */
     opennessMin: 0.5,
     opennessMax: 1.4,
     energyMin: 0.15,
     energyMax: 1.0,
+
+    /** Push-toward-camera (shockwave): required growth rate of hand size per
+     *  second, plus a cooldown so it fires once per push. */
+    pushGrowthRate: 1.1,
+    pushCooldownMs: 900,
+
+    /** Two-hand twist: minimum angular speed (rad/s) to register a roll. */
+    twistDeadzone: 0.25,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Neutral / idle behaviour when no hands are detected
+  // Idle behaviour when no hands are detected
   // ────────────────────────────────────────────────────────────────────────
   idle: {
-    autoRotateSpeed: 0.22,
-    autoRotateSpeedX: 0.05,
-    /** How fast controls ease back to neutral when hands vanish (per frame). */
     returnSmoothing: 0.02,
     neutralScale: 1.05,
-    neutralMorph: 0.35,
     neutralEnergy: 0.6,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // MediaPipe CDN assets (wasm runtime + hand landmark model)
+  // Recording (canvas → .webm via MediaRecorder)
+  // ────────────────────────────────────────────────────────────────────────
+  record: {
+    fps: 60,
+    /** First supported mime type is used. */
+    mimeTypes: ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'],
+    bitsPerSecond: 12_000_000,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // MediaPipe CDN assets
   // ────────────────────────────────────────────────────────────────────────
   mediapipe: {
     wasmBase: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm',
@@ -223,13 +307,13 @@ export const CONFIG = {
 export type Config = typeof CONFIG;
 
 /*
- * ── TWEAK THESE FIRST if the look is off vs. the reference frames ──
+ * ── TWEAK THESE FIRST if the look / feel is off ──
  *
- *  1. background.targetLuminance   → how dark the room sits (lower = object pops more)
- *  2. background.contrast          → how hard mid-grey walls are pushed to black
- *  3. bloom.threshold / .strength  → what glows, and how much (HDR, pre-tonemap)
- *  4. particles.intensity / .alpha / .coreSharpness → core column & streak clarity
- *  5. wireframe.lineWidth / .opacity → thickness & brightness of the grid lines
- *  6. renderer.toneMappingExposure → overall brightness roll-off
- *  7. hands.smoothing              → responsiveness vs. stability of control
+ *  1. background.targetLuminance    → how dark the room sits
+ *  2. bloom.threshold / .strength   → what glows and how much
+ *  3. physics.angularDamping / .spinGain → spin feel (coast time & flick strength)
+ *  4. hands.pushGrowthRate          → shockwave sensitivity (higher = harder to trigger)
+ *  5. shapes.holdMs                 → how long a finger count must be held to switch
+ *  6. audio.scalePulse / .brightnessPulse → strength of beat reactivity
+ *  7. particles.intensity / .alpha  → core column & streak clarity
  */

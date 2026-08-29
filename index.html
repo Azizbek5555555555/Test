@@ -133,6 +133,112 @@
         color: #eaf7ff;
         font-weight: 600;
       }
+
+      /* Center toast (shape / theme names) */
+      #toast {
+        position: fixed;
+        top: 8%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+        z-index: 20;
+        padding: 10px 22px;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: #eaf7ff;
+        background: rgba(6, 18, 28, 0.5);
+        border: 1px solid rgba(120, 220, 255, 0.35);
+        border-radius: 999px;
+        text-shadow: 0 0 18px rgba(90, 210, 255, 0.7);
+        backdrop-filter: blur(6px);
+        opacity: 0;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        pointer-events: none;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* Recording indicator */
+      #rec {
+        position: fixed;
+        top: 14px;
+        right: 16px;
+        z-index: 20;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 12px;
+        color: #ffd0d0;
+      }
+      #rec.on {
+        display: flex;
+      }
+      #rec .dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: #ff4d4d;
+        box-shadow: 0 0 12px #ff4d4d;
+        animation: blink 1s steps(2, start) infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0.25;
+        }
+      }
+
+      /* Gesture hint panel */
+      #hint {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 20;
+        display: none;
+        max-width: 340px;
+        padding: 16px 18px;
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: #cfeaff;
+        background: rgba(4, 12, 20, 0.72);
+        border: 1px solid rgba(90, 200, 255, 0.28);
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+      }
+      #hint.show {
+        display: block;
+      }
+      #hint h2 {
+        font-size: 13px;
+        letter-spacing: 0.6px;
+        color: #eaf7ff;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      #hint table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      #hint td {
+        padding: 2px 0;
+        vertical-align: top;
+      }
+      #hint td:first-child {
+        color: #7fe3ff;
+        white-space: nowrap;
+        padding-right: 12px;
+        font-family: ui-monospace, Menlo, monospace;
+      }
+
+      /* Clean-recording mode hides every overlay */
+      body.hide-ui #debug,
+      body.hide-ui #toast,
+      body.hide-ui #hint,
+      body.hide-ui #rec {
+        display: none !important;
+      }
     </style>
   </head>
   <body>
@@ -142,14 +248,37 @@
     <div id="gate">
       <h1>Morphing Wireframe Energy</h1>
       <p>
-        A glowing 3D wireframe you sculpt with your bare hands. Pinch and spread to scale, move your
-        hands apart to morph a sphere into a cube, open your palms to feed the core.
+        A glowing 3D wireframe you sculpt with your bare hands. Hold up 1–5 fingers to switch shape,
+        make a fist to grab and throw it, point to fire a beam, push toward the camera for a
+        shockwave. Microphone is optional.
       </p>
       <button id="startBtn">Enable Camera &amp; Start</button>
-      <div class="hint">Press <b>D</b> anytime to toggle the debug overlay</div>
+      <div class="hint">Press <b>?</b> for all controls · <b>D</b> for debug</div>
     </div>
 
     <div id="debug"></div>
+    <div id="toast"></div>
+    <div id="rec"><span class="dot"></span>REC</div>
+
+    <div id="hint">
+      <h2>Controls</h2>
+      <table>
+        <tr><td>1–5 fingers</td><td>Shape: sphere · cube · torus · octahedron · torus knot (hold ~0.5s)</td></tr>
+        <tr><td>Fist</td><td>Grab &amp; drag; open to throw with inertia</td></tr>
+        <tr><td>Open hand move</td><td>Flick to spin (real momentum, coasts to a stop)</td></tr>
+        <tr><td>Two hands spread</td><td>Scale</td></tr>
+        <tr><td>Two hands twist</td><td>Roll on the Z axis</td></tr>
+        <tr><td>Two pinch + pull</td><td>Stretch into an ellipsoid (snaps back)</td></tr>
+        <tr><td>Push at camera</td><td>Shockwave blast</td></tr>
+        <tr><td>Point (index)</td><td>Beam — lights the surface, pulls particles</td></tr>
+        <tr><td>Open palm / fist</td><td>Energy up / collapse</td></tr>
+        <tr><td>C</td><td>Cycle color theme</td></tr>
+        <tr><td>R</td><td>Record canvas → .webm</td></tr>
+        <tr><td>H</td><td>Hide all UI (clean recording)</td></tr>
+        <tr><td>D</td><td>Debug overlay</td></tr>
+        <tr><td>?</td><td>Toggle this panel</td></tr>
+      </table>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

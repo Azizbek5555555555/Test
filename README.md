@@ -1,13 +1,14 @@
 # Morphing Wireframe · Hand-Controlled Energy
 
 A live-webcam WebGL effect: a glowing 3D wireframe object floats in front of you
-and you sculpt it with your bare hands in mid-air. It morphs from a dense
-lat-long-style **sphere** into a large wireframe **cube**, rotating and scaling
-as your hands move, with a bright cyan/white energy core, falling light streaks,
-and glowing discs on the top and bottom inner faces — all additive glow over a
-darkened webcam feed.
+and you sculpt it with your bare hands in mid-air. Hold up fingers to morph it
+between **sphere, cube, torus, octahedron and torus knot**; grab and throw it,
+flick it to spin, twist, stretch, push a shockwave through it, and point a beam
+at it — all with a bright cyan/white energy core and falling light streaks, as
+additive glow composited over a darkened webcam feed.
 
-Recreated from `reference.mp4`.
+Originally recreated from `reference.mp4`, then expanded into a full hand-played
+instrument.
 
 ## Tech stack
 
@@ -46,20 +47,59 @@ npm run preview  # serve the production build
 
 ## Controls
 
+### Shapes — hold up N fingers (steady ~0.5s), smooth 1.2s morph
+
+| Fingers | Shape |
+| --- | --- |
+| 1 | Sphere |
+| 2 | Cube |
+| 3 | Torus |
+| 4 | Octahedron |
+| 5 | Torus knot |
+
+The current shape name flashes on screen when it changes. Requiring the count to
+be held debounces accidental switches mid-motion.
+
+### Hand gestures
+
 | Gesture | Effect |
 | --- | --- |
-| **One hand — pinch** (thumb ↔ index) | Scale the object |
-| **One hand — move horizontally / vertically** | Y / X rotation |
-| **Two hands — spread apart / together** | Scale **and** morph (together = sphere, wide = cube) |
-| **Two hands — midpoint** | Move the object on screen |
-| **Open palm / closed fist** | Energy up / energy collapses inward |
-| _No hands_ | Slow auto-rotate and drift back to a neutral pose |
+| **Fist** | Grab — the object locks to your hand and you drag it in 3D |
+| **Open the fist** | Release with inertia — it keeps drifting/spinning, then settles |
+| **Open hand, flick** | Real angular momentum — spin it and it coasts to a stop |
+| **Two hands, spread** | Scale |
+| **Two hands, twist** (rotate around the midpoint) | Roll on the Z axis |
+| **Two hands, pinch + pull apart** | Stretch into an ellipsoid (snaps back on release) |
+| **Push palm toward camera** | Shockwave — particles blast out, wireframe flexes, springs back |
+| **Point (index finger)** | Beam from the fingertip; the surface it hits lights up and particles are drawn to it |
+| **Open palm / closed fist** | Energy up / collapse |
+| _No hands_ | Slow auto-rotate and drift back to neutral |
 
-Every input is smoothed with a damped lerp, so the object feels physical rather
-than jittery.
+Every input is smoothed with a damped lerp and each gesture has a
+debounce/deadzone/cooldown, so false triggers are rare (they matter more than a
+missed trigger when you're recording).
 
-Press **D** to toggle a debug overlay (fps, hand count, scale, morph, energy,
-auto-exposure).
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| **C** | Cycle color theme (cyan → amber → magenta → acid), interpolated |
+| **R** | Start/stop recording the canvas → auto-downloaded `.webm` |
+| **H** | Hide all UI/overlays for a clean recording |
+| **?** | Toggle the on-screen gesture-hint panel |
+| **D** | Debug overlay (fps, hands, shape, scale, energy, spin, exposure, audio, theme) |
+
+**Microphone** is requested separately from the camera and is fully optional —
+if you deny it, everything else works and the audio reactivity just stays off.
+When granted, bass energy pulses the object's scale and the particle brightness
+on the beat.
+
+The object also leaves a short **motion trail** (afterimage) when it moves fast.
+
+### Console
+
+For quick tinkering, `window.CONFIG` is the live config object and `window.app`
+exposes `setShape(0-4)`, `snapShape(0-4)`, `shock()`, and `setTheme(0-3)`.
 
 ## Where the look lives
 
@@ -71,13 +111,25 @@ factors, gesture sensitivity — is in **`src/config.ts`** as a single exported
 
 ```
 src/
-  main.ts                 orchestration, HDR composer, post FX, control loop, debug overlay
-  config.ts               ALL tunable values (the single source of truth)
-  scene/Background.ts       in-scene webcam VideoTexture quad + auto-exposure + S-curve
-  scene/WireframeObject.ts  subdivided-cube grid; morph + depth fade injected into LineMaterial
-  scene/ParticleCore.ts     40k GPU particle streaks + hot core + top/bottom glow discs
-  input/HandTracker.ts      webcam + MediaPipe HandLandmarker → gesture metrics
+  main.ts                     orchestration, HDR composer, post FX, control loop, keyboard, recording
+  config.ts                   ALL tunable values (the single source of truth)
+  scene/shapes.ts             the 5 shape targets on one shared (s,t) parameter grid
+  scene/Background.ts         in-scene webcam VideoTexture quad + auto-exposure + S-curve
+  scene/WireframeObject.ts    Line2 wireframe; 5-shape morph + deform + beam + depth fade in the shader
+  scene/ParticleCore.ts       GPU particle streaks + hot core + glow discs, morph/deform/beam/audio
+  scene/Beam.ts               the fingertip → surface beam line
+  input/HandTracker.ts        webcam + MediaPipe HandLandmarker → per-hand metrics (fingers, pinch, depth)
+  input/AudioInput.ts         optional microphone → smoothed bass envelope
+  gesture/GestureController.ts raw hands → debounced high-level gestures
+  physics/ObjectPhysics.ts    angular + linear momentum, springs, shockwave/stretch envelopes
 ```
+
+### Performance note
+
+Particle count was reduced from 40k to **24k** (`particles.count`) to keep a
+locked 60fps now that the deformations, beam attraction, motion trail and audio
+reactivity all run per-frame on top of HDR bloom + SMAA. Bump it back up in
+`src/config.ts` if your GPU has headroom.
 
 ## Tuning the look first
 
