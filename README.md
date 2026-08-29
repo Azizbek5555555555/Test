@@ -23,9 +23,40 @@ instrument.
   quad (not a CSS blend layer), so it flows through the same tone-mapping
   pipeline as the glow — with **auto-exposure** that darkens the room to a low
   target luminance, so a bright white wall and a dark night room both look right
-- **@mediapipe/tasks-vision** `HandLandmarker` for real-time hand tracking
+- **@mediapipe/tasks-vision** `HandLandmarker` for real-time hand tracking, with
+  a **decoupled, enhanced tracking input** (see below)
 - No asset files — everything is generated procedurally in code
 - MediaPipe wasm runtime + hand model are loaded from CDN
+
+### Tracking is decoupled from the display
+
+The reference look wants a dark room, but a dark room is exactly what makes hand
+tracking fail. So the two inputs are separated:
+
+- The **viewer** sees the dark, auto-exposed, cinematic background — unchanged.
+- **MediaPipe** sees a *separate* offscreen canvas (`TrackingInput`) into which
+  the raw webcam is drawn and aggressively enhanced every frame: **adaptive gain**
+  (measured input luminance drives it — darker room → more gain), **gamma**
+  shadow-lift, a **local-contrast histogram stretch** (recomputed a few times a
+  second from the frame's actual min/max) and a light **denoise**. All parameters
+  live in `CONFIG.tracking`; the debug overlay shows this boosted image as a PiP.
+
+Other tracking robustness work: detection confidences lowered to ~0.35; camera
+requested at 1280×720/30 (the negotiated resolution is logged); every landmark
+smoothed by a **One Euro filter** (smooth when still, low-latency when moving);
+**dropout tolerance** that holds and velocity-extrapolates the last pose for
+~250 ms so a single missed frame doesn't make the object jump or release;
+detection runs every frame with strictly monotonic timestamps in VIDEO mode.
+
+### Finger counting is angle-based
+
+Finger counts are read from **joint angles** (MCP→PIP→DIP→TIP), not fingertip
+height, so a tilted or sideways hand still counts correctly. The thumb has its
+own rule (distance from the index MCP + how far it points out of the palm plane).
+A count must be stable across **8 consecutive frames** before it fires, and an
+on-screen **progress ring** shows it registering. All thresholds normalize by
+hand size, so they work at any distance; **K** runs a 3-second open-palm
+calibration stored in `localStorage`.
 
 ## Run it
 
@@ -83,11 +114,12 @@ missed trigger when you're recording).
 
 | Key | Action |
 | --- | --- |
+| **K** | Calibrate — hold an open palm ~3s to capture your hand size / neutral (stored) |
 | **C** | Cycle color theme (cyan → amber → magenta → acid), interpolated |
 | **R** | Start/stop recording the canvas → auto-downloaded `.webm` |
 | **H** | Hide all UI/overlays for a clean recording |
 | **?** | Toggle the on-screen gesture-hint panel |
-| **D** | Debug overlay (fps, hands, shape, scale, energy, spin, exposure, audio, theme) |
+| **D** | Debug overlay: fps, camera resolution, per-hand confidence, boost gain, plus the 21 landmarks + skeleton drawn over each hand, the boosted MediaPipe-input PiP, per-hand finger count / which fingers are extended, and the shape-debounce progress |
 
 **Microphone** is requested separately from the camera and is fully optional —
 if you deny it, everything else works and the audio reactivity just stays off.
@@ -118,9 +150,11 @@ src/
   scene/WireframeObject.ts    Line2 wireframe; 5-shape morph + deform + beam + depth fade in the shader
   scene/ParticleCore.ts       GPU particle streaks + hot core + glow discs, morph/deform/beam/audio
   scene/Beam.ts               the fingertip → surface beam line
-  input/HandTracker.ts        webcam + MediaPipe HandLandmarker → per-hand metrics (fingers, pinch, depth)
+  input/TrackingInput.ts      offscreen enhancement canvas fed ONLY to MediaPipe (gain/gamma/stretch/denoise)
+  input/OneEuroFilter.ts      One Euro filter bank (per-landmark smoothing)
+  input/HandTracker.ts        enhanced input → MediaPipe → filtered landmarks, dropout hold, angle-based fingers
   input/AudioInput.ts         optional microphone → smoothed bass envelope
-  gesture/GestureController.ts raw hands → debounced high-level gestures
+  gesture/GestureController.ts raw hands → debounced high-level gestures + shape progress
   physics/ObjectPhysics.ts    angular + linear momentum, springs, shockwave/stretch envelopes
 ```
 

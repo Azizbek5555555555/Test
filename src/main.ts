@@ -12,7 +12,7 @@ import { Background } from './scene/Background';
 import { WireframeObject, type FrameUniforms } from './scene/WireframeObject';
 import { ParticleCore, type ParticleFrame } from './scene/ParticleCore';
 import { Beam } from './scene/Beam';
-import { HandTracker } from './input/HandTracker';
+import { HandTracker, type HandFrame } from './input/HandTracker';
 import { AudioInput } from './input/AudioInput';
 import { GestureController } from './gesture/GestureController';
 import { ObjectPhysics } from './physics/ObjectPhysics';
@@ -20,12 +20,15 @@ import { ObjectPhysics } from './physics/ObjectPhysics';
 // ── DOM ──────────────────────────────────────────────────────────────────
 const video = document.getElementById('webcam') as HTMLVideoElement;
 const canvas = document.getElementById('scene') as HTMLCanvasElement;
+const overlay = document.getElementById('overlay') as HTMLCanvasElement;
+const octx = overlay.getContext('2d')!;
 const gate = document.getElementById('gate') as HTMLDivElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
 const debugEl = document.getElementById('debug') as HTMLDivElement;
 const toastEl = document.getElementById('toast') as HTMLDivElement;
 const hintEl = document.getElementById('hint') as HTMLDivElement;
 const recEl = document.getElementById('rec') as HTMLDivElement;
+const calibEl = document.getElementById('calib') as HTMLDivElement;
 
 // ── Renderer + color pipeline ───────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
@@ -151,12 +154,11 @@ const morph = {
     } else {
       this.t = Math.min(1, this.t + dt / CONFIG.shapes.morphDuration);
     }
-    const e = this.t < 0.5 ? 2 * this.t * this.t : 1 - Math.pow(-2 * this.t + 2, 2) / 2; // ease in-out
-    return e;
+    return this.t < 0.5 ? 2 * this.t * this.t : 1 - Math.pow(-2 * this.t + 2, 2) / 2;
   },
 };
 
-// ── Themes (interpolated) ───────────────────────────────────────────────────
+// ── Themes ──────────────────────────────────────────────────────────────────
 let themeIndex = 0;
 const cur = {
   cool: new THREE.Color(CONFIG.themes.list[0].cool),
@@ -183,35 +185,204 @@ function screenToRay(x: number, y: number): THREE.Ray {
   return raycaster.ray;
 }
 
-// ── Debug overlay ───────────────────────────────────────────────────────────
+// ── Calibration (K) ─────────────────────────────────────────────────────────
+function applyCalibration(open: number): void {
+  // CONFIG is `as const` (readonly types) but a plain mutable object at runtime.
+  const h = CONFIG.hands as unknown as { opennessMax: number; opennessMin: number };
+  h.opennessMax = open * 0.95;
+  h.opennessMin = open * 0.42;
+}
+(() => {
+  try {
+    const raw = localStorage.getItem(CONFIG.calibration.storageKey);
+    if (raw) {
+      const c = JSON.parse(raw);
+      if (typeof c.open === 'number') applyCalibration(c.open);
+    }
+  } catch {
+    /* ignore */
+  }
+})();
+
+let calibrating = false;
+let calibStart = 0;
+let calibOpen: number[] = [];
+let calibSize: number[] = [];
+function startCalibration(): void {
+  calibrating = true;
+  calibStart = performance.now();
+  calibOpen = [];
+  calibSize = [];
+  calibEl.classList.add('show');
+}
+function median(a: number[]): number {
+  if (!a.length) return 0;
+  const s = [...a].sort((x, y) => x - y);
+  return s[Math.floor(s.length / 2)];
+}
+function updateCalibration(frame: HandFrame): void {
+  if (!calibrating) return;
+  const elapsed = (performance.now() - calibStart) / 1000;
+  const remain = Math.max(0, CONFIG.calibration.holdSeconds - elapsed);
+  const openHand = frame.hands.find((h) => h.fingers >= 4);
+  if (openHand) {
+    calibOpen.push(openHand.openness);
+    calibSize.push(openHand.handSize);
+  }
+  calibEl.textContent = openHand
+    ? `Calibrating… hold open palm ${remain.toFixed(1)}s`
+    : `Calibrating… show an open palm (${remain.toFixed(1)}s)`;
+  if (elapsed >= CONFIG.calibration.holdSeconds) {
+    calibrating = false;
+    calibEl.classList.remove('show');
+    if (calibOpen.length > 5) {
+      const open = median(calibOpen);
+      applyCalibration(open);
+      try {
+        localStorage.setItem(
+          CONFIG.calibration.storageKey,
+          JSON.stringify({ open, handSize: median(calibSize) }),
+        );
+      } catch {
+        /* ignore */
+      }
+      showToast('Calibrated');
+    } else {
+      showToast('Calibration failed — no open palm seen');
+    }
+  }
+}
+
+// ── Diagnostics ─────────────────────────────────────────────────────────────
 let debugVisible = false;
 let fps = 0;
 let fpsAccum = 0;
 let fpsFrames = 0;
 const diag = { hands: 0 };
+let lastFrameRef: HandFrame = { count: 0, hands: [], raw: [] };
 
 function updateDebug(): void {
   if (!debugVisible) return;
+  const s = tracker.trackingStats;
+  const conf = lastFrameRef.raw.map((r) => r.confidence.toFixed(2)).join(', ') || '—';
   debugEl.textContent =
     `fps      : ${fps.toFixed(0)}\n` +
-    `hands    : ${diag.hands}\n` +
+    `camera   : ${tracker.actualWidth}x${tracker.actualHeight}@${tracker.actualFps || '?'}\n` +
+    `hands    : ${diag.hands}   conf: ${conf}\n` +
+    `boost    : gain ${s.gain.toFixed(2)}  mean ${s.mean.toFixed(2)}\n` +
     `shape    : ${CONFIG.shapes.names[morph.to]}  (t=${morph.t.toFixed(2)})\n` +
     `scale    : ${physics.scale.toFixed(2)} / ${maxScale.toFixed(2)}\n` +
-    `energy   : ${smoothedEnergy.toFixed(2)}\n` +
-    `spin     : ${physics.angularVel.length().toFixed(2)}\n` +
-    `stretch  : ${physics.stretch.toFixed(2)}  shock:${physics.shock.toFixed(2)}\n` +
+    `energy   : ${smoothedEnergy.toFixed(2)}   spin ${physics.angularVel.length().toFixed(2)}\n` +
     `exposure : ${background.currentExposure.toFixed(2)}\n` +
-    `audio    : ${audio.available ? audio.level.toFixed(2) : 'off'}\n` +
-    `theme    : ${CONFIG.themes.list[themeIndex].name}`;
+    `audio    : ${audio.available ? audio.level.toFixed(2) : 'off'}   theme ${CONFIG.themes.list[themeIndex].name}`;
 }
 
-// ── Toast (shape / theme name) ──────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────────────────────────
 let toastTimer = 0;
 function showToast(text: string): void {
   toastEl.textContent = text;
   toastEl.classList.add('show');
   window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => toastEl.classList.remove('show'), 1400);
+}
+
+// ── Overlay drawing (landmarks / skeleton / PiP / debounce ring) ────────────
+const HAND_CONNECTIONS: [number, number][] = [
+  [0, 1], [1, 2], [2, 3], [3, 4],
+  [0, 5], [5, 6], [6, 7], [7, 8],
+  [5, 9], [9, 10], [10, 11], [11, 12],
+  [9, 13], [13, 14], [14, 15], [15, 16],
+  [13, 17], [17, 18], [18, 19], [19, 20],
+  [0, 17],
+];
+const FINGER_LABELS = ['T', 'I', 'M', 'R', 'P'];
+
+function sizeOverlay(): void {
+  const dpr = Math.min(window.devicePixelRatio, 2);
+  overlay.width = window.innerWidth * dpr;
+  overlay.height = window.innerHeight * dpr;
+  octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function drawOverlay(frame: HandFrame, g: ReturnType<GestureController['update']>): void {
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  octx.clearRect(0, 0, W, H);
+  const hideUI = document.body.classList.contains('hide-ui');
+  if (hideUI) return;
+
+  // Shape-debounce progress ring (always shown, it's core feedback).
+  if (g.shapeProgress > 0 && g.shapeCandidate > 0) {
+    const cxp = W / 2;
+    const cyp = 92;
+    const rr = 26;
+    octx.lineWidth = 5;
+    octx.strokeStyle = 'rgba(120,220,255,0.2)';
+    octx.beginPath();
+    octx.arc(cxp, cyp, rr, 0, Math.PI * 2);
+    octx.stroke();
+    octx.strokeStyle = 'rgba(120,235,255,0.95)';
+    octx.beginPath();
+    octx.arc(cxp, cyp, rr, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * g.shapeProgress);
+    octx.stroke();
+    octx.fillStyle = '#eaf7ff';
+    octx.font = '600 22px ui-monospace, Menlo, monospace';
+    octx.textAlign = 'center';
+    octx.textBaseline = 'middle';
+    octx.fillText(String(g.shapeCandidate), cxp, cyp + 1);
+    octx.textAlign = 'left';
+  }
+
+  if (!debugVisible) return;
+
+  // Landmarks + skeleton per hand (mirrored to match the view).
+  for (const hand of frame.raw) {
+    const col = hand.held ? 'rgba(255,180,90,0.9)' : 'rgba(120,235,255,0.9)';
+    octx.strokeStyle = col;
+    octx.lineWidth = 2;
+    for (const [a, b] of HAND_CONNECTIONS) {
+      const pa = hand.points[a];
+      const pb = hand.points[b];
+      octx.beginPath();
+      octx.moveTo((1 - pa.x) * W, pa.y * H);
+      octx.lineTo((1 - pb.x) * W, pb.y * H);
+      octx.stroke();
+    }
+    octx.fillStyle = col;
+    for (const p of hand.points) {
+      octx.beginPath();
+      octx.arc((1 - p.x) * W, p.y * H, 3, 0, Math.PI * 2);
+      octx.fill();
+    }
+  }
+  // Per-hand finger readout.
+  octx.font = '12px ui-monospace, Menlo, monospace';
+  octx.fillStyle = '#8ff';
+  frame.hands.forEach((h, i) => {
+    const label = h.extended.map((e, k) => (e ? FINGER_LABELS[k] : '·')).join('');
+    const px = (1 - (frame.raw[i]?.points[0].x ?? 0.5)) * W;
+    const py = (frame.raw[i]?.points[0].y ?? 0.5) * H;
+    octx.fillText(`${h.fingers} [${label}] c${h.confidence.toFixed(2)}`, px - 40, py + 26);
+  });
+
+  // PiP of the enhanced tracking input.
+  const tc = tracker.trackingCanvas;
+  if (tc) {
+    const pw = 200;
+    const ph = pw * (tc.height / tc.width);
+    const x = 14;
+    const y = H - ph - 14;
+    octx.save();
+    octx.translate(x + pw, y); // mirror horizontally to match the view
+    octx.scale(-1, 1);
+    octx.drawImage(tc, 0, 0, pw, ph);
+    octx.restore();
+    octx.strokeStyle = 'rgba(120,220,255,0.5)';
+    octx.lineWidth = 1;
+    octx.strokeRect(x, y, pw, ph);
+    octx.fillStyle = '#8ff';
+    octx.fillText('MediaPipe input (boosted)', x + 4, y - 6);
+  }
 }
 
 // ── Recording ───────────────────────────────────────────────────────────────
@@ -270,6 +441,10 @@ window.addEventListener('keydown', (e) => {
     case 'H':
       document.body.classList.toggle('hide-ui');
       break;
+    case 'k':
+    case 'K':
+      if (!calibrating) startCalibration();
+      break;
     case '?':
       hintEl.classList.toggle('show');
       break;
@@ -302,8 +477,10 @@ function animate(): void {
   audio.update();
 
   const frame = tracker.detect(nowMs);
+  lastFrameRef = frame;
   diag.hands = frame.count;
   const g = gestures.update(frame, dt);
+  updateCalibration(frame);
 
   // Shape morph.
   morph.setTarget(g.shapeIndex);
@@ -324,7 +501,6 @@ function animate(): void {
     showToast('Shockwave');
   }
 
-  // Stretch axis in object space (so the stretch tracks the screen axis).
   if (g.stretchActive && g.stretchAxisScreen) {
     tmpV.set(g.stretchAxisScreen.x, -g.stretchAxisScreen.y, 0).normalize();
     tmpV.applyQuaternion(physics.quaternion.clone().invert());
@@ -332,7 +508,6 @@ function animate(): void {
   }
   physics.setStretch(g.stretchActive ? g.stretchAmount : 0, g.stretchActive);
 
-  // Grab / throw.
   let grabbing = false;
   if (g.grab && g.grabScreen) {
     const ray = screenToRay(g.grabScreen.x, g.grabScreen.y);
@@ -353,7 +528,6 @@ function animate(): void {
   const audioScale = audio.level * CONFIG.audio.scalePulse;
   physics.update(dt, { scaleTarget, audioScale, maxScale, grabbing });
 
-  // Apply transform.
   objectGroup.position.copy(physics.position);
   objectGroup.quaternion.copy(physics.quaternion);
   objectGroup.scale.setScalar(physics.scale);
@@ -378,7 +552,7 @@ function animate(): void {
     beam.setVisible(false);
   }
 
-  // ── Themes (interpolate toward active) ──
+  // ── Themes ──
   const th = CONFIG.themes.list[themeIndex];
   cur.cool.lerp(new THREE.Color(th.cool), CONFIG.themes.lerp);
   cur.hot.lerp(new THREE.Color(th.hot), CONFIG.themes.lerp);
@@ -386,10 +560,7 @@ function animate(): void {
   cur.disc.lerp(new THREE.Color(th.disc), CONFIG.themes.lerp);
   beam.setColor(cur.hot);
 
-  // Extra brightness from audio beat + shockwave flash.
   const audioBright = audio.level * CONFIG.audio.brightnessPulse + physics.shock * (CONFIG.shockwave.brightness - 1) * 0.5;
-
-  // Disc visibility (sphere/cube only).
   const isDisc = (s: number) => (s === 0 || s === 1 ? 1 : 0);
   const discWeight = isDisc(morph.from) * (1 - morphT) + isDisc(morph.to) * morphT;
 
@@ -420,7 +591,6 @@ function animate(): void {
   };
   core.update(pf);
 
-  // Motion trail damp from speed.
   afterimagePass.uniforms['damp'].value = THREE.MathUtils.clamp(
     THREE.MathUtils.mapLinear(physics.speed, 0, CONFIG.trail.speedForFast, CONFIG.trail.dampRest, CONFIG.trail.dampFast),
     CONFIG.trail.dampRest,
@@ -429,11 +599,13 @@ function animate(): void {
 
   caGrainPass.uniforms.uTime.value = time;
   composer.render();
+
+  drawOverlay(frame, g);
   updateDebug();
 }
 
 // ── Resize ──────────────────────────────────────────────────────────────────
-window.addEventListener('resize', () => {
+function onResize(): void {
   const w = window.innerWidth;
   const h = window.innerHeight;
   camera.aspect = w / h;
@@ -450,7 +622,10 @@ window.addEventListener('resize', () => {
   background.setResolution(w, h);
   core.setPixelRatio(pixelRatio);
   maxScale = computeMaxScale();
-});
+  sizeOverlay();
+}
+window.addEventListener('resize', onResize);
+sizeOverlay();
 
 // ── Start gate ──────────────────────────────────────────────────────────────
 async function start(): Promise<void> {
@@ -467,7 +642,6 @@ async function start(): Promise<void> {
     startBtn.textContent = 'Retry';
     return;
   }
-  // Microphone is optional and requested separately; ignore failure.
   await audio.start();
   gate.style.display = 'none';
   running = true;
@@ -477,8 +651,6 @@ async function start(): Promise<void> {
 startBtn.addEventListener('click', start);
 
 (window as unknown as { CONFIG: typeof CONFIG }).CONFIG = CONFIG;
-
-// Small console API for tinkering / automated checks (harmless).
 (window as unknown as { app: unknown }).app = {
   setShape: (i: number) => gestures.forceShape(i),
   snapShape: (i: number) => {
@@ -492,6 +664,9 @@ startBtn.addEventListener('click', start);
   setTheme: (i: number) => {
     themeIndex = ((i % CONFIG.themes.list.length) + CONFIG.themes.list.length) % CONFIG.themes.list.length;
   },
+  calibrate: () => startCalibration(),
+  analyze: (lm: { x: number; y: number; z: number }[]) => tracker.analyzeLandmarks(lm),
+  trackingStats: () => tracker.trackingStats,
   physics,
   morph,
 };

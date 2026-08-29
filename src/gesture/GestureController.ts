@@ -11,6 +11,8 @@ export interface Vec2 {
 export interface GestureState {
   shapeIndex: number;
   shapeChanged: boolean;
+  shapeCandidate: number; // finger count currently being held (0 = none)
+  shapeProgress: number; // 0..1 debounce progress for the on-screen ring
 
   energy: number;
   scaleTarget: number;
@@ -49,10 +51,10 @@ function shortestAngle(a: number, b: number): number {
  * have a cooldown, twist has a deadzone.
  */
 export class GestureController {
-  // Shape debounce
+  // Shape debounce (consecutive-frame based)
   private shapeIndex = 0;
   private candidate = -1;
-  private candidateHeldMs = 0;
+  private candidateFrames = 0;
 
   // Grab
   private grabbing = false;
@@ -77,7 +79,7 @@ export class GestureController {
   forceShape(i: number): void {
     this.shapeIndex = ((i % 5) + 5) % 5;
     this.candidate = -1;
-    this.candidateHeldMs = 0;
+    this.candidateFrames = 0;
   }
 
   update(frame: HandFrame, dtSec: number): GestureState {
@@ -88,6 +90,8 @@ export class GestureController {
     const state: GestureState = {
       shapeIndex: this.shapeIndex,
       shapeChanged: false,
+      shapeCandidate: 0,
+      shapeProgress: 0,
       energy: CONFIG.idle.neutralEnergy,
       scaleTarget: CONFIG.idle.neutralScale,
       hasScaleInput: false,
@@ -117,24 +121,30 @@ export class GestureController {
       );
     }
 
-    // ── Shape selection (finger count, held) ──
+    // ── Shape selection: finger count stable across N consecutive frames ──
     let fingerCandidate = 0;
     for (const h of hands) if (!h.isFist) fingerCandidate = Math.max(fingerCandidate, h.fingers);
+    const need = CONFIG.tracking.fingerDebounceFrames;
     if (fingerCandidate >= 1 && fingerCandidate <= CONFIG.shapes.names.length) {
-      if (fingerCandidate === this.candidate) {
-        this.candidateHeldMs += dt * 1000;
-      } else {
+      if (fingerCandidate === this.candidate) this.candidateFrames++;
+      else {
         this.candidate = fingerCandidate;
-        this.candidateHeldMs = 0;
+        this.candidateFrames = 1;
       }
       const wanted = this.candidate - 1;
-      if (this.candidateHeldMs >= CONFIG.shapes.holdMs && wanted !== this.shapeIndex) {
+      // Only show progress while it would actually change the shape.
+      if (wanted !== this.shapeIndex) {
+        state.shapeCandidate = this.candidate;
+        state.shapeProgress = Math.min(1, this.candidateFrames / need);
+      }
+      if (this.candidateFrames >= need && wanted !== this.shapeIndex) {
         this.shapeIndex = wanted;
         state.shapeChanged = true;
+        this.candidateFrames = 0;
       }
     } else {
       this.candidate = -1;
-      this.candidateHeldMs = 0;
+      this.candidateFrames = 0;
     }
     state.shapeIndex = this.shapeIndex;
 
@@ -224,7 +234,9 @@ export class GestureController {
   }
 
   private handleTwoHands(a: HandInfo, b: HandInfo, dt: number, state: GestureState): void {
-    const palmDist = Math.hypot(a.palmX - b.palmX, a.palmY - b.palmY);
+    // Normalize the between-hands distance by hand size → distance-independent.
+    const avgHandSize = Math.max(1e-3, (a.handSize + b.handSize) * 0.5);
+    const palmDist = Math.hypot(a.palmX - b.palmX, a.palmY - b.palmY) / avgHandSize;
     const bothPinched = a.pinch < CONFIG.hands.pinchThreshold && b.pinch < CONFIG.hands.pinchThreshold;
 
     if (bothPinched) {

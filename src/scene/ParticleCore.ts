@@ -173,9 +173,12 @@ export class ParticleCore {
           float t = clamp((uFarDepth - vViewDepth) / (uFarDepth - uNearDepth), 0.0, 1.0);
           float fade = mix(uFarFade, 1.0, t);
 
-          float hot = clamp(vCore + vStreak * 0.6 + vBeam, 0.0, 1.0);
+          // Color is driven mainly by the hot axis core (white) + beam; streaks
+          // stay cyan so the interior reads blue with a white column, like the
+          // reference — instead of everything blowing to white.
+          float hot = clamp(vCore * 1.15 + vStreak * 0.2 + vBeam, 0.0, 1.0);
           vec3 col = mix(uColorCool, uColorHot, hot);
-          float bright = uIntensity * (uBaseGlow + vCore * 0.7 + vStreak * 0.8) * (0.35 + 0.65 * uEnergy);
+          float bright = uIntensity * (uBaseGlow + vCore * 0.7 + vStreak * 0.85) * (0.35 + 0.65 * uEnergy);
           bright *= fade;
           bright += vBeam * uBeamBright * 0.3;
           bright *= (1.0 + uAudioBright);

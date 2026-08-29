@@ -48,6 +48,16 @@
         pointer-events: none;
       }
 
+      /* 2D overlay for debug landmarks, PiP, and the shape-debounce ring. */
+      #overlay {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        pointer-events: none;
+      }
+
       /* Start / permission gate */
       #gate {
         position: fixed;
@@ -232,11 +242,34 @@
         font-family: ui-monospace, Menlo, monospace;
       }
 
-      /* Clean-recording mode hides every overlay */
+      /* Calibration prompt */
+      #calib {
+        position: fixed;
+        bottom: 12%;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 20;
+        display: none;
+        padding: 12px 24px;
+        font-size: 15px;
+        letter-spacing: 0.4px;
+        color: #eaf7ff;
+        background: rgba(6, 18, 28, 0.6);
+        border: 1px solid rgba(120, 220, 255, 0.4);
+        border-radius: 999px;
+        backdrop-filter: blur(6px);
+      }
+      #calib.show {
+        display: block;
+      }
+
+      /* Clean-recording mode hides every overlay (the #overlay canvas checks
+         the class itself so the debounce ring + landmarks disappear too). */
       body.hide-ui #debug,
       body.hide-ui #toast,
       body.hide-ui #hint,
-      body.hide-ui #rec {
+      body.hide-ui #rec,
+      body.hide-ui #calib {
         display: none !important;
       }
     </style>
@@ -244,6 +277,7 @@
   <body>
     <video id="webcam" playsinline muted></video>
     <canvas id="scene"></canvas>
+    <canvas id="overlay"></canvas>
 
     <div id="gate">
       <h1>Morphing Wireframe Energy</h1>
@@ -258,6 +292,7 @@
 
     <div id="debug"></div>
     <div id="toast"></div>
+    <div id="calib"></div>
     <div id="rec"><span class="dot"></span>REC</div>
 
     <div id="hint">
@@ -272,6 +307,7 @@
         <tr><td>Push at camera</td><td>Shockwave blast</td></tr>
         <tr><td>Point (index)</td><td>Beam — lights the surface, pulls particles</td></tr>
         <tr><td>Open palm / fist</td><td>Energy up / collapse</td></tr>
+        <tr><td>K</td><td>Calibrate — hold an open palm ~3s (per-distance tuning)</td></tr>
         <tr><td>C</td><td>Cycle color theme</td></tr>
         <tr><td>R</td><td>Record canvas → .webm</td></tr>
         <tr><td>H</td><td>Hide all UI (clean recording)</td></tr>

@@ -13,7 +13,6 @@ export const CONFIG = {
   renderer: {
     maxPixelRatio: 2,
     clearColor: 0x000000,
-    /** ACESFilmic exposure, applied at the end of the pipeline (OutputPass). */
     toneMappingExposure: 1.05,
   },
   camera: {
@@ -24,7 +23,7 @@ export const CONFIG = {
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Webcam background (in-scene quad + auto-exposure)
+  // Webcam background (in-scene quad + auto-exposure) — DISPLAY ONLY
   // ────────────────────────────────────────────────────────────────────────
   background: {
     width: 1920,
@@ -39,19 +38,83 @@ export const CONFIG = {
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Morphing shapes (finger count selects one; smooth animated morph)
+  // TRACKING — a separate, aggressively enhanced input fed ONLY to MediaPipe.
+  // The dark cinematic background the viewer sees is never touched by this;
+  // only the hand tracker sees the boosted image.
+  // ────────────────────────────────────────────────────────────────────────
+  tracking: {
+    /** Camera request (verified + logged after it opens). */
+    cameraWidth: 1280,
+    cameraHeight: 720,
+    cameraFps: 30,
+
+    /** Offscreen enhancement canvas size (video is drawn into this). Smaller =
+     *  faster enhancement + denoise; MediaPipe downsamples anyway. */
+    width: 640,
+    height: 360,
+
+    /** Adaptive boost: enhanced mean luminance is driven toward this. */
+    targetLuma: 0.5,
+    gainMin: 1.0,
+    gainMax: 6.0,
+    /** Gamma < 1 lifts shadows (where dim hands live). */
+    gamma: 0.55,
+    /** Local contrast: stretch the frame's actual [lo,hi] luminance to [0,1],
+     *  recomputed a few times/sec, with a percentile clip for robustness. */
+    histStretch: true,
+    histIntervalMs: 250,
+    histClipFrac: 0.02,
+    /** Light 3×3 denoise (gain amplifies webcam noise). 0 = off, 1 = on. */
+    denoise: 1,
+
+    /** Lowered detection thresholds — the defaults reject valid detections in
+     *  a dark room. */
+    minDetectionConfidence: 0.35,
+    minPresenceConfidence: 0.35,
+    minTrackingConfidence: 0.35,
+
+    /** One Euro filter (per landmark): smooth when still, low-latency when
+     *  moving. Raise beta for less lag, raise minCutoff for less smoothing. */
+    oneEuroMinCutoff: 1.2,
+    oneEuroBeta: 0.03,
+    oneEuroDCutoff: 1.0,
+
+    /** Dropout tolerance: on a missed frame, hold + extrapolate the last pose
+     *  from its velocity for up to this long before fading to no-hands. */
+    dropoutMs: 250,
+
+    /** Angle-based finger-curl detection (rotation-invariant). PIP joint angle
+     *  above this (degrees) = finger extended. */
+    fingerExtendAngle: 150,
+    /** Thumb: extended if its tip is at least this far from the index MCP
+     *  (normalized by hand size) OR it points far enough out of the palm plane
+     *  (|thumb dir · palm normal|, 0 = in plane, 1 = perpendicular). A straight
+     *  thumb tucked alongside the fingers is NOT extended. */
+    thumbSpread: 0.55,
+    thumbOutOfPlane: 0.55,
+
+    /** A finger count must be stable this many consecutive frames to fire. */
+    fingerDebounceFrames: 8,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Self-calibration (K key): hold an open palm to capture hand size + neutral
+  // ────────────────────────────────────────────────────────────────────────
+  calibration: {
+    holdSeconds: 3,
+    storageKey: 'wireframe-calibration-v1',
+    /** Fallback reference hand size (normalized wrist→middle-MCP) if uncalibrated. */
+    defaultHandSize: 0.22,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Morphing shapes
   // ────────────────────────────────────────────────────────────────────────
   shapes: {
-    /** Index → name. Selected by holding up N fingers (N = index + 1). */
     names: ['Sphere', 'Cube', 'Torus', 'Octahedron', 'Torus Knot'] as const,
-    /** Seconds for one shape→shape morph (eased). */
     morphDuration: 1.2,
-    /** A finger count must be held this long (ms) before it switches shape. */
-    holdMs: 500,
-    /** Torus major/minor radius as fractions of object size. */
     torusR: 0.62,
     torusr: 0.3,
-    /** Torus-knot overall scale + tube radius (fractions of object size). */
     knotScale: 1.0,
     knotTube: 0.16,
   },
@@ -63,133 +126,103 @@ export const CONFIG = {
     segments: 16,
     size: 1.0,
     lineWidth: 0.006,
-    opacity: 0.55,
+    opacity: 0.45,
     farFade: 0.32,
     pulseAmount: 0.1,
     pulseSpeed: 1.4,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Interior energy — GPU particle core
-  // (Dropped from 40k → 24k to keep 60fps with the new deformations, beam,
-  //  motion trail and audio reactivity all running at once.)
+  // Interior energy — GPU particle core (restored: dark interior, distinct
+  // falling streaks, one hot cyan-white column down the center)
   // ────────────────────────────────────────────────────────────────────────
   particles: {
     count: 24000,
-    size: 7.5,
-    fallSpeed: 0.95,
+    size: 8.5,
+    fallSpeed: 1.0,
     turbulence: 0.05,
     turbulenceSpeed: 0.5,
-    coreSharpness: 9.0,
-    intensity: 1.1,
-    baseGlow: 0.03,
-    alpha: 0.15,
+    coreSharpness: 8.0,
+    intensity: 1.55,
+    baseGlow: 0.035,
+    alpha: 0.22,
     radius: 0.86,
     collapseRadius: 0.18,
     farFade: 0.35,
-    /** How strongly particles are pulled toward the beam hit point (0..1). */
     beamPull: 0.35,
     beamRadius: 0.5,
     beamBrightness: 2.2,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Glowing discs (top & bottom) — shown only for sphere/cube shapes
+  // Glowing discs (top & bottom) — sphere/cube only
   // ────────────────────────────────────────────────────────────────────────
   discs: {
     radius: 0.8,
-    intensity: 0.9,
-    falloff: 2.8,
+    intensity: 1.5,
+    falloff: 2.6,
   },
 
   // ────────────────────────────────────────────────────────────────────────
   // Beam (index-finger pointing)
   // ────────────────────────────────────────────────────────────────────────
   beam: {
-    /** Wireframe highlight radius (object space) and brightness. */
     hitRadius: 0.45,
     hitBrightness: 2.6,
-    /** Visual beam line width (world units) and additive strength. */
     lineWidth: 0.02,
     coreOpacity: 1.2,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Deformations (shared by wireframe + particles)
+  // Deformations
   // ────────────────────────────────────────────────────────────────────────
   shockwave: {
-    /** Peak outward displacement (object-space units) at full blast. */
     amplitude: 0.6,
-    /** Spring-back: total duration (s) of the blast→return envelope. */
     duration: 1.0,
-    /** Extra particle brightness during a shockwave. */
     brightness: 1.8,
   },
   stretch: {
-    /** Max deform amount along the two-hand axis. */
     maxAmount: 1.1,
-    /** Screen-distance-beyond-baseline → deform amount. */
     gain: 2.5,
-    /** Damped return-to-zero when released (per frame). */
     releaseSmoothing: 0.12,
-    /** Smoothing while actively stretching. */
     smoothing: 0.2,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Physics (momentum + damping instead of direct position→rotation mapping)
+  // Physics
   // ────────────────────────────────────────────────────────────────────────
   physics: {
-    /** Angular velocity damping (per second, exponential). Higher = stops sooner. */
     angularDamping: 0.9,
-    /** Torque gain from one-hand motion (open hand flick → spin). */
     spinGain: 9.0,
-    /** Max angular speed (rad/s) to keep it controllable. */
     maxAngular: 6.0,
-    /** Twist (two-hand roll) gain into Z angular velocity. */
     twistGain: 2.2,
-    /** Idle base spin (rad/s) so it never looks frozen. */
     idleSpin: 0.18,
-
-    /** Linear (position) damping per second when free. */
     linearDamping: 1.6,
-    /** Spring pulling the object back toward screen center when free. */
     positionSpring: 2.2,
-    /** How quickly a grabbed object chases the hand (per frame lerp). */
     grabFollow: 0.35,
-    /** Multiplier on release velocity (the "throw"). */
     throwGain: 1.0,
-    /** Depth (world Z) the grabbed object is held at. */
     grabDepth: 0,
-
-    /** Scale spring (for shockwave/audio scale pulses). */
     scaleSpring: 8.0,
     scaleDamping: 4.0,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Microphone reactivity (optional; app works fine if denied)
+  // Microphone reactivity (optional)
   // ────────────────────────────────────────────────────────────────────────
   audio: {
-    /** Auto-ask for mic permission on start (still works if denied). */
     enabled: true,
     fftSize: 1024,
-    /** Fraction of the low-frequency spectrum treated as "bass". */
     bassFraction: 0.12,
-    /** Smoothing of the bass envelope (0..1 per frame). */
     smoothing: 0.2,
-    /** Normalization: raw bass is divided by this before use. */
     normalize: 180,
-    /** Bass → extra scale (fraction) and → particle brightness. */
     scalePulse: 0.12,
     brightnessPulse: 0.8,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Color themes (cycled with C; interpolated, never hard-cut)
+  // Color themes (C key; interpolated)
   // ────────────────────────────────────────────────────────────────────────
   themes: {
-    /** Per-frame lerp toward the active theme's colors. */
     lerp: 0.05,
     list: [
       { name: 'Cyan', cool: 0x4dd0ff, hot: 0xffffff, line: 0xdff2ff, disc: 0xbfefff },
@@ -200,23 +233,22 @@ export const CONFIG = {
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Motion trail (afterimage that grows with speed)
+  // Motion trail
   // ────────────────────────────────────────────────────────────────────────
   trail: {
-    /** Afterimage damp at rest (low) and at full speed (high = longer trail). */
     dampRest: 0.0,
     dampFast: 0.82,
-    /** Object speed (rot + lin proxy) that maps to dampFast. */
     speedForFast: 4.0,
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Bloom + post FX
+  // Bloom + post FX (threshold lowered so the cyan core/streaks bloom again;
+  // the background sits far below threshold so it stays dark)
   // ────────────────────────────────────────────────────────────────────────
   bloom: {
-    threshold: 0.75,
-    strength: 0.9,
-    radius: 0.6,
+    threshold: 0.5,
+    strength: 1.1,
+    radius: 0.62,
   },
   chromaticAberration: {
     amount: 0.0012,
@@ -234,86 +266,68 @@ export const CONFIG = {
   },
 
   // ────────────────────────────────────────────────────────────────────────
-  // Hand control & gesture recognition (debounced — false triggers are worse
-  // than missed ones)
+  // Hand control & gesture recognition (all thresholds self-normalize by hand
+  // size, so they work at any distance from the camera)
   // ────────────────────────────────────────────────────────────────────────
   hands: {
     smoothing: 0.08,
     maxHands: 2,
 
-    /** Finger-extension detection: tip must be this much farther from the wrist
-     *  than the PIP joint to count as "extended". */
-    fingerExtendRatio: 1.12,
-    thumbExtendRatio: 1.35,
-
-    /** Two-hand distance → scale (open-hand mode). */
-    palmDistMin: 0.12,
-    palmDistMax: 0.72,
+    /** Two-hand distance → scale (normalized by average hand size). */
+    palmDistMin: 0.6,
+    palmDistMax: 3.4,
     scaleMin: 0.5,
     scaleMax: 1.6,
 
-    /** Pinch threshold (thumb↔index, normalized) below which a hand is
-     *  "pinched" — used to enter two-hand STRETCH mode. */
+    /** Pinch threshold (thumb↔index / hand size) below which a hand is pinched. */
     pinchThreshold: 0.4,
 
-    /** Openness → energy. */
+    /** Openness (mean fingertip distance from palm / hand size) → energy. */
     opennessMin: 0.5,
     opennessMax: 1.4,
     energyMin: 0.15,
     energyMax: 1.0,
 
-    /** Push-toward-camera (shockwave): required growth rate of hand size per
-     *  second, plus a cooldown so it fires once per push. */
+    /** Push-toward-camera (shockwave): required growth rate of hand size /sec. */
     pushGrowthRate: 1.1,
     pushCooldownMs: 900,
 
-    /** Two-hand twist: minimum angular speed (rad/s) to register a roll. */
+    /** Two-hand twist deadzone (rad/s). */
     twistDeadzone: 0.25,
   },
 
-  // ────────────────────────────────────────────────────────────────────────
-  // Idle behaviour when no hands are detected
-  // ────────────────────────────────────────────────────────────────────────
   idle: {
     returnSmoothing: 0.02,
     neutralScale: 1.05,
     neutralEnergy: 0.6,
   },
 
-  // ────────────────────────────────────────────────────────────────────────
-  // Recording (canvas → .webm via MediaRecorder)
-  // ────────────────────────────────────────────────────────────────────────
   record: {
     fps: 60,
-    /** First supported mime type is used. */
     mimeTypes: ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'],
     bitsPerSecond: 12_000_000,
   },
 
-  // ────────────────────────────────────────────────────────────────────────
-  // MediaPipe CDN assets
-  // ────────────────────────────────────────────────────────────────────────
   mediapipe: {
     wasmBase: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm',
     modelUrl:
       'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
     numHands: 2,
-    minDetectionConfidence: 0.5,
-    minPresenceConfidence: 0.5,
-    minTrackingConfidence: 0.5,
   },
 } as const;
 
 export type Config = typeof CONFIG;
 
 /*
- * ── TWEAK THESE FIRST if the look / feel is off ──
+ * ── TWEAK THESE FIRST ──
  *
- *  1. background.targetLuminance    → how dark the room sits
- *  2. bloom.threshold / .strength   → what glows and how much
- *  3. physics.angularDamping / .spinGain → spin feel (coast time & flick strength)
- *  4. hands.pushGrowthRate          → shockwave sensitivity (higher = harder to trigger)
- *  5. shapes.holdMs                 → how long a finger count must be held to switch
- *  6. audio.scalePulse / .brightnessPulse → strength of beat reactivity
- *  7. particles.intensity / .alpha  → core column & streak clarity
+ *  Tracking in a dark room:
+ *    1. tracking.gamma / .gainMax     → how hard dim hands are lifted for MediaPipe
+ *    2. tracking.fingerExtendAngle    → finger-count sensitivity (lower = easier extend)
+ *    3. tracking.oneEuroBeta/minCutoff → smooth-vs-responsive landmark feel
+ *    4. tracking.dropoutMs            → how long a lost hand is held before releasing
+ *  Look:
+ *    5. background.targetLuminance    → how dark the room sits
+ *    6. bloom.threshold / .strength   → interior glow intensity
+ *    7. particles.intensity / .alpha  → core column & streak clarity
  */
