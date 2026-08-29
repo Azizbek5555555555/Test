@@ -12,10 +12,11 @@ import { Background } from './scene/Background';
 import { WireframeObject, type FrameUniforms } from './scene/WireframeObject';
 import { ParticleCore, type ParticleFrame } from './scene/ParticleCore';
 import { Beam } from './scene/Beam';
-import { HandTracker, type HandFrame } from './input/HandTracker';
+import { HandTracker, type HandFrame, type HandInfo, type PalmBasis } from './input/HandTracker';
 import { AudioInput } from './input/AudioInput';
-import { GestureController } from './gesture/GestureController';
+import { GestureController, type Mode } from './gesture/GestureController';
 import { ObjectPhysics } from './physics/ObjectPhysics';
+import { ShapeMorph } from './control/ShapeMorph';
 
 // ── DOM ──────────────────────────────────────────────────────────────────
 const video = document.getElementById('webcam') as HTMLVideoElement;
@@ -29,6 +30,7 @@ const toastEl = document.getElementById('toast') as HTMLDivElement;
 const hintEl = document.getElementById('hint') as HTMLDivElement;
 const recEl = document.getElementById('rec') as HTMLDivElement;
 const calibEl = document.getElementById('calib') as HTMLDivElement;
+const modeEl = document.getElementById('mode') as HTMLDivElement;
 
 // ── Renderer + color pipeline ───────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
@@ -53,29 +55,23 @@ camera.lookAt(0, 0, 0);
 // ── Scene contents ──────────────────────────────────────────────────────────
 const background = new Background(video);
 scene.add(background.mesh);
-
 const objectGroup = new THREE.Group();
 scene.add(objectGroup);
 const wireframe = new WireframeObject();
 objectGroup.add(wireframe.mesh);
 const core = new ParticleCore();
 objectGroup.add(core.group);
-
 const beam = new Beam();
 scene.add(beam.mesh);
 
 // ── Post-processing ─────────────────────────────────────────────────────────
-const hdrTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-  type: THREE.HalfFloatType,
-});
+const hdrTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, { type: THREE.HalfFloatType });
 const composer = new EffectComposer(renderer, hdrTarget);
 composer.setPixelRatio(pixelRatio);
 composer.setSize(window.innerWidth, window.innerHeight);
 composer.addPass(new RenderPass(scene, camera));
-
 const afterimagePass = new AfterimagePass(CONFIG.trail.dampRest);
 composer.addPass(afterimagePass);
-
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
   CONFIG.bloom.strength,
@@ -83,7 +79,6 @@ const bloomPass = new UnrealBloomPass(
   CONFIG.bloom.threshold,
 );
 composer.addPass(bloomPass);
-
 const caGrainPass = new ShaderPass({
   uniforms: {
     tDiffuse: { value: null as THREE.Texture | null },
@@ -99,8 +94,7 @@ const caGrainPass = new ShaderPass({
     uniform sampler2D tDiffuse; uniform float uAmount, uGrain, uTime;
     varying vec2 vUv;
     void main() {
-      vec2 dir = vUv - 0.5;
-      vec2 offset = dir * uAmount;
+      vec2 dir = vUv - 0.5; vec2 offset = dir * uAmount;
       float r = texture2D(tDiffuse, vUv + offset).r;
       float g = texture2D(tDiffuse, vUv).g;
       float b = texture2D(tDiffuse, vUv - offset).b;
@@ -116,16 +110,14 @@ composer.addPass(caGrainPass);
 composer.addPass(new OutputPass());
 const smaaPass = new SMAAPass(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio);
 composer.addPass(smaaPass);
-
 wireframe.setResolution(window.innerWidth, window.innerHeight);
 beam.setResolution(window.innerWidth, window.innerHeight);
 background.setResolution(window.innerWidth, window.innerHeight);
 
-// ── Object framing clamp ────────────────────────────────────────────────────
+// ── Framing clamp ────────────────────────────────────────────────────────────
 function computeMaxScale(): number {
   const frustumHalfH = Math.tan(THREE.MathUtils.degToRad(CONFIG.camera.fov / 2)) * CONFIG.camera.distance;
-  const maxHalfWorld = CONFIG.object.maxScreenFraction * frustumHalfH;
-  return maxHalfWorld / (CONFIG.wireframe.size * CONFIG.object.rotationSafety);
+  return (CONFIG.object.maxScreenFraction * frustumHalfH) / (CONFIG.wireframe.size * CONFIG.object.rotationSafety);
 }
 let maxScale = computeMaxScale();
 
@@ -134,29 +126,100 @@ const tracker = new HandTracker(video);
 const audio = new AudioInput();
 const gestures = new GestureController();
 const physics = new ObjectPhysics();
+const morph = new ShapeMorph();
 
-// ── Shape morph controller ──────────────────────────────────────────────────
-const morph = {
-  from: 0,
-  to: 0,
-  t: 1,
-  pending: 0,
-  setTarget(idx: number) {
-    this.pending = idx;
-  },
-  update(dt: number) {
-    if (this.t >= 1) {
-      if (this.pending !== this.to) {
-        this.from = this.to;
-        this.to = this.pending;
-        this.t = 0;
-      }
-    } else {
-      this.t = Math.min(1, this.t + dt / CONFIG.shapes.morphDuration);
-    }
-    return this.t < 0.5 ? 2 * this.t * this.t : 1 - Math.pow(-2 * this.t + 2, 2) / 2;
-  },
-};
+// ── MODE state machine ───────────────────────────────────────────────────────
+let mode: Mode = CONFIG.modes.start as Mode;
+try {
+  const saved = localStorage.getItem(CONFIG.modes.storageKey);
+  if (saved === 'shape' || saved === 'transform') mode = saved;
+} catch {
+  /* ignore */
+}
+let modeSwitchAt = -1e9;
+let autoMode: boolean = CONFIG.modes.auto.enabledDefault;
+let autoOverrideUntil = 0;
+let autoCand: Mode = mode;
+let autoCandSince = 0;
+let lastPresentMs = 0;
+
+function switchMode(next: Mode, viaSpacebar: boolean, nowMs: number): void {
+  if (next === mode) return;
+  mode = next;
+  modeSwitchAt = nowMs;
+  try {
+    localStorage.setItem(CONFIG.modes.storageKey, mode);
+  } catch {
+    /* ignore */
+  }
+  // End any engaged control; freeze where it is (no teleport, no reset).
+  endEngage(nowMs);
+  if (mode === 'transform') {
+    morph.commitNow();
+    flashToast(`Locked · ${morph.currentName}`);
+  }
+  if (viaSpacebar && autoMode) autoOverrideUntil = nowMs + CONFIG.modes.auto.overrideMs;
+}
+
+// ── Engage / anchor state (relative — nothing teleports) ─────────────────────
+let grabbing = false;
+let scaling = false;
+const anchorPalmQ = new THREE.Quaternion();
+const anchorObjQ = new THREE.Quaternion();
+let anchorMetric = 1;
+let anchorScale: number = CONFIG.idle.neutralScale;
+let lastMetric = 1;
+let appliedMetric = 1;
+let scaleTargetValue: number = CONFIG.idle.neutralScale;
+let following = false;
+let releaseTime = -1e9;
+const heldPos = new THREE.Vector3();
+const stretchAxisObj = new THREE.Vector3(1, 0, 0);
+const prevObjPos = new THREE.Vector3();
+let smoothedEnergy = CONFIG.idle.neutralEnergy;
+
+function endEngage(nowMs: number): void {
+  if (following) {
+    releaseTime = nowMs;
+    heldPos.copy(physics.position);
+  }
+  grabbing = false;
+  scaling = false;
+  following = false;
+}
+
+// ── Reusable temporaries ────────────────────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const grabPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -CONFIG.physics.grabDepth);
+const fingerPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -1.2);
+const tmpV = new THREE.Vector3();
+const tmpV2 = new THREE.Vector3();
+const tmpQ = new THREE.Quaternion();
+const tmpQ2 = new THREE.Quaternion();
+const tmpM = new THREE.Matrix4();
+const posTarget = new THREE.Vector3();
+const orientTarget = new THREE.Quaternion();
+const beamHitWorld = new THREE.Vector3();
+const beamObjPoint = new THREE.Vector3();
+
+function screenToRay(x: number, y: number): THREE.Ray {
+  ndc.set(x * 2 - 1, -(y * 2 - 1));
+  raycaster.setFromCamera(ndc, camera);
+  return raycaster.ray;
+}
+function palmToWorld(h: HandInfo, out: THREE.Vector3): THREE.Vector3 {
+  const ray = screenToRay(h.palmX, h.palmY);
+  return ray.intersectPlane(grabPlane, out) ?? out.set(0, 0, 0);
+}
+function palmToQuat(b: PalmBasis, out: THREE.Quaternion): THREE.Quaternion {
+  tmpM.makeBasis(
+    tmpV.set(b.vx.x, b.vx.y, b.vx.z),
+    tmpV2.set(b.vy.x, b.vy.y, b.vy.z),
+    new THREE.Vector3(b.vz.x, b.vz.y, b.vz.z),
+  );
+  return out.setFromRotationMatrix(tmpM);
+}
 
 // ── Themes ──────────────────────────────────────────────────────────────────
 let themeIndex = 0;
@@ -167,27 +230,8 @@ const cur = {
   disc: new THREE.Color(CONFIG.themes.list[0].disc),
 };
 
-// ── Reusable temporaries ────────────────────────────────────────────────────
-const raycaster = new THREE.Raycaster();
-const ndc = new THREE.Vector2();
-const grabPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -CONFIG.physics.grabDepth);
-const fingerPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -1.2);
-const tmpV = new THREE.Vector3();
-const beamHitWorld = new THREE.Vector3();
-const beamObjPoint = new THREE.Vector3();
-const stretchAxisObj = new THREE.Vector3(1, 0, 0);
-let smoothedEnergy = CONFIG.idle.neutralEnergy;
-let scaleTarget = CONFIG.idle.neutralScale;
-
-function screenToRay(x: number, y: number): THREE.Ray {
-  ndc.set(x * 2 - 1, -(y * 2 - 1));
-  raycaster.setFromCamera(ndc, camera);
-  return raycaster.ray;
-}
-
 // ── Calibration (K) ─────────────────────────────────────────────────────────
 function applyCalibration(open: number): void {
-  // CONFIG is `as const` (readonly types) but a plain mutable object at runtime.
   const h = CONFIG.hands as unknown as { opennessMax: number; opennessMin: number };
   h.opennessMax = open * 0.95;
   h.opennessMin = open * 0.42;
@@ -203,16 +247,13 @@ function applyCalibration(open: number): void {
     /* ignore */
   }
 })();
-
 let calibrating = false;
 let calibStart = 0;
 let calibOpen: number[] = [];
-let calibSize: number[] = [];
 function startCalibration(): void {
   calibrating = true;
   calibStart = performance.now();
   calibOpen = [];
-  calibSize = [];
   calibEl.classList.add('show');
 }
 function median(a: number[]): number {
@@ -222,121 +263,116 @@ function median(a: number[]): number {
 }
 function updateCalibration(frame: HandFrame): void {
   if (!calibrating) return;
-  const elapsed = (performance.now() - calibStart) / 1000;
-  const remain = Math.max(0, CONFIG.calibration.holdSeconds - elapsed);
+  const remain = Math.max(0, CONFIG.calibration.holdSeconds - (performance.now() - calibStart) / 1000);
   const openHand = frame.hands.find((h) => h.fingers >= 4);
-  if (openHand) {
-    calibOpen.push(openHand.openness);
-    calibSize.push(openHand.handSize);
-  }
+  if (openHand) calibOpen.push(openHand.openness);
   calibEl.textContent = openHand
     ? `Calibrating… hold open palm ${remain.toFixed(1)}s`
     : `Calibrating… show an open palm (${remain.toFixed(1)}s)`;
-  if (elapsed >= CONFIG.calibration.holdSeconds) {
+  if (remain <= 0) {
     calibrating = false;
     calibEl.classList.remove('show');
     if (calibOpen.length > 5) {
       const open = median(calibOpen);
       applyCalibration(open);
       try {
-        localStorage.setItem(
-          CONFIG.calibration.storageKey,
-          JSON.stringify({ open, handSize: median(calibSize) }),
-        );
+        localStorage.setItem(CONFIG.calibration.storageKey, JSON.stringify({ open }));
       } catch {
         /* ignore */
       }
-      showToast('Calibrated');
-    } else {
-      showToast('Calibration failed — no open palm seen');
-    }
+      flashToast('Calibrated');
+    } else flashToast('Calibration failed — no open palm seen');
   }
-}
-
-// ── Diagnostics ─────────────────────────────────────────────────────────────
-let debugVisible = false;
-let fps = 0;
-let fpsAccum = 0;
-let fpsFrames = 0;
-const diag = { hands: 0 };
-let lastFrameRef: HandFrame = { count: 0, hands: [], raw: [] };
-
-function updateDebug(): void {
-  if (!debugVisible) return;
-  const s = tracker.trackingStats;
-  const conf = lastFrameRef.raw.map((r) => r.confidence.toFixed(2)).join(', ') || '—';
-  debugEl.textContent =
-    `fps      : ${fps.toFixed(0)}\n` +
-    `camera   : ${tracker.actualWidth}x${tracker.actualHeight}@${tracker.actualFps || '?'}\n` +
-    `hands    : ${diag.hands}   conf: ${conf}\n` +
-    `boost    : gain ${s.gain.toFixed(2)}  mean ${s.mean.toFixed(2)}\n` +
-    `shape    : ${CONFIG.shapes.names[morph.to]}  (t=${morph.t.toFixed(2)})\n` +
-    `scale    : ${physics.scale.toFixed(2)} / ${maxScale.toFixed(2)}\n` +
-    `energy   : ${smoothedEnergy.toFixed(2)}   spin ${physics.angularVel.length().toFixed(2)}\n` +
-    `exposure : ${background.currentExposure.toFixed(2)}\n` +
-    `audio    : ${audio.available ? audio.level.toFixed(2) : 'off'}   theme ${CONFIG.themes.list[themeIndex].name}`;
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 let toastTimer = 0;
-function showToast(text: string): void {
+function flashToast(text: string): void {
   toastEl.textContent = text;
   toastEl.classList.add('show');
   window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => toastEl.classList.remove('show'), 1400);
 }
 
-// ── Overlay drawing (landmarks / skeleton / PiP / debounce ring) ────────────
-const HAND_CONNECTIONS: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 4],
-  [0, 5], [5, 6], [6, 7], [7, 8],
-  [5, 9], [9, 10], [10, 11], [11, 12],
-  [9, 13], [13, 14], [14, 15], [15, 16],
-  [13, 17], [17, 18], [18, 19], [19, 20],
-  [0, 17],
-];
-const FINGER_LABELS = ['T', 'I', 'M', 'R', 'P'];
+// ── Mode indicator (always visible; H hides) ────────────────────────────────
+function updateModeIndicator(): void {
+  const gestures =
+    mode === 'shape'
+      ? 'fingers → shape · pinch → morph'
+      : 'fist → grab · open → scale · 2× pinch-pull → stretch · push → shock';
+  modeEl.innerHTML =
+    `<b>${mode === 'shape' ? 'SHAPE' : 'TRANSFORM'}</b>` +
+    `<span class="g">${gestures}</span>` +
+    (autoMode ? `<span class="auto">AUTO</span>` : '');
+}
 
+// ── Debug / diagnostics ─────────────────────────────────────────────────────
+let debugVisible = false;
+let fps = 0;
+let fpsAccum = 0;
+let fpsFrames = 0;
+let lastFrameRef: HandFrame = { count: 0, hands: [], raw: [] };
+let lastLabels: string[] = [];
+
+function updateDebug(): void {
+  if (!debugVisible) return;
+  const s = tracker.trackingStats;
+  const facing = lastFrameRef.hands.map((h) => `${h.handed[0]}${h.palmToward ? '→' : '←'}`).join(' ') || '—';
+  const eng = grabbing ? 'GRAB' : scaling ? 'SCALE' : following ? 'follow' : 'idle';
+  debugEl.textContent =
+    `fps      : ${fps.toFixed(0)}   cam ${tracker.actualWidth}x${tracker.actualHeight}@${tracker.actualFps || '?'}\n` +
+    `mode     : ${mode}${autoMode ? ' (auto)' : ''}  ${performance.now() < modeSwitchAt + CONFIG.modes.switchCooldownMs ? 'COOLDOWN' : ''}\n` +
+    `hands    : ${lastFrameRef.count}  facing ${facing}\n` +
+    `labels   : ${lastLabels.join(' | ') || '—'}\n` +
+    `boost    : gain ${s.gain.toFixed(2)} mean ${s.mean.toFixed(2)}\n` +
+    `shape    : ${morph.currentName}  (t=${morph.t.toFixed(2)})\n` +
+    `engage   : ${eng}\n` +
+    `scale    : ${physics.scale.toFixed(2)} → ${scaleTargetValue.toFixed(2)} (anchor ${anchorScale.toFixed(2)} m ${appliedMetric.toFixed(2)})\n` +
+    `energy   : ${smoothedEnergy.toFixed(2)}   exposure ${background.currentExposure.toFixed(2)}\n` +
+    `audio    : ${audio.available ? audio.level.toFixed(2) : 'off'}   theme ${CONFIG.themes.list[themeIndex].name}`;
+}
+
+// ── Overlay drawing ─────────────────────────────────────────────────────────
+const HAND_CONNECTIONS: [number, number][] = [
+  [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8],
+  [5, 9], [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16],
+  [13, 17], [17, 18], [18, 19], [19, 20], [0, 17],
+];
 function sizeOverlay(): void {
   const dpr = Math.min(window.devicePixelRatio, 2);
   overlay.width = window.innerWidth * dpr;
   overlay.height = window.innerHeight * dpr;
   octx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-
-function drawOverlay(frame: HandFrame, g: ReturnType<GestureController['update']>): void {
+function drawOverlay(frame: HandFrame, shapeCand: number, shapeProg: number): void {
   const W = window.innerWidth;
   const H = window.innerHeight;
   octx.clearRect(0, 0, W, H);
-  const hideUI = document.body.classList.contains('hide-ui');
-  if (hideUI) return;
+  if (document.body.classList.contains('hide-ui')) return;
 
-  // Shape-debounce progress ring (always shown, it's core feedback).
-  if (g.shapeProgress > 0 && g.shapeCandidate > 0) {
+  if (shapeProg > 0 && shapeCand > 0) {
     const cxp = W / 2;
-    const cyp = 92;
-    const rr = 26;
+    const cyp = 96;
     octx.lineWidth = 5;
     octx.strokeStyle = 'rgba(120,220,255,0.2)';
     octx.beginPath();
-    octx.arc(cxp, cyp, rr, 0, Math.PI * 2);
+    octx.arc(cxp, cyp, 26, 0, Math.PI * 2);
     octx.stroke();
     octx.strokeStyle = 'rgba(120,235,255,0.95)';
     octx.beginPath();
-    octx.arc(cxp, cyp, rr, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * g.shapeProgress);
+    octx.arc(cxp, cyp, 26, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * shapeProg);
     octx.stroke();
     octx.fillStyle = '#eaf7ff';
     octx.font = '600 22px ui-monospace, Menlo, monospace';
     octx.textAlign = 'center';
     octx.textBaseline = 'middle';
-    octx.fillText(String(g.shapeCandidate), cxp, cyp + 1);
+    octx.fillText(String(shapeCand), cxp, cyp + 1);
     octx.textAlign = 'left';
   }
 
   if (!debugVisible) return;
-
-  // Landmarks + skeleton per hand (mirrored to match the view).
-  for (const hand of frame.raw) {
+  for (let i = 0; i < frame.raw.length; i++) {
+    const hand = frame.raw[i];
     const col = hand.held ? 'rgba(255,180,90,0.9)' : 'rgba(120,235,255,0.9)';
     octx.strokeStyle = col;
     octx.lineWidth = 2;
@@ -354,18 +390,13 @@ function drawOverlay(frame: HandFrame, g: ReturnType<GestureController['update']
       octx.arc((1 - p.x) * W, p.y * H, 3, 0, Math.PI * 2);
       octx.fill();
     }
+    const wx = (1 - hand.points[0].x) * W;
+    const wy = hand.points[0].y * H;
+    octx.font = '12px ui-monospace, Menlo, monospace';
+    octx.fillStyle = '#8ff';
+    const info = frame.hands[i];
+    octx.fillText(`${hand.handed} ${lastLabels[i] ?? ''} f${info?.fingers ?? '?'} c${hand.confidence.toFixed(2)}`, wx - 40, wy + 26);
   }
-  // Per-hand finger readout.
-  octx.font = '12px ui-monospace, Menlo, monospace';
-  octx.fillStyle = '#8ff';
-  frame.hands.forEach((h, i) => {
-    const label = h.extended.map((e, k) => (e ? FINGER_LABELS[k] : '·')).join('');
-    const px = (1 - (frame.raw[i]?.points[0].x ?? 0.5)) * W;
-    const py = (frame.raw[i]?.points[0].y ?? 0.5) * H;
-    octx.fillText(`${h.fingers} [${label}] c${h.confidence.toFixed(2)}`, px - 40, py + 26);
-  });
-
-  // PiP of the enhanced tracking input.
   const tc = tracker.trackingCanvas;
   if (tc) {
     const pw = 200;
@@ -373,12 +404,11 @@ function drawOverlay(frame: HandFrame, g: ReturnType<GestureController['update']
     const x = 14;
     const y = H - ph - 14;
     octx.save();
-    octx.translate(x + pw, y); // mirror horizontally to match the view
+    octx.translate(x + pw, y);
     octx.scale(-1, 1);
     octx.drawImage(tc, 0, 0, pw, ph);
     octx.restore();
     octx.strokeStyle = 'rgba(120,220,255,0.5)';
-    octx.lineWidth = 1;
     octx.strokeRect(x, y, pw, ph);
     octx.fillStyle = '#8ff';
     octx.fillText('MediaPipe input (boosted)', x + 4, y - 6);
@@ -398,7 +428,7 @@ function toggleRecording(): void {
   try {
     recorder = new MediaRecorder(stream, { mimeType: mime, bitsPerSecond: CONFIG.record.bitsPerSecond });
   } catch {
-    showToast('Recording not supported');
+    flashToast('Recording not supported');
     return;
   }
   recChunks = [];
@@ -413,16 +443,26 @@ function toggleRecording(): void {
     URL.revokeObjectURL(url);
     recorder = null;
     recEl.classList.remove('on');
-    showToast('Saved recording');
+    flashToast('Saved recording');
   };
   recorder.start();
   recEl.classList.add('on');
-  showToast('Recording…');
+  flashToast('Recording…');
 }
 
 // ── Keyboard ────────────────────────────────────────────────────────────────
 window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    switchMode(mode === 'shape' ? 'transform' : 'shape', true, performance.now());
+    return;
+  }
   switch (e.key) {
+    case 'm':
+    case 'M':
+      autoMode = !autoMode;
+      flashToast(`Auto mode ${autoMode ? 'ON' : 'off'}`);
+      break;
     case 'd':
     case 'D':
       debugVisible = !debugVisible;
@@ -431,7 +471,7 @@ window.addEventListener('keydown', (e) => {
     case 'c':
     case 'C':
       themeIndex = (themeIndex + 1) % CONFIG.themes.list.length;
-      showToast(`Theme · ${CONFIG.themes.list[themeIndex].name}`);
+      flashToast(`Theme · ${CONFIG.themes.list[themeIndex].name}`);
       break;
     case 'r':
     case 'R':
@@ -453,6 +493,24 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+// ── Auto mode ────────────────────────────────────────────────────────────────
+function updateAutoMode(frame: HandFrame, nowMs: number): void {
+  if (!autoMode || nowMs < autoOverrideUntil) return;
+  const presenting = frame.hands.some((h) => !h.isFist && h.fingers >= 1);
+  const fistOrGone = frame.count === 0 || frame.hands.every((h) => h.isFist);
+  if (presenting) lastPresentMs = nowMs;
+  let desired: Mode = mode;
+  if (presenting) desired = 'shape';
+  else if (fistOrGone && nowMs - lastPresentMs > CONFIG.modes.auto.fistOrGoneMs) desired = 'transform';
+  if (desired !== autoCand) {
+    autoCand = desired;
+    autoCandSince = nowMs;
+  }
+  if (desired !== mode && nowMs - autoCandSince > CONFIG.modes.auto.stabilityMs) {
+    switchMode(desired, false, nowMs);
+  }
+}
+
 // ── Main loop ───────────────────────────────────────────────────────────────
 const clock = new THREE.Clock();
 let running = false;
@@ -464,7 +522,6 @@ function animate(): void {
   const dt = Math.min(clock.getDelta(), 0.05);
   const time = clock.elapsedTime;
   const nowMs = performance.now();
-
   fpsAccum += dt;
   fpsFrames++;
   if (fpsAccum >= 0.5) {
@@ -478,81 +535,75 @@ function animate(): void {
 
   const frame = tracker.detect(nowMs);
   lastFrameRef = frame;
-  diag.hands = frame.count;
-  const g = gestures.update(frame, dt);
   updateCalibration(frame);
+  updateAutoMode(frame, nowMs);
 
-  // Shape morph.
-  morph.setTarget(g.shapeIndex);
-  const morphT = morph.update(dt);
-  if (g.shapeChanged) showToast(CONFIG.shapes.names[g.shapeIndex]);
-
-  // Energy + scale smoothing.
+  const cooldown = nowMs < modeSwitchAt + CONFIG.modes.switchCooldownMs;
+  const g = gestures.update(frame, dt, mode, cooldown, nowMs);
+  lastLabels = g.labels;
   smoothedEnergy += (g.energy - smoothedEnergy) * CONFIG.hands.smoothing;
-  if (g.hasScaleInput) scaleTarget += (g.scaleTarget - scaleTarget) * CONFIG.hands.smoothing;
-  else scaleTarget += (CONFIG.idle.neutralScale - scaleTarget) * CONFIG.idle.returnSmoothing;
 
-  // ── Physics inputs ──
-  const P = CONFIG.physics;
-  physics.addTorque(g.spinInput.x * P.spinGain * dt, g.spinInput.y * P.spinGain * dt, 0);
-  if (g.twist) physics.addTorque(0, 0, g.twist * P.twistGain * dt);
-  if (g.shockwave) {
-    physics.triggerShock();
-    showToast('Shockwave');
+  // ── SHAPE morph (SHAPE mode only; frozen in TRANSFORM) ──
+  let morphT: number;
+  if (mode === 'shape') {
+    morph.setBlend(g.blend);
+    if (g.shapeSelect !== null) morph.select(g.shapeSelect);
+    morphT = morph.update(dt);
+  } else {
+    morphT = morph.eased();
   }
 
-  if (g.stretchActive && g.stretchAxisScreen) {
-    tmpV.set(g.stretchAxisScreen.x, -g.stretchAxisScreen.y, 0).normalize();
-    tmpV.applyQuaternion(physics.quaternion.clone().invert());
-    stretchAxisObj.copy(tmpV);
+  // ── Engage-based transform control ──
+  let hasTransform = false;
+  if (mode === 'transform') {
+    hasTransform = applyTransform(g, nowMs);
   }
-  physics.setStretch(g.stretchActive ? g.stretchAmount : 0, g.stretchActive);
 
-  let grabbing = false;
-  if (g.grab && g.grabScreen) {
-    const ray = screenToRay(g.grabScreen.x, g.grabScreen.y);
-    if (ray.intersectPlane(grabPlane, tmpV)) {
-      physics.grabTo(tmpV, dt);
-      grabbing = true;
+  // Position / orientation / scale targets for the physics springs.
+  if (mode === 'shape' || (!grabbing && !scaling)) {
+    // Not actively controlling: hold, then resume idle drift after a delay.
+    if (mode === 'shape') {
+      posTarget.copy(physics.position); // frozen in shape mode
+      orientTarget.copy(physics.quaternion); // frozen
+    } else {
+      const sinceRelease = nowMs - releaseTime;
+      if (sinceRelease < CONFIG.follow.idleResumeDelayMs) {
+        posTarget.copy(heldPos);
+      } else {
+        posTarget.set(
+          heldPos.x + Math.sin(time * CONFIG.follow.idleDriftSpeed) * CONFIG.follow.idleDriftAmp,
+          heldPos.y + Math.cos(time * CONFIG.follow.idleDriftSpeed * 0.8) * CONFIG.follow.idleDriftAmp,
+          0,
+        );
+      }
     }
   }
-  if (g.releaseVelScreen) {
-    const halfH = Math.tan(THREE.MathUtils.degToRad(CONFIG.camera.fov / 2)) * CONFIG.camera.distance;
-    const planeH = 2 * halfH;
-    const planeW = planeH * camera.aspect;
-    physics.releaseThrow(
-      new THREE.Vector3(g.releaseVelScreen.x * planeW, -g.releaseVelScreen.y * planeH, 0),
-    );
-  }
-
+  const orient = mode === 'shape' ? orientTarget : hasTransform && (grabbing || scaling) ? orientTarget : null;
   const audioScale = audio.level * CONFIG.audio.scalePulse;
-  physics.update(dt, { scaleTarget, audioScale, maxScale, grabbing });
+  physics.update(dt, { posTarget, scaleTarget: scaleTargetValue, orientTarget: orient, audioScale, maxScale });
 
   objectGroup.position.copy(physics.position);
   objectGroup.quaternion.copy(physics.quaternion);
   objectGroup.scale.setScalar(physics.scale);
   objectGroup.updateMatrixWorld();
 
-  // ── Beam ──
+  // ── Beam (pointing; a shape-mode flourish) ──
   let beamActive = 0;
   beamObjPoint.set(0, 0, 0);
-  if (g.beamActive && g.beamScreen) {
-    const ray = screenToRay(g.beamScreen.x, g.beamScreen.y);
+  const pointer = mode === 'shape' ? frame.hands.find((h) => h.indexOnly) : undefined;
+  if (pointer) {
+    const ray = screenToRay(pointer.indexTipX, pointer.indexTipY);
     const sphere = new THREE.Sphere(physics.position, CONFIG.wireframe.size * physics.scale * 1.5);
     const fingertip = ray.intersectPlane(fingerPlane, new THREE.Vector3()) ?? ray.at(1.0, new THREE.Vector3());
     if (ray.intersectSphere(sphere, beamHitWorld)) {
       beamActive = 1;
       beamObjPoint.copy(objectGroup.worldToLocal(beamHitWorld.clone()));
       beam.setEndpoints(fingertip, beamHitWorld);
-    } else {
-      beam.setEndpoints(fingertip, ray.at(3.0, tmpV.clone()));
-    }
+    } else beam.setEndpoints(fingertip, ray.at(3.0, tmpV.clone()));
     beam.setVisible(true);
-  } else {
-    beam.setVisible(false);
-  }
+  } else beam.setVisible(false);
 
-  // ── Themes ──
+  // ── Themes + shader uniforms ──
   const th = CONFIG.themes.list[themeIndex];
   cur.cool.lerp(new THREE.Color(th.cool), CONFIG.themes.lerp);
   cur.hot.lerp(new THREE.Color(th.hot), CONFIG.themes.lerp);
@@ -580,19 +631,14 @@ function animate(): void {
     scale: physics.scale,
   };
   wireframe.update(f);
-  const pf: ParticleFrame = {
-    ...f,
-    energy: smoothedEnergy,
-    coolColor: cur.cool,
-    hotColor: cur.hot,
-    discColor: cur.disc,
-    discWeight,
-    columnWeight: discWeight,
-  };
+  const pf: ParticleFrame = { ...f, energy: smoothedEnergy, coolColor: cur.cool, hotColor: cur.hot, discColor: cur.disc, discWeight, columnWeight: discWeight };
   core.update(pf);
 
+  // Motion trail grows with how fast the object is actually moving.
+  const moved = physics.position.distanceTo(prevObjPos) / Math.max(1e-3, dt);
+  prevObjPos.copy(physics.position);
   afterimagePass.uniforms['damp'].value = THREE.MathUtils.clamp(
-    THREE.MathUtils.mapLinear(physics.speed, 0, CONFIG.trail.speedForFast, CONFIG.trail.dampRest, CONFIG.trail.dampFast),
+    THREE.MathUtils.mapLinear(moved, 0, CONFIG.trail.speedForFast, CONFIG.trail.dampRest, CONFIG.trail.dampFast),
     CONFIG.trail.dampRest,
     CONFIG.trail.dampFast,
   );
@@ -600,8 +646,78 @@ function animate(): void {
   caGrainPass.uniforms.uTime.value = time;
   composer.render();
 
-  drawOverlay(frame, g);
+  drawOverlay(frame, g.shapeCandidate, g.shapeProgress);
+  updateModeIndicator();
   updateDebug();
+}
+
+/** Apply the arbiter's resolved transform gestures via engage/anchor/relative. */
+function applyTransform(g: ReturnType<GestureController['update']>, nowMs: number): boolean {
+  // Stretch (two-hand).
+  if (g.stretch) {
+    tmpV.set(g.stretch.axisScreen.x, -g.stretch.axisScreen.y, 0).normalize();
+    tmpV.applyQuaternion(tmpQ.copy(physics.quaternion).invert());
+    stretchAxisObj.copy(tmpV);
+    physics.setStretch(g.stretch.amount, true);
+  } else {
+    physics.setStretch(0, false);
+  }
+  if (g.shockwave) {
+    physics.triggerShock();
+    flashToast('Shockwave');
+  }
+
+  // Grab (6-DOF: position + orientation).
+  if (g.grabHand) {
+    const palmW = palmToWorld(g.grabHand, tmpV);
+    const palmQ = palmToQuat(g.grabHand.palmBasis, tmpQ);
+    if (!grabbing) {
+      grabbing = true;
+      scaling = false;
+      following = true;
+      anchorPalmQ.copy(palmQ);
+      anchorObjQ.copy(physics.quaternion);
+    }
+    posTarget.copy(palmW);
+    heldPos.copy(palmW);
+    // orientTarget = (palmQ * anchorPalmQ⁻¹) * anchorObjQ  (world-space delta)
+    tmpQ2.copy(palmQ).multiply(anchorPalmQ.clone().invert());
+    orientTarget.copy(tmpQ2).multiply(anchorObjQ);
+    return true;
+  }
+  grabbing = false;
+
+  // Scale (openness metric; also holds the object at the palm).
+  if (g.scaleHand) {
+    const metric = Math.max(CONFIG.hands.scaleMetricMin, g.scaleHand.openness);
+    const palmW = palmToWorld(g.scaleHand, tmpV);
+    if (!scaling) {
+      scaling = true;
+      following = true;
+      anchorMetric = metric;
+      anchorScale = scaleTargetValue;
+      lastMetric = metric;
+      appliedMetric = metric;
+    } else {
+      const jump = Math.abs(metric - lastMetric) / Math.max(1e-4, lastMetric);
+      if (jump <= CONFIG.control.scaleOutlier) {
+        if (Math.abs(metric - appliedMetric) / Math.max(1e-4, appliedMetric) > CONFIG.control.scaleDeadzone) {
+          scaleTargetValue = THREE.MathUtils.clamp(anchorScale * (metric / anchorMetric), CONFIG.hands.scaleMin, maxScale);
+          appliedMetric = metric;
+        }
+      }
+      lastMetric = metric;
+    }
+    posTarget.copy(palmW);
+    heldPos.copy(palmW);
+    orientTarget.copy(physics.quaternion); // freeze rotation while scaling
+    return true;
+  }
+  scaling = false;
+
+  // Nothing engaged this frame → release (freeze in place, no reset).
+  if (following) endEngage(nowMs);
+  return false;
 }
 
 // ── Resize ──────────────────────────────────────────────────────────────────
@@ -626,8 +742,9 @@ function onResize(): void {
 }
 window.addEventListener('resize', onResize);
 sizeOverlay();
+updateModeIndicator();
 
-// ── Start gate ──────────────────────────────────────────────────────────────
+// ── Start ─────────────────────────────────────────────────────────────────
 async function start(): Promise<void> {
   startBtn.disabled = true;
   startBtn.textContent = 'Starting camera…';
@@ -652,21 +769,17 @@ startBtn.addEventListener('click', start);
 
 (window as unknown as { CONFIG: typeof CONFIG }).CONFIG = CONFIG;
 (window as unknown as { app: unknown }).app = {
-  setShape: (i: number) => gestures.forceShape(i),
+  setMode: (m: Mode) => switchMode(m, true, performance.now()),
   snapShape: (i: number) => {
-    gestures.forceShape(i);
-    morph.from = i;
-    morph.to = i;
-    morph.pending = i;
-    morph.t = 1;
+    gestures.forceShapeIndex(i);
+    morph.force(i);
   },
-  shock: () => physics.triggerShock(),
   setTheme: (i: number) => {
     themeIndex = ((i % CONFIG.themes.list.length) + CONFIG.themes.list.length) % CONFIG.themes.list.length;
   },
-  calibrate: () => startCalibration(),
-  analyze: (lm: { x: number; y: number; z: number }[]) => tracker.analyzeLandmarks(lm),
+  analyzeWorld: (lm: { x: number; y: number; z: number }[], handed = 'Right') => tracker.analyzeWorld(lm, handed),
   trackingStats: () => tracker.trackingStats,
+  state: () => ({ mode, grabbing, scaling, scale: physics.scale, scaleTargetValue }),
   physics,
   morph,
 };

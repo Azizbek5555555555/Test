@@ -1,91 +1,83 @@
 import * as THREE from 'three';
 import { CONFIG } from '../config';
+import { SpringScalar, SpringVec3 } from '../control/Spring';
 
 /**
- * Real momentum + damping for the object, instead of mapping hand position
- * straight to rotation. Flicks add angular velocity that coasts to a gentle
- * idle spin; grabbing drags the object and releasing throws it with inertia;
- * scale is a spring (so audio/shockwave pulses bounce); shockwave and stretch
- * are time-based envelopes shared with the shaders.
+ * Object motion driven by critically damped springs (position + scale) and a
+ * quaternion that is either slerped toward an engage-relative target (while
+ * grabbing) or left to a gentle idle spin. Nothing here maps hand input
+ * absolutely; the engage/anchor logic lives in main and only feeds targets in.
+ *
+ * Shockwave and stretch remain time-based envelopes shared with the shaders.
  */
 export class ObjectPhysics {
   quaternion = new THREE.Quaternion();
-  angularVel = new THREE.Vector3();
-  position = new THREE.Vector3();
-  linearVel = new THREE.Vector3();
-  scale: number = CONFIG.idle.neutralScale;
-  private scaleVel = 0;
-
-  shock = 0; // 0..1 envelope
-  private shockTime = Infinity;
-  stretch = 0; // smoothed deform amount
-
+  private posSpring = new SpringVec3(new THREE.Vector3());
+  private scaleSpring = new SpringScalar(CONFIG.idle.neutralScale);
+  private angVel = new THREE.Vector3();
   private idleAxis = new THREE.Vector3(0.22, 1, 0.16).normalize();
-  private prevPos = new THREE.Vector3();
   private tmpQ = new THREE.Quaternion();
 
-  /** Add an angular impulse (rad/s added directly to angular velocity). */
-  addTorque(x: number, y: number, z: number): void {
-    this.angularVel.x += x;
-    this.angularVel.y += y;
-    this.angularVel.z += z;
-  }
+  scale: number = CONFIG.idle.neutralScale;
+  shock = 0 as number;
+  private shockTime = Infinity;
+  stretch = 0 as number;
 
-  /** Chase a world-space grab target this frame; tracks velocity for the throw. */
-  grabTo(target: THREE.Vector3, dt: number): void {
-    this.prevPos.copy(this.position);
-    this.position.lerp(target, CONFIG.physics.grabFollow);
-    if (dt > 1e-4) this.linearVel.copy(this.position).sub(this.prevPos).divideScalar(dt);
+  get position(): THREE.Vector3 {
+    return this.posSpring.value;
   }
-
-  /** Release with an explicit world velocity (the throw). */
-  releaseThrow(vel: THREE.Vector3): void {
-    this.linearVel.copy(vel);
+  get scaleRaw(): number {
+    return this.scaleSpring.value;
   }
 
   triggerShock(): void {
     this.shockTime = 0;
   }
-
   setStretch(target: number, active: boolean): void {
     const k = active ? CONFIG.stretch.smoothing : CONFIG.stretch.releaseSmoothing;
     this.stretch += (target - this.stretch) * k;
   }
 
+  /** Directly seat position/scale (used by the console API for tests). */
+  setScaleImmediate(v: number): void {
+    this.scaleSpring.set(v);
+    this.scale = v;
+  }
+
   update(
     dt: number,
-    opts: { scaleTarget: number; audioScale: number; maxScale: number; grabbing: boolean },
+    c: {
+      posTarget: THREE.Vector3;
+      scaleTarget: number;
+      orientTarget: THREE.Quaternion | null; // null = idle spin
+      audioScale: number;
+      maxScale: number;
+    },
   ): void {
-    // ── Rotation: decay toward a gentle idle spin, then integrate ──
-    const idleVel = this.idleAxis.clone().multiplyScalar(CONFIG.physics.idleSpin);
-    const kd = 1 - Math.exp(-CONFIG.physics.angularDamping * dt);
-    this.angularVel.lerp(idleVel, kd);
-    const maxA = CONFIG.physics.maxAngular;
-    if (this.angularVel.length() > maxA) this.angularVel.setLength(maxA);
+    // Position: critically damped follow toward the target (palm / held / drift).
+    this.posSpring.update(c.posTarget, CONFIG.follow.positionOmega, dt);
 
-    const angle = this.angularVel.length() * dt;
-    if (angle > 1e-6) {
-      const axis = this.angularVel.clone().normalize();
-      this.tmpQ.setFromAxisAngle(axis, angle);
-      this.quaternion.premultiply(this.tmpQ).normalize();
+    // Scale: critically damped spring; audio is a transient on top (base holds).
+    const target = Math.min(Math.max(c.scaleTarget, CONFIG.hands.scaleMin), c.maxScale);
+    this.scaleSpring.update(target, CONFIG.control.scaleSpringOmega, dt);
+    this.scale = Math.max(0.05, this.scaleSpring.value * (1 + c.audioScale));
+
+    // Orientation: engage-relative target (grab) or gentle idle spin.
+    if (c.orientTarget) {
+      this.quaternion.slerp(c.orientTarget, CONFIG.control.rotationSlerp);
+      this.angVel.set(0, 0, 0);
+    } else {
+      const idle = this.idleAxis.clone().multiplyScalar(CONFIG.physics.idleSpin);
+      this.angVel.lerp(idle, 1 - Math.exp(-CONFIG.physics.angularDamping * dt));
+      if (this.angVel.length() > CONFIG.physics.maxAngular) this.angVel.setLength(CONFIG.physics.maxAngular);
+      const angle = this.angVel.length() * dt;
+      if (angle > 1e-6) {
+        this.tmpQ.setFromAxisAngle(this.angVel.clone().normalize(), angle);
+        this.quaternion.premultiply(this.tmpQ).normalize();
+      }
     }
 
-    // ── Position: grab chases hand; free = spring to center + damping ──
-    if (!opts.grabbing) {
-      const spring = this.position.clone().multiplyScalar(-CONFIG.physics.positionSpring);
-      this.linearVel.addScaledVector(spring, dt);
-      this.linearVel.multiplyScalar(Math.exp(-CONFIG.physics.linearDamping * dt));
-      this.position.addScaledVector(this.linearVel, dt);
-    }
-
-    // ── Scale spring (audio + base) ──
-    const target = Math.min(opts.scaleTarget * (1 + opts.audioScale), opts.maxScale);
-    this.scaleVel += (target - this.scale) * CONFIG.physics.scaleSpring * dt;
-    this.scaleVel *= Math.exp(-CONFIG.physics.scaleDamping * dt);
-    this.scale += this.scaleVel * dt;
-    this.scale = Math.min(Math.max(this.scale, 0.05), opts.maxScale);
-
-    // ── Shockwave envelope (fast out, spring back) ──
+    // Shockwave envelope.
     if (this.shockTime < CONFIG.shockwave.duration) {
       this.shockTime += dt;
       const x = Math.min(this.shockTime / CONFIG.shockwave.duration, 1);
@@ -93,10 +85,5 @@ export class ObjectPhysics {
     } else {
       this.shock = 0;
     }
-  }
-
-  /** Combined speed proxy for the motion-trail damping. */
-  get speed(): number {
-    return this.angularVel.length() + this.linearVel.length() * 2.0;
   }
 }

@@ -78,60 +78,71 @@ npm run preview  # serve the production build
 
 ## Controls
 
-### Shapes — hold up N fingers (steady ~0.5s), smooth 1.2s morph
+There are **two modes** and only one is ever active, so shape control and
+transform control can never run together and corrupt each other. **The spacebar
+switches modes** (starts in SHAPE, persists across reloads). After each switch
+there's a 400 ms grace period so the pose you're holding doesn't instantly fire.
+A small always-on indicator at the top shows the current mode and its gestures;
+switching to TRANSFORM briefly flashes the locked shape name.
 
-| Fingers | Shape |
-| --- | --- |
-| 1 | Sphere |
-| 2 | Cube |
-| 3 | Torus |
-| 4 | Octahedron |
-| 5 | Torus knot |
+Within a mode, a strict per-hand arbiter allows **only one gesture per hand at a
+time**: the first gesture to engage takes an exclusive lock and no other gesture
+on that hand can start until it releases (its condition must fail for ~200 ms).
+Releasing never resets anything — whatever you changed stays where it is.
 
-The current shape name flashes on screen when it changes. Requiring the count to
-be held debounces accidental switches mid-motion.
-
-### Hand gestures
+### SHAPE mode — all transform is frozen
 
 | Gesture | Effect |
 | --- | --- |
-| **Fist** | Grab — the object locks to your hand and you drag it in 3D |
-| **Open the fist** | Release with inertia — it keeps drifting/spinning, then settles |
-| **Open hand, flick** | Real angular momentum — spin it and it coasts to a stop |
-| **Two hands, spread** | Scale |
-| **Two hands, twist** (rotate around the midpoint) | Roll on the Z axis |
-| **Two hands, pinch + pull apart** | Stretch into an ellipsoid (snaps back on release) |
-| **Push palm toward camera** | Shockwave — particles blast out, wireframe flexes, springs back |
-| **Point (index finger)** | Beam from the fingertip; the surface it hits lights up and particles are drawn to it |
-| **Open palm / closed fist** | Energy up / collapse |
-| _No hands_ | Slow auto-rotate and drift back to neutral |
+| **1–5 fingers** (held ~0.5 s / 8 frames) | Sphere · cube · torus · octahedron · torus knot. A progress ring shows it registering. |
+| **Pinch** (thumb + index) | Morph blend toward the next shape — hold a halfway state; pinch fully to commit |
+| **Point** (index only) | Beam — the surface it hits lights up and particles are drawn in |
 
-Every input is smoothed with a damped lerp and each gesture has a
-debounce/deadzone/cooldown, so false triggers are rare (they matter more than a
-missed trigger when you're recording).
+Finger counting uses the metric 3D `worldLandmarks` and **joint angles**, so it
+works with your palm toward the camera, the back of your hand, or fingers
+pointing any direction — orientation no longer matters.
+
+### TRANSFORM mode — the shape is hard-locked
+
+| Gesture | Effect |
+| --- | --- |
+| **Fist** | Grab — the object holds to your hand and you drag + rotate it (6-DOF; roll included) |
+| **Open hand** | Scale — grows/shrinks around your palm and stays centered on it; the size stays exactly where you leave it on release |
+| **Two hands, pinch + pull apart** | Stretch into an ellipsoid (needs both hands free of single-hand locks) |
+| **Push palm toward camera** | Shockwave — particles blast out, wireframe flexes, springs back |
+
+Grab and scale keep the object locked to your palm with a critically damped
+follow; on release it keeps its position and size and only then resumes a slow
+idle drift from where you left it (never springs back to center).
+
+### AUTO mode (optional, **M**)
+
+Off by default. When on, the mode also follows your hand: presenting a finger
+count → SHAPE, a fist or no hand for >400 ms → TRANSFORM (each must be stable
+~350 ms). The spacebar still works and overrides auto for 3 s. The indicator
+shows **AUTO** when it's on.
 
 ### Keyboard
 
 | Key | Action |
 | --- | --- |
-| **K** | Calibrate — hold an open palm ~3s to capture your hand size / neutral (stored) |
+| **Space** | Switch SHAPE ⇄ TRANSFORM (primary, always works) |
+| **M** | Toggle auto mode |
+| **K** | Calibrate — hold an open palm ~3 s (stored in localStorage) |
 | **C** | Cycle color theme (cyan → amber → magenta → acid), interpolated |
 | **R** | Start/stop recording the canvas → auto-downloaded `.webm` |
-| **H** | Hide all UI/overlays for a clean recording |
-| **?** | Toggle the on-screen gesture-hint panel |
-| **D** | Debug overlay: fps, camera resolution, per-hand confidence, boost gain, plus the 21 landmarks + skeleton drawn over each hand, the boosted MediaPipe-input PiP, per-hand finger count / which fingers are extended, and the shape-debounce progress |
+| **H** | Hide all UI/overlays (including the mode indicator) for a clean recording |
+| **?** | Toggle the gesture-hint panel |
+| **D** | Debug overlay: fps, camera resolution, mode + cooldown, per-hand role/gesture + lock, finger count, palm facing, engage/anchor + current-vs-target scale, the 21 landmarks/skeleton per hand, and the boosted MediaPipe-input PiP |
 
-**Microphone** is requested separately from the camera and is fully optional —
-if you deny it, everything else works and the audio reactivity just stays off.
-When granted, bass energy pulses the object's scale and the particle brightness
-on the beat.
-
-The object also leaves a short **motion trail** (afterimage) when it moves fast.
+**Microphone** is optional (requested separately; everything works if denied) —
+bass pulses the scale and particle brightness. The object also leaves a short
+**motion trail** when it moves fast.
 
 ### Console
 
-For quick tinkering, `window.CONFIG` is the live config object and `window.app`
-exposes `setShape(0-4)`, `snapShape(0-4)`, `shock()`, and `setTheme(0-3)`.
+`window.CONFIG` is the live config object; `window.app` exposes `setMode('shape'|'transform')`,
+`snapShape(0-4)`, `setTheme(0-3)`, and `state()`.
 
 ## Where the look lives
 
@@ -152,11 +163,19 @@ src/
   scene/Beam.ts               the fingertip → surface beam line
   input/TrackingInput.ts      offscreen enhancement canvas fed ONLY to MediaPipe (gain/gamma/stretch/denoise)
   input/OneEuroFilter.ts      One Euro filter bank (per-landmark smoothing)
-  input/HandTracker.ts        enhanced input → MediaPipe → filtered landmarks, dropout hold, angle-based fingers
+  input/HandTracker.ts        enhanced input → MediaPipe; world-landmark, orientation-invariant fingers + palm frame
   input/AudioInput.ts         optional microphone → smoothed bass envelope
-  gesture/GestureController.ts raw hands → debounced high-level gestures + shape progress
-  physics/ObjectPhysics.ts    angular + linear momentum, springs, shockwave/stretch envelopes
+  gesture/GestureController.ts mode-gated per-hand arbiter (one gesture per hand, exclusive lock)
+  control/ShapeMorph.ts       shape state + finger/pinch morph (frozen in TRANSFORM mode)
+  control/Spring.ts           critically damped scalar + vector springs (scale, position follow)
+  physics/ObjectPhysics.ts    spring-driven position/scale + engage-relative orientation + idle drift
 ```
+
+Interaction is a two-layer design: `GestureController` decides *which* single
+gesture is active per hand (mode + arbiter), and `main.ts` applies it through an
+**engage / anchor / relative** pattern so nothing ever teleports — the object is
+held at your palm with a critically damped follow, scale is anchored on engage
+and kept on release, and rotation is a world-space delta from the grab pose.
 
 ### Performance note
 

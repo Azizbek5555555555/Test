@@ -95,6 +95,74 @@ export const CONFIG = {
 
     /** A finger count must be stable this many consecutive frames to fire. */
     fingerDebounceFrames: 8,
+
+    /** MediaPipe assumes a mirrored (selfie) input when labelling handedness.
+     *  We feed it the UNMIRRORED raw camera frame, so its label is inverted —
+     *  we swap it in code to recover the true anatomical Left/Right. */
+    swapHandedness: true,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // MODES — exactly one of SHAPE / TRANSFORM is ever active. Shape control and
+  // transform control can never run together.
+  // ────────────────────────────────────────────────────────────────────────
+  modes: {
+    /** Starting mode. */
+    start: 'shape',
+    /** After every switch, no gesture in the newly active mode can engage for
+     *  this long (so the pose you happen to be holding doesn't fire instantly). */
+    switchCooldownMs: 400,
+    storageKey: 'wireframe-mode-v1',
+    auto: {
+      /** Auto mode off by default (toggled with M). */
+      enabledDefault: false,
+      /** Condition must be stable this long before auto switches. */
+      stabilityMs: 350,
+      /** Fist / no-hand for longer than this → TRANSFORM. */
+      fistOrGoneMs: 400,
+      /** A spacebar press overrides auto mode for this long. */
+      overrideMs: 3000,
+    },
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // ARBITER — at most one gesture engaged per hand; it takes an exclusive lock
+  // until its condition fails for a sustained window.
+  // ────────────────────────────────────────────────────────────────────────
+  arbiter: {
+    /** A locked gesture only releases after its condition fails this long. */
+    releaseMs: 200,
+    /** Grab (6-DOF hold) engages at/below this finger count. */
+    grabMaxFingers: 1,
+    /** Scale engages at/above this finger count (and not pinched). */
+    scaleMinFingers: 3,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Engage-based control (relative, anchored — nothing teleports)
+  // ────────────────────────────────────────────────────────────────────────
+  control: {
+    /** Critically damped scale spring frequency (rad/s). Higher = snappier. */
+    scaleSpringOmega: 13,
+    /** Ignore metric changes under this fraction while engaged (anti-jitter). */
+    scaleDeadzone: 0.03,
+    /** Reject a frame whose metric jumps more than this fraction (glitch). */
+    scaleOutlier: 0.35,
+    /** Palm-orientation → object rotation slerp per frame while grabbing. */
+    rotationSlerp: 0.6,
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // FOLLOW — while grab/scale is engaged the object is held at the palm center.
+  // ────────────────────────────────────────────────────────────────────────
+  follow: {
+    /** Critically damped position-follow frequency toward the palm (rad/s). */
+    positionOmega: 14,
+    /** After releasing, how long before the slow idle drift resumes. */
+    idleResumeDelayMs: 700,
+    /** Idle drift amplitude / speed once resumed. */
+    idleDriftAmp: 0.12,
+    idleDriftSpeed: 0.12,
   },
 
   // ────────────────────────────────────────────────────────────────────────
@@ -192,18 +260,12 @@ export const CONFIG = {
   // Physics
   // ────────────────────────────────────────────────────────────────────────
   physics: {
-    angularDamping: 0.9,
-    spinGain: 9.0,
-    maxAngular: 6.0,
-    twistGain: 2.2,
+    /** Idle spin (rad/s) when nothing is engaged, and its decay. */
     idleSpin: 0.18,
-    linearDamping: 1.6,
-    positionSpring: 2.2,
-    grabFollow: 0.35,
-    throwGain: 1.0,
+    angularDamping: 0.9,
+    maxAngular: 6.0,
+    /** World Z-plane the grabbed object is held on. */
     grabDepth: 0,
-    scaleSpring: 8.0,
-    scaleDamping: 4.0,
   },
 
   // ────────────────────────────────────────────────────────────────────────
@@ -273,27 +335,29 @@ export const CONFIG = {
     smoothing: 0.08,
     maxHands: 2,
 
-    /** Two-hand distance → scale (normalized by average hand size). */
-    palmDistMin: 0.6,
-    palmDistMax: 3.4,
-    scaleMin: 0.5,
+    /** Object scale clamp. */
+    scaleMin: 0.4,
     scaleMax: 1.6,
 
-    /** Pinch threshold (thumb↔index / hand size) below which a hand is pinched. */
-    pinchThreshold: 0.4,
+    /** Pinch aperture (thumb↔index / hand size, metric). Below pinchEngage a
+     *  hand counts as pinched (frees it from single-hand locks → two-hand
+     *  stretch), and drives the shape-mode morph blend. */
+    pinchEngage: 0.4,
+    /** Aperture that maps to a full morph blend to the next shape. */
+    blendFullOpen: 1.1,
 
-    /** Openness (mean fingertip distance from palm / hand size) → energy. */
+    /** Scale metric = hand openness (mean fingertip spread / hand size). */
+    scaleMetricMin: 0.4,
+
+    /** Openness → particle energy. */
     opennessMin: 0.5,
     opennessMax: 1.4,
     energyMin: 0.15,
     energyMax: 1.0,
 
-    /** Push-toward-camera (shockwave): required growth rate of hand size /sec. */
+    /** Push-toward-camera (shockwave): required hand-size growth rate /sec. */
     pushGrowthRate: 1.1,
     pushCooldownMs: 900,
-
-    /** Two-hand twist deadzone (rad/s). */
-    twistDeadzone: 0.25,
   },
 
   idle: {
@@ -321,13 +385,15 @@ export type Config = typeof CONFIG;
 /*
  * ── TWEAK THESE FIRST ──
  *
+ *  Interaction:
+ *    1. modes.switchCooldownMs        → grace period after a mode switch
+ *    2. arbiter.releaseMs             → how long a gesture must fail before it unlocks
+ *    3. follow.positionOmega          → how tightly the object sticks to your palm
+ *    4. control.scaleSpringOmega / .scaleDeadzone → scale feel & jitter rejection
  *  Tracking in a dark room:
- *    1. tracking.gamma / .gainMax     → how hard dim hands are lifted for MediaPipe
- *    2. tracking.fingerExtendAngle    → finger-count sensitivity (lower = easier extend)
- *    3. tracking.oneEuroBeta/minCutoff → smooth-vs-responsive landmark feel
- *    4. tracking.dropoutMs            → how long a lost hand is held before releasing
+ *    5. tracking.gamma / .gainMax     → how hard dim hands are lifted for MediaPipe
+ *    6. tracking.fingerExtendAngle    → finger-count sensitivity (lower = easier extend)
+ *    7. tracking.oneEuroBeta/minCutoff → smooth-vs-responsive landmark feel
  *  Look:
- *    5. background.targetLuminance    → how dark the room sits
- *    6. bloom.threshold / .strength   → interior glow intensity
- *    7. particles.intensity / .alpha  → core column & streak clarity
+ *    8. background.targetLuminance / bloom.threshold / particles.intensity
  */

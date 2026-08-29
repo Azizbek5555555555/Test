@@ -242,6 +242,43 @@
         font-family: ui-monospace, Menlo, monospace;
       }
 
+      /* Persistent mode indicator (small, unobtrusive; H hides it) */
+      #mode {
+        position: fixed;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 14px;
+        font-size: 12px;
+        letter-spacing: 0.4px;
+        color: #bfe6ff;
+        background: rgba(6, 16, 26, 0.5);
+        border: 1px solid rgba(120, 220, 255, 0.28);
+        border-radius: 999px;
+        backdrop-filter: blur(6px);
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      #mode b {
+        color: #eaf7ff;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+      }
+      #mode .g {
+        color: #6f9bb3;
+      }
+      #mode .auto {
+        color: #001018;
+        background: #7fe3ff;
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-weight: 700;
+      }
+
       /* Calibration prompt */
       #calib {
         position: fixed;
@@ -269,7 +306,8 @@
       body.hide-ui #toast,
       body.hide-ui #hint,
       body.hide-ui #rec,
-      body.hide-ui #calib {
+      body.hide-ui #calib,
+      body.hide-ui #mode {
         display: none !important;
       }
     </style>
@@ -290,29 +328,35 @@
       <div class="hint">Press <b>?</b> for all controls · <b>D</b> for debug</div>
     </div>
 
+    <div id="mode"></div>
     <div id="debug"></div>
     <div id="toast"></div>
     <div id="calib"></div>
     <div id="rec"><span class="dot"></span>REC</div>
 
     <div id="hint">
-      <h2>Controls</h2>
+      <h2>Two modes — SPACE switches</h2>
       <table>
-        <tr><td>1–5 fingers</td><td>Shape: sphere · cube · torus · octahedron · torus knot (hold ~0.5s)</td></tr>
-        <tr><td>Fist</td><td>Grab &amp; drag; open to throw with inertia</td></tr>
-        <tr><td>Open hand move</td><td>Flick to spin (real momentum, coasts to a stop)</td></tr>
-        <tr><td>Two hands spread</td><td>Scale</td></tr>
-        <tr><td>Two hands twist</td><td>Roll on the Z axis</td></tr>
-        <tr><td>Two pinch + pull</td><td>Stretch into an ellipsoid (snaps back)</td></tr>
-        <tr><td>Push at camera</td><td>Shockwave blast</td></tr>
+        <tr><td><b>SPACE</b></td><td>Toggle SHAPE ⇄ TRANSFORM (400ms grace after each switch)</td></tr>
+        <tr><td><b>M</b></td><td>Auto mode: follow the hand (fingers → shape, fist/gone → transform)</td></tr>
+      </table>
+      <h2 style="margin-top:12px">SHAPE mode</h2>
+      <table>
+        <tr><td>1–5 fingers</td><td>Sphere · cube · torus · octahedron · torus knot (hold ~0.5s)</td></tr>
+        <tr><td>Pinch</td><td>Morph blend toward the next shape (pinch fully to commit)</td></tr>
         <tr><td>Point (index)</td><td>Beam — lights the surface, pulls particles</td></tr>
-        <tr><td>Open palm / fist</td><td>Energy up / collapse</td></tr>
-        <tr><td>K</td><td>Calibrate — hold an open palm ~3s (per-distance tuning)</td></tr>
-        <tr><td>C</td><td>Cycle color theme</td></tr>
-        <tr><td>R</td><td>Record canvas → .webm</td></tr>
-        <tr><td>H</td><td>Hide all UI (clean recording)</td></tr>
-        <tr><td>D</td><td>Debug overlay</td></tr>
-        <tr><td>?</td><td>Toggle this panel</td></tr>
+      </table>
+      <h2 style="margin-top:12px">TRANSFORM mode</h2>
+      <table>
+        <tr><td>Fist</td><td>Grab — object holds to your hand, drag + rotate (6-DOF)</td></tr>
+        <tr><td>Open hand</td><td>Scale — grows around your palm; size stays on release</td></tr>
+        <tr><td>2× pinch + pull</td><td>Stretch into an ellipsoid</td></tr>
+        <tr><td>Push at camera</td><td>Shockwave blast</td></tr>
+      </table>
+      <h2 style="margin-top:12px">Keys</h2>
+      <table>
+        <tr><td>K</td><td>Calibrate — hold an open palm ~3s</td></tr>
+        <tr><td>C · R · H · D · ?</td><td>Theme · record · hide UI · debug · this panel</td></tr>
       </table>
     </div>
 
