@@ -12,9 +12,16 @@ Recreated from `reference.mp4`.
 ## Tech stack
 
 - **Vite + TypeScript**
-- **Three.js** rendering (`LineSegments` wireframe, GPU `Points` particle core)
-- **postprocessing** via Three's `UnrealBloomPass` + a custom chromatic
-  aberration / film-grain pass
+- **Three.js** rendering: fat-line wireframe (`LineSegments2` / `LineMaterial`,
+  real world-space width) with the sphere↔cube morph and a depth fade injected
+  into its shader, plus a GPU `Points` particle core
+- **HDR post pipeline**: a linear `HalfFloat` composer → `UnrealBloomPass`
+  (bloom in HDR, *before* tone mapping) → custom chromatic-aberration /
+  film-grain pass → `OutputPass` (ACES tone mapping + sRGB) → `SMAAPass`
+- The **webcam is rendered inside the scene** as a fullscreen `VideoTexture`
+  quad (not a CSS blend layer), so it flows through the same tone-mapping
+  pipeline as the glow — with **auto-exposure** that darkens the room to a low
+  target luminance, so a bright white wall and a dark night room both look right
 - **@mediapipe/tasks-vision** `HandLandmarker` for real-time hand tracking
 - No asset files — everything is generated procedurally in code
 - MediaPipe wasm runtime + hand model are loaded from CDN
@@ -51,7 +58,8 @@ npm run preview  # serve the production build
 Every input is smoothed with a damped lerp, so the object feels physical rather
 than jittery.
 
-Press **D** to toggle a debug overlay (fps, hand count, current scale, morph).
+Press **D** to toggle a debug overlay (fps, hand count, scale, morph, energy,
+auto-exposure).
 
 ## Where the look lives
 
@@ -63,9 +71,10 @@ factors, gesture sensitivity — is in **`src/config.ts`** as a single exported
 
 ```
 src/
-  main.ts                 orchestration, renderer, post FX, control loop, debug overlay
+  main.ts                 orchestration, HDR composer, post FX, control loop, debug overlay
   config.ts               ALL tunable values (the single source of truth)
-  scene/WireframeObject.ts  subdivided-cube grid, sphere↔cube morph in a vertex shader
+  scene/Background.ts       in-scene webcam VideoTexture quad + auto-exposure + S-curve
+  scene/WireframeObject.ts  subdivided-cube grid; morph + depth fade injected into LineMaterial
   scene/ParticleCore.ts     40k GPU particle streaks + hot core + top/bottom glow discs
   input/HandTracker.ts      webcam + MediaPipe HandLandmarker → gesture metrics
 ```
@@ -75,9 +84,11 @@ src/
 If the result differs from the reference, adjust these in `src/config.ts`, in
 order:
 
-1. `bloom.strength` / `bloom.threshold` — overall glow intensity and where it kicks in
-2. `particles.intensity` / `particles.coreSharpness` — brightness/tightness of the hot core column
-3. `particles.count` / `particles.size` — density and thickness of the falling rain
-4. `wireframe.opacity` — how visible the grid lines are under bloom
-5. `hands.smoothing` — responsiveness vs. stability of the controls
-6. `hands.palmDistMin/Max` and `hands.pinchMin/Max` — gesture sensitivity for your room/distance
+1. `background.targetLuminance` — how dark the room sits (lower = object pops more).
+   It is intentionally low (~0.025) because ACES tone mapping lifts midtones afterward.
+2. `background.contrast` — how hard mid-grey walls are pushed toward black
+3. `bloom.threshold` / `bloom.strength` — what glows, and how much (HDR, pre-tonemap)
+4. `particles.intensity` / `particles.alpha` / `particles.coreSharpness` — core column & streak clarity
+5. `wireframe.lineWidth` / `wireframe.opacity` — thickness & brightness of the grid lines
+6. `renderer.toneMappingExposure` — overall brightness roll-off
+7. `hands.smoothing` — responsiveness vs. stability of the controls

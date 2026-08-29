@@ -21,15 +21,18 @@ export class ParticleCore {
     this.group = new THREE.Group();
 
     const points = this.buildParticles();
+    points.renderOrder = 2;
     this.group.add(points);
 
     const size = CONFIG.wireframe.size;
     const topDisc = this.buildDisc();
     topDisc.position.y = size;
     topDisc.rotation.x = -Math.PI / 2; // face inward/up in XZ plane
+    topDisc.renderOrder = 1;
     const bottomDisc = this.buildDisc();
     bottomDisc.position.y = -size;
     bottomDisc.rotation.x = -Math.PI / 2;
+    bottomDisc.renderOrder = 1;
     this.group.add(topDisc, bottomDisc);
   }
 
@@ -80,6 +83,10 @@ export class ParticleCore {
         uAlpha: { value: CONFIG.particles.alpha },
         uRadius: { value: CONFIG.particles.radius },
         uCollapse: { value: CONFIG.particles.collapseRadius },
+        // Depth fade (far side dimmer than near side).
+        uNearDepth: { value: CONFIG.camera.distance - CONFIG.wireframe.size },
+        uFarDepth: { value: CONFIG.camera.distance + CONFIG.wireframe.size },
+        uFarFade: { value: CONFIG.particles.farFade },
       },
       vertexShader: /* glsl */ `
         attribute vec3 aSeed;
@@ -100,6 +107,7 @@ export class ParticleCore {
         uniform float uCollapse;
 
         varying float vCore;
+        varying float vViewDepth;
 
         void main() {
           // Continuous downward fall with wrap-around in [-1,1].
@@ -129,6 +137,7 @@ export class ParticleCore {
 
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           gl_Position = projectionMatrix * mv;
+          vViewDepth = -mv.z;
 
           float sizeFactor = (0.55 + vCore * 1.4) * (0.5 + 0.5 * uEnergy);
           // Near-constant pixel size with mild perspective attenuation:
@@ -144,7 +153,11 @@ export class ParticleCore {
         uniform float uBaseGlow;
         uniform float uAlpha;
         uniform float uEnergy;
+        uniform float uNearDepth;
+        uniform float uFarDepth;
+        uniform float uFarFade;
         varying float vCore;
+        varying float vViewDepth;
 
         void main() {
           // Soft round sprite.
@@ -152,8 +165,12 @@ export class ParticleCore {
           float a = smoothstep(0.5, 0.0, d);
           if (a <= 0.0) discard;
 
+          // Depth fade: far particles dimmer than near ones.
+          float t = clamp((uFarDepth - vViewDepth) / (uFarDepth - uNearDepth), 0.0, 1.0);
+          float fade = mix(uFarFade, 1.0, t);
+
           vec3 col = mix(uColorCool, uColorHot, vCore);
-          float bright = uIntensity * (uBaseGlow + vCore) * (0.35 + 0.65 * uEnergy);
+          float bright = uIntensity * (uBaseGlow + vCore) * (0.35 + 0.65 * uEnergy) * fade;
           gl_FragColor = vec4(col * bright, a * uAlpha);
         }
       `,
@@ -203,11 +220,15 @@ export class ParticleCore {
     return new THREE.Mesh(geo, mat);
   }
 
-  /** time: seconds, morph: 0..1, energy: 0..1. */
-  update(time: number, morph: number, energy: number): void {
-    this.particleMat.uniforms.uTime.value = time;
-    this.particleMat.uniforms.uMorph.value = morph;
-    this.particleMat.uniforms.uEnergy.value = energy;
+  /** time: seconds, morph: 0..1, energy: 0..1, scale: current group scale. */
+  update(time: number, morph: number, energy: number, scale: number): void {
+    const u = this.particleMat.uniforms;
+    u.uTime.value = time;
+    u.uMorph.value = morph;
+    u.uEnergy.value = energy;
+    const halfDepth = CONFIG.wireframe.size * scale;
+    u.uNearDepth.value = CONFIG.camera.distance - halfDepth;
+    u.uFarDepth.value = CONFIG.camera.distance + halfDepth;
     for (const m of this.discMats) {
       m.uniforms.uEnergy.value = energy;
     }

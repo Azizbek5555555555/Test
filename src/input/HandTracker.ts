@@ -71,8 +71,8 @@ export class HandTracker {
       audio: false,
       video: {
         facingMode: 'user',
-        width: { ideal: CONFIG.webcam.width },
-        height: { ideal: CONFIG.webcam.height },
+        width: { ideal: CONFIG.background.width },
+        height: { ideal: CONFIG.background.height },
       },
     });
     this.video.srcObject = stream;

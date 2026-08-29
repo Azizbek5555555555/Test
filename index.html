@@ -26,14 +26,15 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
 
-      /* Webcam video sits behind the WebGL canvas as the background layer. */
+      /* The webcam feeds a VideoTexture that is rendered INSIDE the WebGL scene
+         (as a fullscreen background quad), so this element is just the hidden
+         source. It stays in the DOM, playing, behind the opaque canvas. */
       #webcam {
         position: fixed;
         inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transform: scaleX(-1); /* mirror horizontally */
         z-index: 0;
         background: #000;
       }
@@ -45,10 +46,6 @@
         height: 100%;
         z-index: 1;
         pointer-events: none;
-        /* The scene renders on pure black; "screen" blending makes the black
-           transparent and adds the object's light over the webcam — i.e.
-           additive glow compositing, with the video behind the canvas. */
-        mix-blend-mode: screen;
       }
 
       /* Start / permission gate */

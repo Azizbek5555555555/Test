@@ -4,8 +4,10 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 
 import { CONFIG } from './config';
+import { Background } from './scene/Background';
 import { WireframeObject } from './scene/WireframeObject';
 import { ParticleCore } from './scene/ParticleCore';
 import { HandTracker, type HandFrame } from './input/HandTracker';
@@ -17,25 +19,21 @@ const gate = document.getElementById('gate') as HTMLDivElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
 const debugEl = document.getElementById('debug') as HTMLDivElement;
 
-video.style.filter = `brightness(${CONFIG.webcam.brightness})`;
-
-// ── Renderer / scene / camera ──────────────────────────────────────────────
+// ── Renderer + color pipeline ───────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: true,
+  antialias: false, // SMAA handles AA in the composer
   powerPreference: 'high-performance',
 });
-const pixelRatio = Math.min(window.devicePixelRatio, CONFIG.renderer.maxPixelRatio);
+let pixelRatio = Math.min(window.devicePixelRatio, CONFIG.renderer.maxPixelRatio);
 renderer.setPixelRatio(pixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-// Opaque black clear; CSS `mix-blend-mode: screen` on the canvas turns the
-// black transparent and adds the object's light over the webcam video.
 renderer.setClearColor(CONFIG.renderer.clearColor, 1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = CONFIG.renderer.exposure;
+renderer.toneMappingExposure = CONFIG.renderer.toneMappingExposure;
 
 const scene = new THREE.Scene();
-scene.background = null; // keep transparent; the video is the backdrop
 
 const camera = new THREE.PerspectiveCamera(
   CONFIG.camera.fov,
@@ -45,6 +43,10 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.set(0, 0, CONFIG.camera.distance);
 camera.lookAt(0, 0, 0);
+
+// ── Webcam background (in-scene, auto-exposed) ──────────────────────────────
+const background = new Background(video);
+scene.add(background.mesh);
 
 // ── The morphing object (wireframe + interior energy) ───────────────────────
 const objectGroup = new THREE.Group();
@@ -56,13 +58,15 @@ objectGroup.add(wireframe.mesh);
 const core = new ParticleCore();
 objectGroup.add(core.group);
 
-// ── Post-processing: bloom + chromatic aberration + grain ──────────────────
-const composer = new EffectComposer(renderer);
+// ── Post-processing: HDR bloom → chromatic aberration + grain → tone map → SMAA
+const hdrTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+  type: THREE.HalfFloatType, // HDR so bloom + tone mapping don't clip to white
+});
+const composer = new EffectComposer(renderer, hdrTarget);
 composer.setPixelRatio(pixelRatio);
 composer.setSize(window.innerWidth, window.innerHeight);
 
-const renderPass = new RenderPass(scene, camera);
-composer.addPass(renderPass);
+composer.addPass(new RenderPass(scene, camera));
 
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -72,7 +76,7 @@ const bloomPass = new UnrealBloomPass(
 );
 composer.addPass(bloomPass);
 
-// Chromatic aberration + film grain, authored inline.
+// Chromatic aberration + film grain (operates in linear HDR, pre tone-map).
 const CAGrainShader = {
   uniforms: {
     tDiffuse: { value: null as THREE.Texture | null },
@@ -95,7 +99,6 @@ const CAGrainShader = {
     varying vec2 vUv;
 
     void main() {
-      // Radial chromatic aberration — grows toward the screen edges.
       vec2 dir = vUv - 0.5;
       vec2 offset = dir * uAmount;
       float r = texture2D(tDiffuse, vUv + offset).r;
@@ -104,7 +107,6 @@ const CAGrainShader = {
       float a = texture2D(tDiffuse, vUv).a;
       vec3 col = vec3(r, g, b);
 
-      // Very light film grain.
       float n = fract(sin(dot(vUv + fract(uTime), vec2(12.9898, 78.233))) * 43758.5453);
       col += (n - 0.5) * uGrain;
 
@@ -115,8 +117,26 @@ const CAGrainShader = {
 const caGrainPass = new ShaderPass(CAGrainShader);
 composer.addPass(caGrainPass);
 
-const outputPass = new OutputPass();
-composer.addPass(outputPass);
+// OutputPass applies ACES tone mapping + sRGB encoding (LDR from here on).
+composer.addPass(new OutputPass());
+
+// SMAA on the final LDR image for crisp line edges.
+const smaaPass = new SMAAPass(
+  window.innerWidth * pixelRatio,
+  window.innerHeight * pixelRatio,
+);
+composer.addPass(smaaPass);
+
+wireframe.setResolution(window.innerWidth, window.innerHeight);
+background.setResolution(window.innerWidth, window.innerHeight);
+
+// ── Object framing: clamp so it never fills more than N% of frame height ─────
+function computeMaxScale(): number {
+  const frustumHalfH = Math.tan(THREE.MathUtils.degToRad(CONFIG.camera.fov / 2)) * CONFIG.camera.distance;
+  const maxHalfWorld = CONFIG.object.maxScreenFraction * frustumHalfH;
+  return maxHalfWorld / (CONFIG.wireframe.size * CONFIG.object.rotationSafety);
+}
+let maxScale = computeMaxScale();
 
 // ── Hand tracking ──────────────────────────────────────────────────────────
 const tracker = new HandTracker(video);
@@ -140,18 +160,17 @@ const ctrl: Control = {
   posX: 0,
   posY: 0,
 };
-let autoYaw = 0; // continuously advancing idle rotation
+let autoYaw = 0; // idle rotation accumulator
+let baseYaw = 0; // always-on slow drift rotation
 
 const mapClamp = (v: number, inA: number, inB: number, outA: number, outB: number): number => {
   const t = THREE.MathUtils.clamp((v - inA) / (inB - inA), 0, 1);
   return outA + (outB - outA) * t;
 };
 
-// Diagnostics surfaced in the debug overlay.
 const diag = { handCount: 0 };
 
-/** Compute raw control targets from the current hand frame, then damp toward
- *  them. Every input is smoothed — nothing is applied raw. */
+/** Compute raw control targets from the hand frame, then damp toward them. */
 function updateControl(frame: HandFrame, dt: number): void {
   const H = CONFIG.hands;
   autoYaw += CONFIG.idle.autoRotateSpeed * dt;
@@ -161,7 +180,6 @@ function updateControl(frame: HandFrame, dt: number): void {
   diag.handCount = frame.count;
 
   if (frame.count >= 2) {
-    // ── Two hands: palm distance → scale + morph, midpoint → position ──
     const a = frame.hands[0];
     const b = frame.hands[1];
     const palmDist = Math.hypot(a.palmX - b.palmX, a.palmY - b.palmY);
@@ -179,11 +197,10 @@ function updateControl(frame: HandFrame, dt: number): void {
       posY: -(midY - 0.5) * H.positionRangeY,
     };
   } else if (frame.count === 1) {
-    // ── One hand: pinch → scale, position → rotation, openness → energy ──
     const h = frame.hands[0];
     target = {
       scale: mapClamp(h.pinch, H.pinchMin, H.pinchMax, H.scaleMin, H.scaleMax),
-      morph: ctrl.morph + (CONFIG.idle.neutralMorph - ctrl.morph) * 0.5, // ease toward neutral morph
+      morph: ctrl.morph + (CONFIG.idle.neutralMorph - ctrl.morph) * 0.5,
       energy: mapClamp(h.openness, H.opennessMin, H.opennessMax, H.energyMin, H.energyMax),
       rotY: (h.palmX - 0.5) * H.rotYRange,
       rotX: (h.palmY - 0.5) * H.rotXRange,
@@ -191,7 +208,6 @@ function updateControl(frame: HandFrame, dt: number): void {
       posY: 0,
     };
   } else {
-    // ── No hands: auto-rotate and drift back to a neutral pose ──
     smooth = CONFIG.idle.returnSmoothing;
     target = {
       scale: CONFIG.idle.neutralScale,
@@ -204,8 +220,6 @@ function updateControl(frame: HandFrame, dt: number): void {
     };
   }
 
-  // Damped lerp toward the targets. Frame-rate compensated so the feel is
-  // stable regardless of fps (factor is defined per ~60fps frame).
   const k = 1 - Math.pow(1 - smooth, dt * 60);
   ctrl.scale += (target.scale - ctrl.scale) * k;
   ctrl.morph += (target.morph - ctrl.morph) * k;
@@ -214,6 +228,9 @@ function updateControl(frame: HandFrame, dt: number): void {
   ctrl.rotY += (target.rotY - ctrl.rotY) * k;
   ctrl.posX += (target.posX - ctrl.posX) * k;
   ctrl.posY += (target.posY - ctrl.posY) * k;
+
+  // Hard clamp so the object always reads as an object in the room.
+  ctrl.scale = Math.min(ctrl.scale, maxScale);
 }
 
 // ── Debug overlay (toggle with D) ───────────────────────────────────────────
@@ -231,11 +248,12 @@ window.addEventListener('keydown', (e) => {
 function updateDebug(): void {
   if (!debugVisible) return;
   debugEl.textContent =
-    `fps    : ${fps.toFixed(0)}\n` +
-    `hands  : ${diag.handCount}\n` +
-    `scale  : ${ctrl.scale.toFixed(2)}\n` +
-    `morph  : ${ctrl.morph.toFixed(2)}  (0=sphere 1=cube)\n` +
-    `energy : ${ctrl.energy.toFixed(2)}`;
+    `fps      : ${fps.toFixed(0)}\n` +
+    `hands    : ${diag.handCount}\n` +
+    `scale    : ${ctrl.scale.toFixed(2)} / ${maxScale.toFixed(2)}\n` +
+    `morph    : ${ctrl.morph.toFixed(2)}  (0=sphere 1=cube)\n` +
+    `energy   : ${ctrl.energy.toFixed(2)}\n` +
+    `exposure : ${background.currentExposure.toFixed(2)}`;
 }
 
 // ── Main loop ───────────────────────────────────────────────────────────────
@@ -250,7 +268,6 @@ function animate(): void {
   const time = clock.elapsedTime;
   const nowMs = performance.now();
 
-  // FPS (rolling ~0.5s average).
   fpsAccum += dt;
   fpsFrames++;
   if (fpsAccum >= 0.5) {
@@ -259,16 +276,21 @@ function animate(): void {
     fpsFrames = 0;
   }
 
+  background.update();
+
   const frame = tracker.detect(nowMs);
   updateControl(frame, dt);
 
-  // Apply smoothed control to the object.
-  objectGroup.scale.setScalar(ctrl.scale);
-  objectGroup.rotation.set(ctrl.rotX, ctrl.rotY, 0);
-  objectGroup.position.set(ctrl.posX, ctrl.posY, 0);
+  baseYaw += CONFIG.object.baseYawSpeed * dt;
+  const driftX = Math.sin(time * CONFIG.object.driftSpeedX) * CONFIG.object.driftAmpX;
+  const driftY = Math.cos(time * CONFIG.object.driftSpeedY) * CONFIG.object.driftAmpY;
 
-  wireframe.update(time, ctrl.morph);
-  core.update(time, ctrl.morph, ctrl.energy);
+  objectGroup.scale.setScalar(ctrl.scale);
+  objectGroup.rotation.set(ctrl.rotX, ctrl.rotY + baseYaw, 0);
+  objectGroup.position.set(ctrl.posX + driftX, ctrl.posY + driftY, 0);
+
+  wireframe.update(time, ctrl.morph, ctrl.scale);
+  core.update(time, ctrl.morph, ctrl.energy, ctrl.scale);
   caGrainPass.uniforms.uTime.value = time;
 
   composer.render();
@@ -281,12 +303,17 @@ window.addEventListener('resize', () => {
   const h = window.innerHeight;
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  pixelRatio = Math.min(window.devicePixelRatio, CONFIG.renderer.maxPixelRatio);
+  renderer.setPixelRatio(pixelRatio);
   renderer.setSize(w, h);
+  composer.setPixelRatio(pixelRatio);
   composer.setSize(w, h);
-  const pr = Math.min(window.devicePixelRatio, CONFIG.renderer.maxPixelRatio);
-  renderer.setPixelRatio(pr);
-  composer.setPixelRatio(pr);
-  core.setPixelRatio(pr);
+  bloomPass.setSize(w, h);
+  smaaPass.setSize(w * pixelRatio, h * pixelRatio);
+  wireframe.setResolution(w, h);
+  background.setResolution(w, h);
+  core.setPixelRatio(pixelRatio);
+  maxScale = computeMaxScale();
 });
 
 // ── Start gate ──────────────────────────────────────────────────────────────
