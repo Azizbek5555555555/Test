@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Morphing Wireframe · Hand-Controlled Energy</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%AE%3C/text%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      /* Webcam video sits behind the WebGL canvas as the background layer. */
+      #webcam {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1); /* mirror horizontally */
+        z-index: 0;
+        background: #000;
+      }
+
+      #scene {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+        /* The scene renders on pure black; "screen" blending makes the black
+           transparent and adds the object's light over the webcam — i.e.
+           additive glow compositing, with the video behind the canvas. */
+        mix-blend-mode: screen;
+      }
+
+      /* Start / permission gate */
+      #gate {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        background: radial-gradient(circle at 50% 45%, #06121c 0%, #000 70%);
+        text-align: center;
+        color: #cfeaff;
+      }
+      #gate h1 {
+        font-size: clamp(22px, 4vw, 40px);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: #eaf7ff;
+        text-shadow: 0 0 24px rgba(77, 208, 255, 0.55);
+      }
+      #gate p {
+        max-width: 520px;
+        line-height: 1.6;
+        font-size: 15px;
+        color: #7fa8c0;
+        padding: 0 20px;
+      }
+      #startBtn {
+        margin-top: 6px;
+        padding: 15px 42px;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: #001018;
+        background: linear-gradient(180deg, #7fe3ff, #35b6ff);
+        border: none;
+        border-radius: 999px;
+        cursor: pointer;
+        box-shadow: 0 0 30px rgba(77, 208, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      #startBtn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 44px rgba(77, 208, 255, 0.85), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+      }
+      #startBtn:active {
+        transform: translateY(0);
+      }
+      #gate .hint {
+        font-size: 12px;
+        color: #4d6b7d;
+        letter-spacing: 0.3px;
+      }
+      #gate.error h1 {
+        color: #ff8a8a;
+        text-shadow: 0 0 24px rgba(255, 90, 90, 0.5);
+      }
+
+      /* Debug overlay */
+      #debug {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 20;
+        display: none;
+        padding: 10px 14px;
+        font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #8ff;
+        background: rgba(0, 10, 16, 0.62);
+        border: 1px solid rgba(77, 208, 255, 0.35);
+        border-radius: 8px;
+        backdrop-filter: blur(4px);
+        white-space: pre;
+        pointer-events: none;
+      }
+      #debug.visible {
+        display: block;
+      }
+      #debug b {
+        color: #eaf7ff;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <video id="webcam" playsinline muted></video>
+    <canvas id="scene"></canvas>
+
+    <div id="gate">
+      <h1>Morphing Wireframe Energy</h1>
+      <p>
+        A glowing 3D wireframe you sculpt with your bare hands. Pinch and spread to scale, move your
+        hands apart to morph a sphere into a cube, open your palms to feed the core.
+      </p>
+      <button id="startBtn">Enable Camera &amp; Start</button>
+      <div class="hint">Press <b>D</b> anytime to toggle the debug overlay</div>
+    </div>
+
+    <div id="debug"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

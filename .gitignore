@@ -1,0 +1,7 @@
+node_modules/
+dist/
+frames/
+reference.mp4
+*.local
+.DS_Store
+.vite/
