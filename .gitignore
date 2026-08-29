@@ -1,0 +1,10 @@
+node_modules/
+dist/
+frames/
+reference.mp4
+*.y4m
+_smoke*.mjs
+_shot_*.png
+*.local
+.DS_Store
+.vite/
