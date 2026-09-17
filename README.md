@@ -39,11 +39,11 @@ uslubidagi so'z o'yini va real imtihon simulyatsiyasi.
 | Baza | **Supabase (PostgreSQL)** | Bepul tarif, panel orqali boshqariladi |
 | Kirish | **Supabase Auth** | Google OAuth + email OTP tayyor holda |
 | Fayllar | **Supabase Storage** | Listening audio, Speaking javoblari |
-| Hosting | **Vercel** | Bepul, GitHub'ga ulanadi, avtomatik deploy |
+| Hosting | **Railway** | GitHub'ga ulanadi, har push'da o'zi yangilaydi |
 
-**Nega aynan shu to'plam:** hammasi bepul tarifda boshlanadi, serverni
-o'zingiz boshqarmaysiz, va kontentni kod yozmasdan panel orqali
-qo'shaverasiz.
+**Nega aynan shu to'plam:** serverni o'zingiz boshqarmaysiz, GitHub'ga
+push qilsangiz sayt o'zi yangilanadi, va kontentni kod yozmasdan panel
+orqali qo'shaverasiz.
 
 ---
 

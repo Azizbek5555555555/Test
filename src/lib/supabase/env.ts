@@ -42,10 +42,17 @@ export function isSupabaseConfigured(): boolean {
   );
 }
 
+/**
+ * Saytning to'liq manzili.
+ * Railway `RAILWAY_PUBLIC_DOMAIN` o'zgaruvchisini avtomatik beradi,
+ * shuning uchun domen o'zgarsa ham kod o'zgartirilmaydi.
+ */
 export function getSiteUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ??
-    "http://localhost:3000"
-  );
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "");
+  }
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+    return `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+  }
+  return "http://localhost:3000";
 }

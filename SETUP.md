@@ -16,7 +16,7 @@ Uchta bepul akkaunt (hammasi bepul tarifda yetarli):
 |---|---|---|
 | **GitHub** | Kod saqlanadi | github.com |
 | **Supabase** | Baza + ro'yxatdan o'tish + fayllar | supabase.com |
-| **Vercel** | Saytni internetga chiqarish | vercel.com |
+| **Railway** | Saytni internetga chiqarish | railway.app |
 
 Va kompyuteringizda:
 - **Node.js 20 yoki undan yuqori** — [nodejs.org](https://nodejs.org) dan
@@ -34,16 +34,43 @@ node -v
 
 ## 1-QADAM · Loyihani kompyuteringizga tushirish
 
-Terminal oching va yozing (`SIZNING-USERNAME` o'rniga o'z GitHub
-foydalanuvchi nomingizni qo'ying):
+Ikki yo'ldan birini tanlang.
+
+### A variant · Git orqali (tavsiya etiladi)
+
+Keyinchalik yangilanishlarni bitta buyruq bilan olasiz:
 
 ```bash
-git clone https://github.com/SIZNING-USERNAME/Test.git multilevel-plus
+git clone -b claude/lucid-franklin-dll1qh https://github.com/SIZNING-USERNAME/Test.git multilevel-plus
 cd multilevel-plus
 npm install
 ```
 
-`npm install` 1–2 daqiqa davom etadi. Xato bo'lmasa — davom etamiz.
+> `SIZNING-USERNAME` o'rniga o'z GitHub foydalanuvchi nomingizni qo'ying.
+> `-b claude/lucid-franklin-dll1qh` — kod aynan shu branchda turibdi.
+
+### B variant · ZIP qilib yuklab olgan bo'lsangiz
+
+GitHub'da **branch** ro'yxatidan `claude/lucid-franklin-dll1qh` ni tanlab,
+keyin **Code → Download ZIP** qilganingizga ishonch hosil qiling.
+
+ZIP'ni chiqarib, papkani VS Code'da oching. Keyin VS Code'da terminal oching
+(`Ctrl` + `` ` ``) va yozing:
+
+```bash
+npm install
+```
+
+### ✅ To'g'ri papkadaligingizni tekshirish
+
+```bash
+ls
+```
+
+Ro'yxatda **`package.json`**, **`src`** va **`supabase`** ko'rinishi shart.
+
+Agar faqat `README.md` ko'rinsa — noto'g'ri branch yuklab olingan.
+A variantdagi `git clone` buyrug'idan foydalaning.
 
 ---
 
@@ -241,49 +268,108 @@ Endi saytda profil rasmingizni bosing → **Admin panel** ko'rinadi.
 
 ---
 
-## 9-QADAM · Saytni internetga chiqarish (Vercel)
+## 9-QADAM · Saytni internetga chiqarish (Railway)
 
 ### 9.1. Kodni GitHub'ga yuklash
 
+Railway kodni GitHub'dan oladi, shuning uchun avval uni yuklaymiz.
+
+**Agar `git clone` qilgan bo'lsangiz:**
+
 ```bash
 git add .
-git commit -m "Multilevel Plus platformasi"
+git commit -m "Sozlamalar yangilandi"
 git push
 ```
 
-### 9.2. Vercel'ga ulash
+**Agar ZIP yuklab olgan bo'lsangiz** (papkada git yo'q), bir marta
+sozlaymiz:
 
-1. [vercel.com](https://vercel.com) → GitHub bilan kiring
-2. **Add New** → **Project** → repozitoriyangizni tanlang → **Import**
-3. **Environment Variables** bo'limiga `.env.local` dagi **4 ta qatorni**
-   ham qo'shing:
+```bash
+git init
+git branch -M main
+git add .
+git commit -m "Multilevel Plus"
+git remote add origin https://github.com/SIZNING-USERNAME/Test.git
+git push -u origin main --force
+```
 
-   | Name | Value |
-   |---|---|
-   | `NEXT_PUBLIC_SUPABASE_URL` | Supabase URL |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon kaliti |
-   | `SUPABASE_SERVICE_ROLE_KEY` | service_role kaliti |
-   | `NEXT_PUBLIC_SITE_URL` | `https://sizning-sayt.vercel.app` |
+> ⚠️ `--force` — bu repozitoriyadagi `main` branchni sizning kodingiz bilan
+> almashtiradi. Repozitoriya faqat sizniki bo'lgani uchun xavfsiz.
 
-4. **Deploy** → 2–3 daqiqa kuting
+### 9.2. Railway'da loyiha yaratish
 
-### 9.3. Supabase'ga yangi manzilni aytish
+1. [railway.app](https://railway.app) ga kiring → **Login with GitHub**
+2. **New Project** → **Deploy from GitHub repo**
+3. Repozitoriyangizni tanlang (birinchi marta bo'lsa Railway'ga GitHub
+   ruxsatini berasiz)
+4. Railway darhol build boshlaydi — **uni to'xtatishingiz shart emas**,
+   keyingi qadamda o'zgaruvchilarni qo'shib qayta ishga tushiramiz
 
-Bu qadamni **o'tkazib yubormang**, aks holda Google orqali kirish ishlamaydi.
+### 9.3. Muhit o'zgaruvchilarini qo'shish ⚠️ ENG MUHIM
+
+Railway'da loyihangiz ustiga bosing → **Variables** → **New Variable**
+
+Uchta o'zgaruvchini qo'shing (`.env.local` dagi qiymatlarning aynan
+o'zi):
+
+| Name | Value |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon kaliti |
+| `SUPABASE_SERVICE_ROLE_KEY` | service_role kaliti |
+
+> 💡 **Tezroq usul:** **Variables** → **Raw Editor** tugmasini bosing va
+> `.env.local` faylingizning mazmunini (`NEXT_PUBLIC_SITE_URL` qatorisiz)
+> to'g'ridan-to'g'ri qo'ying.
+
+> ⚠️ **`NEXT_PUBLIC_SITE_URL` ni qo'shmang** — Railway bergan domen
+> avtomatik aniqlanadi. Uni faqat o'z domeningizni ulaganingizda yozasiz.
+
+> ⚠️ **Nega bu muhim:** `NEXT_PUBLIC_` bilan boshlanadigan o'zgaruvchilar
+> **build paytida** kodga yoziladi. Ularni qo'shmasdan build qilsangiz,
+> sayt ochiladi-yu, lekin "Ma'lumotlar bazasi ulanmagan" deb turadi.
+> Shuning uchun qo'shgandan keyin **albatta qayta deploy qiling**.
+
+O'zgaruvchilarni saqlagach: **Deployments** → yuqoridagi **⋮** →
+**Redeploy**.
+
+### 9.4. Saytga manzil (domen) olish
+
+1. Railway → loyihangiz → **Settings** → **Networking**
+2. **Generate Domain** tugmasini bosing
+3. Sizga shunday manzil beriladi:
+   `https://multilevel-plus-production.up.railway.app`
+4. Bu manzilni nusxalab oling
+
+> Agar Railway port so'rasa — **3000** deb kiriting.
+
+### 9.5. Supabase'ga yangi manzilni aytish
+
+Bu qadamni **o'tkazib yubormang**, aks holda Google orqali kirish
+ishlamaydi.
 
 Supabase → **Authentication** → **URL Configuration**:
 
-- **Site URL:** `https://sizning-sayt.vercel.app`
+- **Site URL:**
+  ```
+  https://sizning-sayt.up.railway.app
+  ```
 - **Redirect URLs** ga ikkalasini ham qo'shing:
   ```
-  https://sizning-sayt.vercel.app/**
+  https://sizning-sayt.up.railway.app/**
   http://localhost:3000/**
   ```
 
-**Save**.
+**Save** bosing.
 
-> Keyinchalik o'z domeningizni (masalan `multilevelplus.uz`) ulasangiz,
-> uni ham shu ro'yxatga qo'shing va `NEXT_PUBLIC_SITE_URL` ni yangilang.
+### 9.6. Tekshirish
+
+Railway bergan manzilni brauzerda oching. Sayt ochilishi va sariq
+ogohlantirish **bo'lmasligi** kerak. Google orqali kirib ko'ring.
+
+> ✅ Bundan keyin GitHub'ga har `git push` qilganingizda Railway saytni
+> avtomatik yangilaydi.
 
 ---
 
@@ -398,7 +484,8 @@ muddatni tanlang → **Premium berish**
 <summary><b>Admin panelda savollarning javoblari ko'rinmayapti</b></summary>
 
 `SUPABASE_SERVICE_ROLE_KEY` to'ldirilmagan. `.env.local` ga qo'shing va
-serverni qayta ishga tushiring. Vercel'da ham shu o'zgaruvchini qo'shing.
+serverni qayta ishga tushiring. Railway'da ham shu o'zgaruvchini
+**Variables** bo'limiga qo'shing va qayta deploy qiling.
 </details>
 
 <details>
@@ -417,7 +504,7 @@ serverni qayta ishga tushiring. Vercel'da ham shu o'zgaruvchini qo'shing.
 </details>
 
 <details>
-<summary><b>Vercel'da build xato bermoqda</b></summary>
+<summary><b>Railway'da build xato bermoqda</b></summary>
 
 Avval lokal tekshiring:
 
@@ -425,8 +512,9 @@ Avval lokal tekshiring:
 npm run build
 ```
 
-Agar lokal ishlasa, Vercel'da **barcha 4 ta** muhit o'zgaruvchisi
-qo'shilganini tekshiring.
+Agar lokal ishlasa, Railway → **Variables** da **3 ta** o'zgaruvchi
+qo'shilganini tekshiring. Xato matnini ko'rish uchun:
+Railway → **Deployments** → oxirgi deploy → **View Logs**.
 </details>
 
 ---
@@ -438,6 +526,8 @@ Sayt ishga tushgach:
 1. **Sayt sozlamalari** dan o'z Telegram/Instagram/telefoningizni yozing
 2. Demo kontentni o'chirib, o'z testlaringizni qo'shing
 3. O'qituvchilarga `teacher` roli bering
-4. O'z domeningizni Vercel → **Settings → Domains** dan ulang
+4. O'z domeningizni Railway → **Settings → Networking → Custom Domain**
+   dan ulang (keyin `NEXT_PUBLIC_SITE_URL` ni ham qo'shing va Supabase
+   Redirect URLs ro'yxatiga yangi domenni kiriting)
 
 Omad! 🎓
