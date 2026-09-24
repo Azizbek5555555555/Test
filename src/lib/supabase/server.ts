@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseAnonKey, getSupabaseUrl } from "./env";
+import { loggingFetch } from "./logging-fetch";
 
 /**
  * Server Component / Server Action / Route Handler uchun Supabase klienti.
@@ -10,6 +11,7 @@ export async function createServerSupabase() {
   const cookieStore = await cookies();
 
   return createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+    global: { fetch: loggingFetch },
     cookies: {
       getAll() {
         return cookieStore.getAll();

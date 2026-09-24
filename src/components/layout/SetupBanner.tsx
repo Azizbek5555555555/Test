@@ -20,7 +20,10 @@ export function SetupBanner() {
           <code className="px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10 font-mono text-xs">
             SETUP.md
           </code>{" "}
-          faylida qadam-baqadam yozilgan.
+          faylida qadam-baqadam yozilgan.{" "}
+          <a href="/setup-check" className="font-bold underline">
+            Tekshirish →
+          </a>
         </span>
       </div>
     </div>
