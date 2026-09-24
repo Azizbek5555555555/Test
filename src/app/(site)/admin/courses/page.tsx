@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/Card";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { Collapsible } from "@/components/admin/Collapsible";
 import { courseFields } from "@/components/admin/fieldSpecs";
+import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 
 export const metadata: Metadata = {
   title: "Kurslar",
@@ -83,12 +84,12 @@ export default async function AdminCoursesPage() {
                   className="pt-3 border-t border-line"
                 >
                   <input type="hidden" name="id" value={course.id} />
-                  <button
-                    type="submit"
+                  <ConfirmSubmitButton
+                    message="Bu kursni o'chirasizmi? Unga kelgan barcha arizalar ham o'chadi."
                     className="text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline"
                   >
                     🗑 Bu kursni o&apos;chirish
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
             </Collapsible>

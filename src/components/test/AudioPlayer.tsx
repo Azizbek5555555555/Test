@@ -36,7 +36,7 @@ export function AudioPlayer({
       >
         🎧 <strong>Audio hali yuklanmagan.</strong> Admin panel → Testlar
         bo&apos;limidan ushbu bo&apos;limga audio fayl manzilini qo&apos;shing.
-        Savollarga transkript asosida javob berishingiz mumkin.
+        Transkript bo&apos;lsa, u pastda ko&apos;rsatiladi.
       </div>
     );
   }

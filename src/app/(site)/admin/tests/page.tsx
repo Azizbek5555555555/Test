@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/Card";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { Collapsible } from "@/components/admin/Collapsible";
 import { CATEGORY_LABEL, testSetFields } from "@/components/admin/fieldSpecs";
+import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 
 export const metadata: Metadata = {
   title: "Testlar",
@@ -101,15 +102,15 @@ export default async function AdminTestsPage() {
                       </Link>
                       <form action={deleteTestSetAction}>
                         <input type="hidden" name="id" value={testSet.id} />
-                        <button
-                          type="submit"
+                        <ConfirmSubmitButton
+                          message="Bu testni butunlay o'chirasizmi? Ichidagi barcha bo'limlar, savollar va o'quvchilarning shu testdagi natijalari ham o'chadi. Bu amalni qaytarib bo'lmaydi."
                           className="rounded-lg border border-rose-200 dark:border-rose-800
                                      px-3 py-1.5 text-sm font-semibold text-rose-600 dark:text-rose-400
                                      hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                           title="O'chirish"
                         >
                           🗑
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     </div>
                   </div>

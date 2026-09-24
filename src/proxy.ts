@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { publicUrl } from "@/lib/request-origin";
 
 /** Kirish talab qilinadigan sahifalar */
 const PROTECTED_PREFIXES = [
@@ -57,10 +58,9 @@ export async function proxy(request: NextRequest) {
   );
 
   if (needsAuth && !user) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.search = `?next=${encodeURIComponent(pathname)}`;
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(
+      publicUrl(`/login?next=${encodeURIComponent(pathname)}`, request),
+    );
   }
 
   const needsStaff = STAFF_PREFIXES.some(
@@ -76,10 +76,7 @@ export async function proxy(request: NextRequest) {
 
     const role = (profile as { role?: string } | null)?.role;
     if (role !== "admin" && role !== "teacher") {
-      const homeUrl = request.nextUrl.clone();
-      homeUrl.pathname = "/";
-      homeUrl.search = "";
-      return NextResponse.redirect(homeUrl);
+      return NextResponse.redirect(publicUrl("/", request));
     }
   }
 

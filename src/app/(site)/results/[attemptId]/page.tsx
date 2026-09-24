@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getProfile, isStaff } from "@/lib/auth";
-import { getAttempt, getAttemptReview, getTestSetById } from "@/lib/queries";
+import {
+  getAttempt,
+  getAttemptReview,
+  getTestParts,
+  getTestSetById,
+} from "@/lib/queries";
 import { ButtonLink } from "@/components/ui/Button";
 import { ResultCard } from "@/components/test/ResultCard";
 import { AnswerReview } from "@/components/test/AnswerReview";
@@ -35,6 +40,13 @@ export default async function ResultPage({
 
   const testSet = await getTestSetById(attempt.test_set_id);
   const review = await getAttemptReview(attempt.id);
+
+  // Listening transkriptlari — test yakunlangach o'quvchiga ochiladi
+  const transcripts = testSet
+    ? (await getTestParts(testSet.id)).filter(
+        (part) => part.section === "listening" && part.transcript,
+      )
+    : [];
 
   return (
     <div className="container-page py-10">
@@ -73,6 +85,21 @@ export default async function ResultPage({
             ko&apos;ring — bu keyingi safar xatoni takrorlamaslikka yordam
             beradi.
           </p>
+
+          {transcripts.length > 0 ? (
+            <div className="space-y-3 mb-8">
+              {transcripts.map((part) => (
+                <details key={part.id} className="card p-0 overflow-hidden">
+                  <summary className="cursor-pointer select-none p-4 font-bold text-sm hover:bg-[var(--bg-subtle)]">
+                    📄 Transkript — {part.title}
+                  </summary>
+                  <p className="px-4 pb-4 text-sm leading-relaxed whitespace-pre-line">
+                    {part.transcript}
+                  </p>
+                </details>
+              ))}
+            </div>
+          ) : null}
 
           {review.length > 0 ? (
             <AnswerReview rows={review} />

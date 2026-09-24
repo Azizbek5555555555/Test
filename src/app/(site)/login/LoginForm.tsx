@@ -122,7 +122,8 @@ export function LoginForm({
             : "Kod noto'g'ri. Qaytadan urinib ko'ring.",
         );
       } else {
-        router.push(next);
+        // Email orqali kirganlarda ism yo'q — avval uni so'raymiz
+        router.push(`/onboarding?next=${encodeURIComponent(next)}`);
         router.refresh();
       }
     } catch {
