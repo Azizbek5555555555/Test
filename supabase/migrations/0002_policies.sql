@@ -122,6 +122,35 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- ----------------------------------------------------------------------------
+-- API HUQUQLARI — aniq beriladi
+--
+-- Supabase ko'p loyihalarda bu huquqlarni o'zi beradi, lekin loyiha
+-- sozlamasiga ("Automatically expose new tables") bog'liq. Sayt har qanday
+-- sozlamada ishlashi uchun ularni shu yerda aniq yozamiz.
+--
+-- Bu HIMOYANI ZAIFLASHTIRMAYDI: kim nimani ko'rishi va o'zgartirishi
+-- pastdagi RLS qoidalari va ustun cheklovlari bilan belgilanadi.
+-- Ular shu blokdan KEYIN keladi, shuning uchun tartib muhim.
+-- ----------------------------------------------------------------------------
+grant usage on schema public to anon, authenticated, service_role;
+
+grant select, insert, update, delete
+  on all tables in schema public to anon, authenticated;
+grant all on all tables in schema public to service_role;
+
+grant usage, select on all sequences in schema public
+  to anon, authenticated, service_role;
+
+-- RLS qoidalari ichida chaqiriladigan yordamchi funksiyalar
+grant execute on function
+  public.auth_role(),
+  public.is_staff(),
+  public.is_admin(),
+  public.has_premium(),
+  public.can_access(boolean)
+to anon, authenticated, service_role;
+
+-- ----------------------------------------------------------------------------
 -- RLS NI YOQISH
 -- ----------------------------------------------------------------------------
 alter table public.profiles            enable row level security;

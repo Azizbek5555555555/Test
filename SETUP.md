@@ -87,7 +87,9 @@ git pull
    - **Name:** `multilevel-plus`
    - **Database Password:** kuchli parol o'ylab toping va **saqlab qo'ying**
    - **Region:** `Frankfurt (eu-central-1)` — O'zbekistonga eng yaqin
-4. **Create new project** → 1–2 daqiqa kuting
+4. Agar **Security** yoki **Data API** bo'limi chiqsa — **standart holicha
+   qoldiring** (Data API yoqilgan bo'lishi kerak)
+5. **Create new project** → 1–2 daqiqa kuting
 
 ---
 
@@ -113,6 +115,14 @@ Har birida `Success. No rows returned` yozuvi chiqishi kerak.
 > ⚠️ **Sariq `NOTICE` xabarlari — bu xato emas.** Ular "bunday narsa yo'q
 > ekan, o'tkazib yubordim" degani. Faqat qizil **ERROR** bo'lsa muammo.
 
+> ⚠️ **"Potential issue detected" / "destructive operation" oynasi chiqsa** —
+> **Run this query** ni bosing. Supabase fayl ichidagi `drop policy if exists`
+> qatorlarini ko'rib ogohlantiradi; bu qatorlar faqat eski qoidani yangisi bilan
+> almashtiradi, ma'lumot o'chmaydi.
+
+> ⚠️ **"RLS disabled" / "tables without RLS" ogohlantirishi chiqsa** (1-fayldan
+> keyin) — e'tibor bermang. RLS 2-faylda yoqiladi.
+
 ### Demo kontentni qo'shish (tavsiya etiladi)
 
 Sayt bo'sh ko'rinmasligi uchun namunaviy testlar, maqolalar, so'zlar va
@@ -129,6 +139,30 @@ Bundan keyin saytda:
 - 3 ta offline kurs
 
 paydo bo'ladi. Keyin ularni o'chirib, o'zingiznikini qo'shishingiz mumkin.
+
+### ✅ Hammasi to'g'ri ishlaganini tekshirish
+
+SQL Editor'da yangi oynaga shuni qo'yib **RUN** bosing:
+
+```sql
+select 'test_sets' as jadval, count(*) from test_sets
+union all select 'questions', count(*) from questions
+union all select 'articles', count(*) from articles
+union all select 'vocab_words', count(*) from vocab_words
+union all select 'courses', count(*) from courses
+union all select 'buckets', count(*) from storage.buckets;
+```
+
+Kutilgan natija:
+
+| jadval | count |
+|---|---|
+| test_sets | 21 |
+| questions | 44 |
+| articles | 8 |
+| vocab_words | 46 |
+| courses | 3 |
+| buckets | 2 |
 
 ---
 

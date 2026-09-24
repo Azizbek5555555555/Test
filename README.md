@@ -67,8 +67,9 @@ Bu eng muhim qismi. Quyidagilar **ma'lumotlar bazasi darajasida**
   va o'qituvchiga ochiq.
 - ✅ **Speaking audiolari yopiq** — faqat egasi va o'qituvchi eshitadi.
 
-Bu qoidalarning barchasi lokal PostgreSQL'da **20 ta test** bilan
-tekshirilgan.
+Bu qoidalarning barchasi lokal PostgreSQL 16 va PostgREST 12 (Supabase
+ishlatadigan API dvigateli) bilan **66 ta test** orqali tekshirilgan —
+jumladan, Supabase avtomatik ruxsat bermaydigan "qattiq" rejimda ham.
 
 ---
 
