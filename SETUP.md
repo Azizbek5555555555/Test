@@ -34,43 +34,48 @@ node -v
 
 ## 1-QADAM · Loyihani kompyuteringizga tushirish
 
-Ikki yo'ldan birini tanlang.
+> ⚠️ **ZIP qilib yuklab olmang.** ZIP'dan keyin `git pull` ishlamaydi va
+> yangilanishlarni ololmaysiz. Faqat `git clone` ishlating.
 
-### A variant · Git orqali (tavsiya etiladi)
-
-Keyinchalik yangilanishlarni bitta buyruq bilan olasiz:
+Git o'rnatilganini tekshiring (bo'lmasa [git-scm.com](https://git-scm.com/downloads)
+dan o'rnating va VS Code'ni qayta oching):
 
 ```bash
-git clone -b claude/lucid-franklin-dll1qh https://github.com/SIZNING-USERNAME/Test.git multilevel-plus
+git --version
+```
+
+Keyin:
+
+```bash
+cd $HOME\Desktop
+git clone https://github.com/SIZNING-USERNAME/Test.git multilevel-plus
 cd multilevel-plus
 npm install
 ```
 
-> `SIZNING-USERNAME` o'rniga o'z GitHub foydalanuvchi nomingizni qo'ying.
-> `-b claude/lucid-franklin-dll1qh` — kod aynan shu branchda turibdi.
+> Mac/Linux'da birinchi qator: `cd ~/Desktop`
 
-### B variant · ZIP qilib yuklab olgan bo'lsangiz
-
-GitHub'da **branch** ro'yxatidan `claude/lucid-franklin-dll1qh` ni tanlab,
-keyin **Code → Download ZIP** qilganingizga ishonch hosil qiling.
-
-ZIP'ni chiqarib, papkani VS Code'da oching. Keyin VS Code'da terminal oching
-(`Ctrl` + `` ` ``) va yozing:
+### ✅ Tekshirish
 
 ```bash
-npm install
+git status
 ```
 
-### ✅ To'g'ri papkadaligingizni tekshirish
+`On branch main` va `nothing to commit, working tree clean` chiqishi kerak.
+
+### 🌿 Branchlar — qaysi biri nima uchun
+
+| Branch | Vazifasi |
+|---|---|
+| **`main`** | **Saytning o'zi.** Railway faqat shu branchni internetga chiqaradi. |
+| `claude/lucid-franklin-dll1qh` | Claude o'zgarishlarni shu yerga yuboradi. Siz GitHub'da **Pull Request → Merge** qilganingizda ular `main` ga o'tadi. |
+
+**Yangilanishlarni olish** (har safar PR merge qilgandan keyin):
 
 ```bash
-ls
+git checkout main
+git pull
 ```
-
-Ro'yxatda **`package.json`**, **`src`** va **`supabase`** ko'rinishi shart.
-
-Agar faqat `README.md` ko'rinsa — noto'g'ri branch yuklab olingan.
-A variantdagi `git clone` buyrug'idan foydalaning.
 
 ---
 
@@ -270,32 +275,10 @@ Endi saytda profil rasmingizni bosing → **Admin panel** ko'rinadi.
 
 ## 9-QADAM · Saytni internetga chiqarish (Railway)
 
-### 9.1. Kodni GitHub'ga yuklash
+### 9.1. Kod GitHub'da tayyor
 
-Railway kodni GitHub'dan oladi, shuning uchun avval uni yuklaymiz.
-
-**Agar `git clone` qilgan bo'lsangiz:**
-
-```bash
-git add .
-git commit -m "Sozlamalar yangilandi"
-git push
-```
-
-**Agar ZIP yuklab olgan bo'lsangiz** (papkada git yo'q), bir marta
-sozlaymiz:
-
-```bash
-git init
-git branch -M main
-git add .
-git commit -m "Multilevel Plus"
-git remote add origin https://github.com/SIZNING-USERNAME/Test.git
-git push -u origin main --force
-```
-
-> ⚠️ `--force` — bu repozitoriyadagi `main` branchni sizning kodingiz bilan
-> almashtiradi. Repozitoriya faqat sizniki bo'lgani uchun xavfsiz.
+Kod allaqachon GitHub'dagi **`main`** branchda turibdi — hech narsa
+yuklash shart emas. Railway kodni to'g'ridan-to'g'ri o'sha yerdan oladi.
 
 ### 9.2. Railway'da loyiha yaratish
 
@@ -305,6 +288,8 @@ git push -u origin main --force
    ruxsatini berasiz)
 4. Railway darhol build boshlaydi — **uni to'xtatishingiz shart emas**,
    keyingi qadamda o'zgaruvchilarni qo'shib qayta ishga tushiramiz
+5. **Branchni tekshiring:** loyiha → **Settings** → **Source** →
+   **Branch** = `main` bo'lishi kerak
 
 ### 9.3. Muhit o'zgaruvchilarini qo'shish ⚠️ ENG MUHIM
 
@@ -368,8 +353,8 @@ Supabase → **Authentication** → **URL Configuration**:
 Railway bergan manzilni brauzerda oching. Sayt ochilishi va sariq
 ogohlantirish **bo'lmasligi** kerak. Google orqali kirib ko'ring.
 
-> ✅ Bundan keyin GitHub'ga har `git push` qilganingizda Railway saytni
-> avtomatik yangilaydi.
+> ✅ Bundan keyin `main` branch o'zgarganda (masalan, Pull Request merge
+> qilganingizda) Railway saytni **avtomatik** yangilaydi.
 
 ---
 

@@ -296,6 +296,30 @@ export function TestPlayer({
           </div>
         ) : null}
 
+        {/* Audio hali yuklanmagan bo'lsa — bo'lim ishlashi uchun transkript ko'rsatiladi */}
+        {!currentPart.audio_url && currentPart.transcript ? (
+          <details className="card p-0 mb-5 overflow-hidden" open>
+            <summary className="cursor-pointer select-none p-4 font-bold text-sm hover:bg-[var(--bg-subtle)]">
+              📄 Transkript (audio o&apos;rniga)
+            </summary>
+            <p className="px-4 pb-4 text-sm leading-relaxed whitespace-pre-line">
+              {currentPart.transcript}
+            </p>
+          </details>
+        ) : null}
+
+        {/* Writing Task 1 uchun grafik / jadval rasmi */}
+        {currentPart.image_url ? (
+          <figure className="card p-4 mb-5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={currentPart.image_url}
+              alt={`${currentPart.title} — topshiriq rasmi`}
+              className="mx-auto max-h-[480px] w-auto rounded-lg"
+            />
+          </figure>
+        ) : null}
+
         <div
           className={cn(
             "grid gap-6",

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 const NAV = [
   { href: "/admin", label: "Boshqaruv paneli", icon: "🏠", adminOnly: false },
   { href: "/admin/grading", label: "Tekshirish navbati", icon: "✍️", adminOnly: false },
+  { href: "/admin/results", label: "Barcha natijalar", icon: "📊", adminOnly: false },
   { href: "/admin/tests", label: "Testlar", icon: "📝", adminOnly: false },
   { href: "/admin/articles", label: "Maqolalar", icon: "📰", adminOnly: false },
   { href: "/admin/vocabulary", label: "Vocabulary", icon: "📘", adminOnly: false },

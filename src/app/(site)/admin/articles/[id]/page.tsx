@@ -16,6 +16,7 @@ import {
   articleFields,
   articleQuestionFields,
 } from "@/components/admin/fieldSpecs";
+import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 
 export const metadata: Metadata = {
   title: "Maqolani tahrirlash",
@@ -127,12 +128,12 @@ export default async function AdminArticleDetailPage({
                       name="article_id"
                       value={article.id}
                     />
-                    <button
-                      type="submit"
+                    <ConfirmSubmitButton
+                      message="Bu savolni o'chirasizmi?"
                       className="text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline"
                     >
                       🗑 Bu savolni o&apos;chirish
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </Collapsible>

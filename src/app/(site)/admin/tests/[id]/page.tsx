@@ -19,6 +19,7 @@ import {
   testPartFields,
   testSetFields,
 } from "@/components/admin/fieldSpecs";
+import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 
 export const metadata: Metadata = {
   title: "Testni tahrirlash",
@@ -150,15 +151,15 @@ export default async function AdminTestDetailPage({
                         name="test_set_id"
                         value={testSet.id}
                       />
-                      <button
-                        type="submit"
+                      <ConfirmSubmitButton
+                        message="Bu bo'limni o'chirasizmi? Ichidagi barcha savollar ham o'chadi."
                         className="rounded-lg border border-rose-200 dark:border-rose-800
                                    px-3 py-1.5 text-sm font-semibold text-rose-600 dark:text-rose-400
                                    hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                         title="Bo'limni o'chirish"
                       >
                         🗑 Bo&apos;limni o&apos;chirish
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 </div>
@@ -224,12 +225,12 @@ export default async function AdminTestDetailPage({
                                 name="test_set_id"
                                 value={testSet.id}
                               />
-                              <button
-                                type="submit"
+                              <ConfirmSubmitButton
+                                message="Bu savolni o'chirasizmi?"
                                 className="text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline"
                               >
                                 🗑 Bu savolni o&apos;chirish
-                              </button>
+                              </ConfirmSubmitButton>
                             </form>
                           </div>
                         </Collapsible>

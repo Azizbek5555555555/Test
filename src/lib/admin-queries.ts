@@ -145,7 +145,9 @@ export async function listPremiumRequests(): Promise<PremiumRequestWithUser[]> {
     const supabase = await createServerSupabase();
     const { data } = await supabase
       .from("premium_requests")
-      .select("*, profiles(full_name, email)")
+      // user_id va reviewed_by — ikkalasi ham profiles ga bog'langan,
+      // shuning uchun qaysi bog'lanish kerakligini aniq ko'rsatamiz
+      .select("*, profiles!premium_requests_user_id_fkey(full_name, email)")
       .order("created_at", { ascending: false })
       .limit(100);
     return (data ?? []) as unknown as PremiumRequestWithUser[];
@@ -256,6 +258,44 @@ export async function getTestSetForAdmin(id: string): Promise<{
   }
 }
 
+/* ------------------------------------------------------------ NATIJALAR */
+
+export interface ResultRow extends Attempt {
+  profiles: { full_name: string | null; email: string | null } | null;
+  test_sets: { title: string; slug: string } | null;
+}
+
+/**
+ * Hujjat 12-bo'lim: "admin yoki teacher ham natijalarni ko'rishi kerak".
+ * Barcha yakunlangan urinishlar — o'quvchi ismi va test nomi bilan.
+ */
+export async function listAllResults(search?: string): Promise<ResultRow[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = await createServerSupabase();
+    const { data } = await supabase
+      .from("attempts")
+      .select(
+        "*, profiles!attempts_user_id_fkey(full_name, email), test_sets(title, slug)",
+      )
+      .in("status", ["submitted", "graded"])
+      .order("submitted_at", { ascending: false, nullsFirst: false })
+      .limit(300);
+
+    const rows = (data ?? []) as unknown as ResultRow[];
+    const term = search?.trim().toLowerCase();
+    if (!term) return rows;
+
+    return rows.filter((row) =>
+      [row.profiles?.full_name, row.profiles?.email, row.test_sets?.title]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(term)),
+    );
+  } catch {
+    return [];
+  }
+}
+
 /* --------------------------------------------------------------- BAHOLASH */
 
 export interface GradingDetail {
@@ -292,7 +332,11 @@ export async function getGradingDetail(
 
     const { data: attemptRow } = await supabase
       .from("attempts")
-      .select("*, profiles(full_name, email), test_sets(title)")
+      // user_id va graded_by — ikkalasi ham profiles ga bog'langan,
+      // shuning uchun o'quvchining o'zini (user_id) aniq ko'rsatamiz
+      .select(
+        "*, profiles!attempts_user_id_fkey(full_name, email), test_sets(title)",
+      )
       .eq("id", attemptId)
       .maybeSingle();
 

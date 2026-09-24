@@ -15,6 +15,7 @@ import {
   vocabPackFields,
   vocabWordFields,
 } from "@/components/admin/fieldSpecs";
+import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 
 export const metadata: Metadata = {
   title: "So'zlar",
@@ -117,12 +118,12 @@ export default async function AdminVocabPackPage({
                   >
                     <input type="hidden" name="id" value={word.id} />
                     <input type="hidden" name="pack_id" value={pack.id} />
-                    <button
-                      type="submit"
+                    <ConfirmSubmitButton
+                      message="Bu so'zni o'chirasizmi?"
                       className="text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline"
                     >
                       🗑 Bu so&apos;zni o&apos;chirish
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </Collapsible>
