@@ -209,52 +209,90 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 ## 5-QADAM · Google orqali kirishni yoqish
 
-Hujjatda asosiy variant — Google account. Uni sozlaymiz.
+Hujjatda asosiy variant — Google account. Uni sozlaymiz. Jami ~15 daqiqa.
 
-### 5.1. Google Cloud'da ilova yaratish
+> 🧭 **Qanday ishlaydi:** Sayt → Google → **Supabase** → Sayt.
+> Google faqat **Supabase manzilini** biladi. Shuning uchun keyin domen
+> yoki Railway manzili o'zgarsa, Google'da hech narsa o'zgartirmaysiz —
+> faqat Supabase'dagi ro'yxatga yangi manzil qo'shasiz.
 
-1. [console.cloud.google.com](https://console.cloud.google.com) ga kiring
-2. Yuqoridan **New Project** → nom: `Multilevel Plus` → **Create**
-3. Chap menyu → **APIs & Services** → **OAuth consent screen**
-   - **External** → **Create**
-   - **App name:** `Multilevel Plus`
-   - **User support email:** emailingiz
-   - **Developer contact:** emailingiz
-   - **Save and Continue** → oxirigacha → **Back to Dashboard**
-4. **APIs & Services** → **Credentials** → **Create Credentials** →
-   **OAuth client ID**
-   - **Application type:** `Web application`
-   - **Name:** `Multilevel Plus Web`
-   - **Authorized redirect URIs** → **ADD URI** va quyidagini kiriting:
-
-     ```
-     https://SIZNING-LOYIHA.supabase.co/auth/v1/callback
-     ```
-
-     > `SIZNING-LOYIHA` o'rniga Supabase URL'ingizdagi qismni qo'ying.
-     > Masalan: `https://abcdefghijklm.supabase.co/auth/v1/callback`
-
-   - **Create**
-5. Chiqqan **Client ID** va **Client Secret** ni nusxalab oling
-
-### 5.2. Supabase'ga ulash
+### 5.1. Supabase'dan "Callback URL" ni olish
 
 1. Supabase → **Authentication** → **Sign In / Providers**
-2. **Google** ni toping → yoqing
-3. **Client ID** va **Client Secret** ni qo'ying → **Save**
+2. Ro'yxatdan **Google** ni bosing (hali yoqmang)
+3. Pastda **Callback URL (for OAuth)** degan qator bor — uni
+   **Copy** qiling. U shunday ko'rinishda bo'ladi:
 
-### 5.3. Supabase'ga "qaytish manzili"ni aytish ⚠️
+   ```
+   https://SIZNING-LOYIHA.supabase.co/auth/v1/callback
+   ```
+
+Bu oynani yopmang — 5.3 da qaytamiz.
+
+### 5.2. Google Cloud'da kirish kalitini yaratish
+
+Yangi tab'da [console.cloud.google.com](https://console.cloud.google.com)
+ni oching (saytga qaysi Google akkaunt bilan kirsangiz — o'sha egasi bo'ladi).
+
+**a) Loyiha yaratish**
+1. Yuqori chapdagi loyiha tanlagich → **New Project**
+2. **Project name:** `Multilevel Plus` → **Create**
+3. Yaratilgach, yuqoridan aynan shu loyiha tanlanganiga ishonch hosil qiling
+
+**b) Ruxsat oynasi (Branding)**
+1. Yuqoridagi qidiruvga `Google Auth Platform` yozing → oching
+   (yoki menyu → **APIs & Services** → **OAuth consent screen**)
+2. **Get started** tugmasi
+3. **App name:** `Multilevel Plus` · **User support email:** emailingiz → **Next**
+4. **Audience:** `External` → **Next**
+5. **Contact information:** emailingiz → **Next**
+6. Shartlarga belgi qo'ying → **Continue** → **Create**
+
+**c) Client (kalit) yaratish**
+1. Chap menyu → **Clients** → **+ Create client**
+2. **Application type:** `Web application`
+3. **Name:** `Multilevel Plus Web`
+4. **Authorized redirect URIs** → **+ Add URI** → 5.1 da nusxalagan
+   Supabase manzilini qo'ying
+5. **Create**
+6. Chiqqan oynadan **Client ID** va **Client secret** ni nusxalang
+   (secret'ni hech kimga yubormang, GitHub'ga yozmang)
+
+**d) Ilovani hammaga ochish** ⚠️ muhim
+1. Chap menyu → **Audience**
+2. **Publishing status: Testing** turgan bo'lsa → **Publish app** → **Confirm**
+
+> Buni qilmasangiz, faqat "Test users" ro'yxatidagi odamlar kira oladi,
+> qolganlarga *"Access blocked"* chiqadi. Biz faqat ism, email va rasmni
+> so'raymiz — shuning uchun Google tekshiruvi talab qilinmaydi.
+
+### 5.3. Supabase'ga ulash
+
+1. Supabase'dagi Google oynasiga qayting
+2. **Enable Sign in with Google** — yoqing
+3. **Client IDs** ga — Client ID, **Client Secret** ga — secret
+4. **Save**
+
+### 5.4. Supabase'ga "qaytish manzili"ni aytish ⚠️
 
 Buni qilmasangiz, Google'dan keyin sayt o'rniga xato sahifa chiqadi.
 
 1. Supabase → **Authentication** → **URL Configuration**
 2. **Site URL:** hozircha `http://localhost:3000` (Railway'dan keyin
-   9.5-qadamda o'zgartirasiz)
-3. **Redirect URLs** → **Add URL** → quyidagini kiriting → **Save**
+   9.5-qadamda o'zgartirasiz) → **Save changes**
+3. **Redirect URLs** → **Add URL** → quyidagini kiriting → **Save URLs**
 
    ```
    http://localhost:3000/**
    ```
+
+### 5.5. Sinab ko'rish
+
+1. `npm run dev` ishlab turgan bo'lsin
+2. http://localhost:3000/login → **Google bilan kirish**
+3. Akkaunt tanlang → saytga qaytasiz, yuqori o'ng burchakda rasmingiz chiqadi
+4. Supabase → **Authentication → Users** da siz paydo bo'lasiz,
+   **Table Editor → profiles** da ismingiz va rasmingiz yoziladi
 
 ---
 
@@ -506,11 +544,15 @@ muddatni tanlang → **Premium berish**
 <details>
 <summary><b>Google orqali kirish ishlamayapti</b></summary>
 
-1. Google Cloud'dagi **Authorized redirect URI** aynan shunday bo'lsin:
-   `https://SIZNING-LOYIHA.supabase.co/auth/v1/callback`
-2. Supabase → **Authentication → URL Configuration** da sayt manzili
-   qo'shilganini tekshiring
-3. Google Cloud'da o'zgartirish 5 daqiqagacha kuchga kiradi
+| Nima chiqdi | Sababi va yechimi |
+|---|---|
+| `Unsupported provider: provider is not enabled` | Supabase'da Google yoqilmagan yoki **Save** bosilmagan (5.3) |
+| Google: `Error 400: redirect_uri_mismatch` | Google Cloud'dagi **Authorized redirect URI** Supabase'dagi Callback URL bilan harfma-harf bir xil emas (oxirida `/` yoki bo'sh joy bo'lmasin) (5.2-c) |
+| Google: `Access blocked` / `has not completed the Google verification process` | Ilova hali **Testing** holatida — **Audience → Publish app** (5.2-d) |
+| Google: `invalid_client` | Client ID yoki secret noto'g'ri nusxalangan (5.3) |
+| Kirgandan keyin `localhost:3000` o'rniga boshqa sahifa yoki xato | Supabase → **URL Configuration → Redirect URLs** ga `http://localhost:3000/**` qo'shilmagan (5.4) |
+
+Google Cloud'dagi o'zgarishlar 5 daqiqagacha kuchga kirishi mumkin.
 </details>
 
 <details>
