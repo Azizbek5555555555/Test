@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 import { getServiceRoleKey, getSupabaseUrl } from "./env";
+import { loggingFetch } from "./logging-fetch";
 
 /**
  * ADMIN (service_role) klienti — RLS ni chetlab o'tadi.
@@ -16,5 +17,6 @@ import { getServiceRoleKey, getSupabaseUrl } from "./env";
 export function createAdminSupabase() {
   return createClient(getSupabaseUrl(), getServiceRoleKey(), {
     auth: { autoRefreshToken: false, persistSession: false },
+    global: { fetch: loggingFetch },
   });
 }
