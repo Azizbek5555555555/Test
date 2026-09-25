@@ -7,6 +7,11 @@ import {
   getTestParts,
   getTestSetById,
 } from "@/lib/queries";
+import {
+  attemptMinutesLeft,
+  finalizeAttempt,
+  isAttemptTimeOver,
+} from "@/lib/attempt-time";
 import type { PublicQuestion } from "@/lib/types";
 import { TestPlayer } from "@/components/test/TestPlayer";
 
@@ -35,6 +40,15 @@ export default async function TestRunnerPage({
     redirect(`/results/${attempt.id}`);
   }
 
+  // Vaqt tugagan bo'lsa — saqlangan javoblar bilan yakunlab, natijaga o'tamiz.
+  // (Yakunlab bo'lmasa, pleyer 1 daqiqa bilan ochiladi va o'zi yakunlaydi.)
+  if (
+    isAttemptTimeOver(attempt.expires_at) &&
+    (await finalizeAttempt(attempt.id))
+  ) {
+    redirect(`/results/${attempt.id}`);
+  }
+
   const testSet = await getTestSetById(attempt.test_set_id);
   if (!testSet) notFound();
 
@@ -53,7 +67,7 @@ export default async function TestRunnerPage({
   }
 
   // Qolgan vaqtni hisoblaymiz
-  const minutesLeft = computeMinutesLeft(
+  const minutesLeft = attemptMinutesLeft(
     attempt.expires_at,
     testSet.duration_minutes,
   );
@@ -73,14 +87,4 @@ export default async function TestRunnerPage({
       singlePlayAudio={false}
     />
   );
-}
-
-function computeMinutesLeft(
-  expiresAt: string | null,
-  fallbackMinutes: number,
-): number {
-  if (!expiresAt) return fallbackMinutes;
-  const msLeft = new Date(expiresAt).getTime() - Date.now();
-  if (Number.isNaN(msLeft)) return fallbackMinutes;
-  return Math.max(1, Math.round(msLeft / 60_000));
 }

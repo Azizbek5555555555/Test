@@ -9,10 +9,14 @@ import type { VocabRoundWord, VocabSession } from "@/lib/types";
 export interface RoundResult {
   ok: boolean;
   message?: string;
+  roundId?: string;
   words?: VocabRoundWord[];
 }
 
-/** O'yin uchun so'zlarni oladi — to'g'ri javoblarsiz, aralashtirilgan holda */
+/**
+ * Yangi raund boshlaydi. Baza so'zlarni tanlab, ularni "raund" sifatida
+ * eslab qoladi (0005: start_vocab_round). To'g'ri javoblar brauzerga chiqmaydi.
+ */
 export async function startVocabRoundAction(
   packId: string,
 ): Promise<RoundResult> {
@@ -26,19 +30,23 @@ export async function startVocabRoundAction(
 
   try {
     const supabase = await createServerSupabase();
-    const { data, error } = await supabase.rpc("get_vocab_round", {
+    const { data, error } = await supabase.rpc("start_vocab_round", {
       p_pack_id: packId,
       p_limit: GAME_QUESTION_COUNT,
     });
 
     if (error) return { ok: false, message: error.message };
 
-    const words = (data ?? []) as VocabRoundWord[];
-    if (words.length === 0) {
+    const round = data as {
+      round_id?: string;
+      words?: VocabRoundWord[] | null;
+    } | null;
+    const words = round?.words ?? [];
+    if (!round?.round_id || words.length === 0) {
       return { ok: false, message: "Bu to'plamda hali so'zlar yo'q." };
     }
 
-    return { ok: true, words };
+    return { ok: true, roundId: round.round_id, words };
   } catch {
     return { ok: false, message: "So'zlarni yuklab bo'lmadi." };
   }
@@ -59,12 +67,12 @@ export interface SubmitGameResult {
 
 /**
  * O'yin natijasini yuboradi.
- * MUHIM: ball SERVERDA qayta hisoblanadi — brauzerdan kelgan ballga ishonilmaydi.
+ * MUHIM: ball SERVERDA hisoblanadi — faqat shu raundda berilgan so'zlar,
+ * har biri bir marta, va har bir raund faqat bir marta qabul qilinadi.
  */
 export async function submitVocabSessionAction(
-  packId: string,
+  roundId: string,
   answers: GameAnswer[],
-  durationMs: number,
 ): Promise<SubmitGameResult> {
   const user = await getUser();
   if (!user) return { ok: false, message: "Sessiya tugagan. Qayta kiring." };
@@ -72,10 +80,9 @@ export async function submitVocabSessionAction(
   try {
     const supabase = await createServerSupabase();
 
-    const { data, error } = await supabase.rpc("submit_vocab_session", {
-      p_pack_id: packId,
+    const { data, error } = await supabase.rpc("finish_vocab_round", {
+      p_round_id: roundId,
       p_answers: answers,
-      p_duration_ms: Math.max(0, Math.round(durationMs)),
     });
 
     if (error) return { ok: false, message: error.message };

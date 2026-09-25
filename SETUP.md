@@ -97,7 +97,7 @@ git pull
 
 Supabase panelida chap menyudan **SQL Editor** ni oching.
 
-Endi loyihadagi `supabase/` papkasidan **4 ta faylni ketma-ket** ishga
+Endi loyihadagi `supabase/` papkasidan **5 ta faylni ketma-ket** ishga
 tushirasiz. Har birida: faylni ochib, **butun matnini nusxalang**, SQL Editor
 oynasiga qo'ying va **RUN** (yoki `Ctrl+Enter`) bosing.
 
@@ -109,6 +109,11 @@ oynasiga qo'ying va **RUN** (yoki `Ctrl+Enter`) bosing.
 | 2 | `supabase/migrations/0002_policies.sql` | Xavfsizlik qoidalari |
 | 3 | `supabase/migrations/0003_functions.sql` | Baholash mantiqi |
 | 4 | `supabase/migrations/0004_storage.sql` | Audio fayllar uchun papkalar |
+| 5 | `supabase/migrations/0005_security_hardening.sql` | Qo'shimcha himoya: soxta natija, o'yinda aldash, Premium so'rovni soxtalashtirishdan |
+
+> 💡 **Bazani oldin yaratgan bo'lsangiz** (1–4 fayllarni avval ishga
+> tushirgan bo'lsangiz), faqat **5-faylni** ishga tushirsangiz kifoya —
+> mavjud ma'lumotlar o'chmaydi.
 
 Har birida `Success. No rows returned` yozuvi chiqishi kerak.
 
@@ -238,6 +243,19 @@ Hujjatda asosiy variant — Google account. Uni sozlaymiz.
 2. **Google** ni toping → yoqing
 3. **Client ID** va **Client Secret** ni qo'ying → **Save**
 
+### 5.3. Supabase'ga "qaytish manzili"ni aytish ⚠️
+
+Buni qilmasangiz, Google'dan keyin sayt o'rniga xato sahifa chiqadi.
+
+1. Supabase → **Authentication** → **URL Configuration**
+2. **Site URL:** hozircha `http://localhost:3000` (Railway'dan keyin
+   9.5-qadamda o'zgartirasiz)
+3. **Redirect URLs** → **Add URL** → quyidagini kiriting → **Save**
+
+   ```
+   http://localhost:3000/**
+   ```
+
 ---
 
 ## 6-QADAM · Email orqali 6 xonali kod yuborishni sozlash
@@ -249,8 +267,10 @@ Supabase sukut bo'yicha **havola** yuboradi. Uni **kod**ga o'zgartiramiz:
 1. Supabase → **Authentication** → **Emails** → **Templates**
 2. **Magic Link** shablonini tanlang
 3. Matndagi `{{ .ConfirmationURL }}` o'rniga `{{ .Token }}` yozing.
+4. **Confirm signup** shablonini ham tanlab, xuddi shunday qiling
+   (saytga **birinchi marta** kirayotgan odamga aynan shu shablon boradi).
 
-Masalan, shablonni butunlay quyidagiga almashtiring:
+Masalan, ikkala shablonni ham butunlay quyidagiga almashtiring:
 
 ```html
 <h2>Multilevel Plus — tasdiqlash kodi</h2>
@@ -260,7 +280,11 @@ Masalan, shablonni butunlay quyidagiga almashtiring:
 <p>Agar bu siz bo'lmasangiz, bu xatni e'tiborsiz qoldiring.</p>
 ```
 
-4. **Save**
+5. Har birida **Save**
+
+> ℹ️ Kod uzunligi: **Authentication → Sign In / Providers → Email →
+> Email OTP Length** — `6` qilib qo'ying (sayt 6–10 xonali kodni qabul
+> qiladi, lekin sahifadagi yozuvlar "6 xonali" deydi).
 
 > ℹ️ Bepul tarifda Supabase soatiga ~3 ta email yuboradi — sinov uchun
 > yetarli. Haqiqiy foydalanuvchilar ko'payganda **Authentication → Emails →
@@ -497,6 +521,22 @@ muddatni tanlang → **Premium berish**
 - 6-qadamdagi shablonda `{{ .Token }}` borligiga ishonch hosil qiling
 - Doimiy yechim: **Authentication → Emails → SMTP Settings** dan o'z pochta
   xizmatingizni ulang
+</details>
+
+<details>
+<summary><b>O'yinda "start_vocab_round" / testda "permission denied for table attempts" xatosi</b></summary>
+
+`0005_security_hardening.sql` hali ishga tushirilmagan. Supabase →
+**SQL Editor** da shu faylni ishga tushiring (3-qadam, 5-fayl) va
+`/setup-check` sahifasini qayta oching.
+</details>
+
+<details>
+<summary><b>"Bu test hali tayyor emas" deb turibdi</b></summary>
+
+Bu testda hali bo'lim (Part) yo'q. **Admin panel → Testlar** → testni
+tanlang → bo'lim va savollar qo'shing. Bo'sh testni boshlab bo'lmaydi —
+bu ataylab qilingan.
 </details>
 
 <details>
