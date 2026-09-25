@@ -25,12 +25,21 @@ export async function generateMetadata({
   return { title: exam?.title ?? "Exam Full Checking" };
 }
 
+const START_ERRORS: Record<string, string> = {
+  empty: "Bu imtihon hali to'ldirilmagan — savollar qo'shilgach boshlash mumkin bo'ladi.",
+  start: "Imtihonni boshlab bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.",
+};
+
 export default async function ExamIntroPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { slug } = await params;
+  const { error: errorKey } = await searchParams;
+  const startError = errorKey ? START_ERRORS[errorKey] : undefined;
 
   const profile = await getProfile();
   if (!profile) {
@@ -142,13 +151,24 @@ export default async function ExamIntroPage({
                 : "Tayyor bo'lsangiz boshlang. Tinch joy va ishonchli internet tavsiya etiladi."}
             </p>
 
-            <form action={startAttemptAction} className="mt-4">
-              <input type="hidden" name="test_set_id" value={exam.id} />
-              <input type="hidden" name="mode" value="exam_checking" />
-              <Button type="submit" size="lg" fullWidth variant="premium">
-                {openAttempt ? "Davom ettirish →" : "🎯 START EXAM"}
-              </Button>
-            </form>
+            {startError ? (
+              <div className="mt-4">
+                <Alert tone="danger">{startError}</Alert>
+              </div>
+            ) : null}
+
+            {parts.length === 0 ? (
+              <p className="mt-4 text-sm font-semibold text-muted">
+                ⏳ Bu imtihon hali tayyor emas. Tez orada qo&apos;shiladi.
+              </p>
+            ) : (
+              <form action={startAttemptAction} className="mt-4">
+                <input type="hidden" name="test_set_id" value={exam.id} />
+                <Button type="submit" size="lg" fullWidth variant="premium">
+                  {openAttempt ? "Davom ettirish →" : "🎯 START EXAM"}
+                </Button>
+              </form>
+            )}
 
             {openAttempt ? (
               <p className="text-xs text-muted mt-3 text-center">

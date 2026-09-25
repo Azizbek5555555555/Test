@@ -1,5 +1,6 @@
 import { createServerSupabase } from "./supabase/server";
 import { isSupabaseConfigured } from "./supabase/env";
+import { isAttemptTimeOver } from "./attempt-time";
 import type {
   Article,
   ArticleListItem,
@@ -270,7 +271,11 @@ export async function getOpenAttempt(
       .order("started_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    return (data as Attempt | null) ?? null;
+    const attempt = (data as Attempt | null) ?? null;
+    // Vaqti tugaganini "davom ettirish" deb ko'rsatmaymiz — boshlash tugmasi
+    // uni avtomatik yakunlab, yangisini ochadi
+    if (attempt && isAttemptTimeOver(attempt.expires_at)) return null;
+    return attempt;
   } catch {
     return null;
   }

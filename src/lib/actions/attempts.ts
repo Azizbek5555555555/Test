@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getProfile, profileHasPremium } from "@/lib/auth";
-import type { AnswerMap, Attempt, AttemptMode } from "@/lib/types";
+import { finalizeAttempt, isAttemptTimeOver } from "@/lib/attempt-time";
+import type { AnswerMap, Attempt } from "@/lib/types";
 
 export interface AttemptActionResult {
   ok: boolean;
@@ -17,8 +18,6 @@ export interface AttemptActionResult {
    ------------------------------------------------------------------------- */
 export async function startAttemptAction(formData: FormData): Promise<void> {
   const testSetId = String(formData.get("test_set_id") ?? "");
-  const mode = (String(formData.get("mode") ?? "practice") ||
-    "practice") as AttemptMode;
 
   if (!testSetId) redirect("/full-mock");
 
@@ -32,16 +31,16 @@ export async function startAttemptAction(formData: FormData): Promise<void> {
   // Testni va uning Premium holatini tekshiramiz
   const { data: testSet } = await supabase
     .from("test_sets")
-    .select("id, is_premium, published, category, duration_minutes")
+    .select("id, slug, is_premium, published, category")
     .eq("id", testSetId)
     .maybeSingle();
 
   const set = testSet as {
     id: string;
+    slug: string;
     is_premium: boolean;
     published: boolean;
     category: string;
-    duration_minutes: number;
   } | null;
 
   if (!set || !set.published) redirect("/full-mock");
@@ -52,40 +51,46 @@ export async function startAttemptAction(formData: FormData): Promise<void> {
 
   const isExam = set.category === "exam_checking";
   const targetBase = isExam ? "/exam" : "/test";
+  const infoPage = isExam ? `/exam-checking/${set.slug}` : `/tests/${set.slug}`;
 
-  // Tugallanmagan urinish bo'lsa — o'shani davom ettiramiz
-  const { data: existing } = await supabase
+  // Tugallanmagan urinish bo'lsa — vaqti tugamagan bo'lsa o'shani davom
+  // ettiramiz, tugagan bo'lsa saqlangan javoblar bilan yakunlaymiz
+  const { data: openRows } = await supabase
     .from("attempts")
-    .select("id")
+    .select("id, expires_at")
     .eq("test_set_id", set.id)
     .eq("user_id", profile.id)
     .eq("status", "in_progress")
-    .order("started_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order("started_at", { ascending: false });
 
-  const openAttempt = existing as { id: string } | null;
-  if (openAttempt) {
-    redirect(`${targetBase}/${openAttempt.id}`);
+  for (const open of (openRows ?? []) as {
+    id: string;
+    expires_at: string | null;
+  }[]) {
+    if (!isAttemptTimeOver(open.expires_at)) {
+      redirect(`${targetBase}/${open.id}`);
+    }
+    await finalizeAttempt(open.id);
   }
 
-  const expiresAt = new Date(
-    Date.now() + (set.duration_minutes || 60) * 60_000 + 5 * 60_000,
-  ).toISOString();
+  // Bo'limlari yo'q (hali to'ldirilmagan) testni boshlab bo'lmaydi
+  const { count: partCount } = await supabase
+    .from("test_parts")
+    .select("id", { count: "exact", head: true })
+    .eq("test_set_id", set.id);
 
+  if (!partCount) redirect(`${infoPage}?error=empty`);
+
+  // Faqat "qaysi test" ekanini yuboramiz. Rejim, boshlanish va tugash vaqti,
+  // holat — bularning hammasini baza o'zi qo'yadi (0005: prepare_attempt)
   const { data: created, error } = await supabase
     .from("attempts")
-    .insert({
-      user_id: profile.id,
-      test_set_id: set.id,
-      mode: isExam ? "exam_checking" : mode,
-      expires_at: expiresAt,
-    })
+    .insert({ user_id: profile.id, test_set_id: set.id })
     .select("id")
     .single();
 
   if (error || !created) {
-    redirect("/full-mock?error=start");
+    redirect(`${infoPage}?error=start`);
   }
 
   redirect(`${targetBase}/${(created as { id: string }).id}`);

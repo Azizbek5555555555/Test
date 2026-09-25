@@ -35,12 +35,21 @@ const CATEGORY_BACK: Record<string, { href: string; label: string }> = {
   exam_checking: { href: "/exam-checking", label: "Exam Full Checking" },
 };
 
+const START_ERRORS: Record<string, string> = {
+  empty: "Bu test hali to'ldirilmagan — savollar qo'shilgach boshlash mumkin bo'ladi.",
+  start: "Testni boshlab bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.",
+};
+
 export default async function TestOverviewPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { slug } = await params;
+  const { error: errorKey } = await searchParams;
+  const startError = errorKey ? START_ERRORS[errorKey] : undefined;
   const testSet = await getTestSetBySlug(slug);
 
   if (!testSet || !testSet.published) notFound();
@@ -200,19 +209,24 @@ export default async function TestOverviewPage({
                     : "Boshlagach taymer ishga tushadi. Javoblaringiz avtomatik saqlanadi."}
                 </p>
 
-                <form action={startAttemptAction} className="mt-4">
-                  <input type="hidden" name="test_set_id" value={testSet.id} />
-                  <input
-                    type="hidden"
-                    name="mode"
-                    value={
-                      testSet.category === "full_mock" ? "full_mock" : "practice"
-                    }
-                  />
-                  <Button type="submit" size="lg" fullWidth>
-                    {openAttempt ? "Davom ettirish →" : "🚀 Testni boshlash"}
-                  </Button>
-                </form>
+                {startError ? (
+                  <div className="mt-4">
+                    <Alert tone="danger">{startError}</Alert>
+                  </div>
+                ) : null}
+
+                {parts.length === 0 ? (
+                  <p className="mt-4 text-sm font-semibold text-muted">
+                    ⏳ Bu test hali tayyor emas. Tez orada qo&apos;shiladi.
+                  </p>
+                ) : (
+                  <form action={startAttemptAction} className="mt-4">
+                    <input type="hidden" name="test_set_id" value={testSet.id} />
+                    <Button type="submit" size="lg" fullWidth>
+                      {openAttempt ? "Davom ettirish →" : "🚀 Testni boshlash"}
+                    </Button>
+                  </form>
+                )}
               </>
             )}
           </div>

@@ -106,8 +106,6 @@ export async function requestPremiumAction(
   formData: FormData,
 ): Promise<ActionResult> {
   const plan = String(formData.get("plan") ?? "").trim();
-  const months = Number(formData.get("months") ?? 1);
-  const amount = Number(formData.get("amount") ?? 0);
   const note = String(formData.get("note") ?? "").trim();
 
   if (!plan) return { ok: false, message: "Tarifni tanlang." };
@@ -136,11 +134,11 @@ export async function requestPremiumAction(
       };
     }
 
+    // Muddat va narxni baza tarif sozlamalaridan o'zi qo'yadi
+    // (0005: prepare_premium_request) — brauzerdan kelgan narxga ishonilmaydi
     const { error } = await supabase.from("premium_requests").insert({
       user_id: profile.id,
       plan: plan.slice(0, 40),
-      months: Number.isFinite(months) ? Math.max(1, Math.min(24, months)) : 1,
-      amount: Number.isFinite(amount) ? Math.max(0, amount) : null,
       note: note ? note.slice(0, 500) : null,
     });
 

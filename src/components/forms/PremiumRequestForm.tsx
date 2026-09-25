@@ -90,8 +90,6 @@ export function PremiumRequestForm({
       </div>
 
       <input type="hidden" name="plan" value={plan?.id ?? ""} />
-      <input type="hidden" name="months" value={plan?.months ?? 1} />
-      <input type="hidden" name="amount" value={plan?.amount ?? 0} />
 
       <div>
         <label htmlFor="premium-note" className="block text-sm font-semibold mb-1.5">

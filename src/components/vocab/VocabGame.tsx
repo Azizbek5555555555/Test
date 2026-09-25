@@ -53,8 +53,8 @@ export function VocabGame({
   const [localScore, setLocalScore] = useState(0);
 
   const answersRef = useRef<GameAnswer[]>([]);
+  const roundIdRef = useRef<string | null>(null);
   const questionStartRef = useRef<number>(0);
-  const gameStartRef = useRef<number>(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const current = words[index];
@@ -74,14 +74,14 @@ export function VocabGame({
     setError(null);
 
     const result = await startVocabRoundAction(packId);
-    if (!result.ok || !result.words) {
+    if (!result.ok || !result.words || !result.roundId) {
       setError(result.message ?? "So'zlarni yuklab bo'lmadi.");
       setPhase("error");
       return;
     }
 
     answersRef.current = [];
-    gameStartRef.current = nowMs();
+    roundIdRef.current = result.roundId;
     setWords(result.words);
     setIndex(0);
     setSelected(null);
@@ -147,12 +147,14 @@ export function VocabGame({
   /* ------------------------------------------------------------ FINISH */
   async function finish() {
     setPhase("loading");
-    const duration = nowMs() - gameStartRef.current;
-    const result = await submitVocabSessionAction(
-      packId,
-      answersRef.current,
-      duration,
-    );
+    const roundId = roundIdRef.current;
+    if (!roundId) {
+      setError("O'yin topilmadi. Qaytadan boshlang.");
+      setPhase("error");
+      return;
+    }
+    roundIdRef.current = null;
+    const result = await submitVocabSessionAction(roundId, answersRef.current);
 
     if (!result.ok || !result.session) {
       setError(result.message ?? "Natijani saqlab bo'lmadi.");

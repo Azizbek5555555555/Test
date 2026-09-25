@@ -61,15 +61,21 @@ Bu eng muhim qismi. Quyidagilar **ma'lumotlar bazasi darajasida**
   ustunlariga yozish huquqi olib tashlangan.
 - ✅ **Ballarni qo'lda o'zgartirib bo'lmaydi** — `overall_score`,
   `cefr_level` kabi ustunlarni faqat server funksiyalari yozadi.
-- ✅ **O'yin bali serverda qayta hisoblanadi** — brauzerdan kelgan ballga
-  ishonilmaydi.
+- ✅ **O'yin bali serverda qayta hisoblanadi** — faqat server bergan raunddagi
+  so'zlar, har biri bir marta, har bir raund bir marta qabul qilinadi.
+- ✅ **Soxta natija yaratib bo'lmaydi** — urinishning rejimi, vaqti va holatini
+  baza o'zi qo'yadi; Premium testga Premium'siz urinish ochib bo'lmaydi.
+- ✅ **Premium so'rov narxi/muddati serverdagi tarifdan olinadi** — brauzerdan
+  kelgan narxga ishonilmaydi.
+- ✅ **Test vaqti tugagach javoblar o'zgarmaydi** — test avtomatik yakunlanadi.
 - ✅ **Begona natijani ko'rib bo'lmaydi** — har bir urinish faqat egasiga
   va o'qituvchiga ochiq.
 - ✅ **Speaking audiolari yopiq** — faqat egasi va o'qituvchi eshitadi.
 
 Bu qoidalarning barchasi lokal PostgreSQL 16 va PostgREST 12 (Supabase
-ishlatadigan API dvigateli) bilan **66 ta test** orqali tekshirilgan —
-jumladan, Supabase avtomatik ruxsat bermaydigan "qattiq" rejimda ham.
+ishlatadigan API dvigateli) bilan **100 dan ortiq test** orqali tekshirilgan —
+jumladan, API orqali to'g'ridan-to'g'ri hujum qilish sinovlari va Supabase
+avtomatik ruxsat bermaydigan "qattiq" rejimda ham.
 
 ---
 
@@ -82,6 +88,7 @@ supabase/
     0002_policies.sql    Xavfsizlik qoidalari (RLS)
     0003_functions.sql   Baholash, leaderboard, o'yin mantiqi
     0004_storage.sql     Audio fayllar uchun papkalar
+    0005_security_hardening.sql  Qo'shimcha himoya (natija, o'yin, Premium)
   seed.sql               Demo kontent
 
 src/
@@ -169,6 +176,9 @@ o'zgartirish mumkin.
 | Bitta savoldan maksimum | **500** |
 
 Ball **serverda** hisoblanadi — brauzerdan yuborilgan natijaga ishonilmaydi.
+Har bir o'yin "raund" sifatida bazada qayd etiladi: faqat o'sha raundda
+berilgan so'zlar hisoblanadi, raund bir marta yakunlanadi, soatiga 40 tadan
+ortiq o'yin boshlab bo'lmaydi.
 
 ---
 

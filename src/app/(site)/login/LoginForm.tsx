@@ -204,11 +204,11 @@ export function LoginForm({
               inputMode="numeric"
               autoComplete="one-time-code"
               pattern="[0-9]*"
-              maxLength={6}
+              maxLength={10}
               placeholder="000000"
               value={code}
               onChange={(e) =>
-                setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                setCode(e.target.value.replace(/\D/g, "").slice(0, 10))
               }
               className="text-center text-2xl tracking-[0.4em] font-bold py-4"
               required

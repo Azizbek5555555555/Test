@@ -229,6 +229,34 @@ export async function runSetupDiagnostics(): Promise<SetupCheck[]> {
     }
   }
 
+  /* ------------------ 5b. Jonli tekshiruv: 0005 xavfsizlik fayli qo'llanganmi */
+  if (urlOk && anonRaw && (anon.kind === "publishable" || anon.kind === "jwt-anon")) {
+    const title = "Xavfsizlik yangilanishi (0005_security_hardening.sql)";
+    try {
+      const client = createClient(rawUrl!, anonRaw.trim(), {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      // period_start() faqat 0005 faylida yaratiladi
+      const { error } = await client.rpc("period_start", { p_period: "daily" });
+      checks.push(
+        error
+          ? {
+              title,
+              status: "fail",
+              detail: `${error.code ? `[${error.code}] ` : ""}${error.message}`,
+              fix: "Supabase → SQL Editor'da supabase/migrations/0005_security_hardening.sql faylini ishga tushiring. Busiz Vocabulary o'yini va test boshlash ishlamaydi.",
+            }
+          : { title, status: "ok", detail: "Qo'llangan." },
+      );
+    } catch (error) {
+      checks.push({
+        title,
+        status: "fail",
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   /* ----------------------------- 6. Jonli tekshiruv: admin kaliti ishlaydimi */
   const serviceRaw = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (urlOk && serviceRaw && (service.kind === "secret" || service.kind === "jwt-service")) {
