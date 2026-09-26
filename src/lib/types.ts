@@ -307,6 +307,9 @@ export interface UserStats {
 export interface ContactSettings {
   telegram: string;
   telegram_label: string;
+  /** Telegram admin akkaunti (Premium cheklari va savollar uchun) */
+  telegram_admin?: string;
+  telegram_admin_label?: string;
   instagram: string;
   instagram_label: string;
   phone: string;

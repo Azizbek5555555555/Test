@@ -92,8 +92,12 @@ export default async function CoursesPage() {
       <div className="card p-6 mt-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="font-extrabold text-lg">Manzil</h2>
-            <p className="text-sm text-muted mt-1.5">{contact.address}</p>
+            <h2 className="font-extrabold text-lg">
+              {contact.address ? "Manzil" : "Bog'lanish"}
+            </h2>
+            {contact.address ? (
+              <p className="text-sm text-muted mt-1.5">{contact.address}</p>
+            ) : null}
             {contact.working_hours ? (
               <p className="text-sm text-muted">{contact.working_hours}</p>
             ) : null}

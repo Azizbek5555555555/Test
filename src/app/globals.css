@@ -1,23 +1,26 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   MULTILEVEL PLUS — Design tokens
-   Learn • Practice • Take Exam • Improve
+   LEVELX ENGLISH — Design tokens
+   Push Past Your Limits
+   Brend qo'llanmasi (ASH brand guide): Deep Navy #25273F · Muted Plum #3E3852 ·
+   Rose Clay #B77973 · Soft Blush #D09C92 · Rich Mauve #8A5355
    ========================================================================== */
 
 @theme {
-  /* Brand — deep exam-blue */
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #d9e5ff;
-  --color-brand-200: #bcd2ff;
-  --color-brand-300: #8eb5ff;
-  --color-brand-400: #598cff;
-  --color-brand-500: #3363ff;
-  --color-brand-600: #1d40f5;
-  --color-brand-700: #172fe1;
-  --color-brand-800: #1929b6;
-  --color-brand-900: #1a2a8f;
-  --color-brand-950: #141b57;
+  /* Brand — och tomoni rose-gold (Rose Clay / Soft Blush), to'q tomoni
+     plum va navy. Tugmalar 600 (oq matn bilan kontrast ≥ 4.5), fonlar 700–950. */
+  --color-brand-50: #fbf4f3;
+  --color-brand-100: #f6e6e3;
+  --color-brand-200: #eccdc7;
+  --color-brand-300: #dfb0a7;
+  --color-brand-400: #d09c92;
+  --color-brand-500: #b77973;
+  --color-brand-600: #9a5d5a;
+  --color-brand-700: #6e4a5a;
+  --color-brand-800: #3e3852;
+  --color-brand-900: #25273f;
+  --color-brand-950: #181a2c;
 
   /* Premium — gold */
   --color-gold-50: #fffbeb;
@@ -46,8 +49,8 @@
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif,
-    system-ui, sans-serif;
+  --font-display: var(--font-bodoni), "Bodoni Moda", Georgia, "Times New Roman",
+    serif;
 
   --radius-card: 1rem;
 
@@ -61,36 +64,36 @@
    Semantic surface variables (light + dark)
    -------------------------------------------------------------------------- */
 :root {
-  --bg: #f6f7fb;
+  --bg: #faf7f6;
   --bg-elevated: #ffffff;
-  --bg-subtle: #f0f2f7;
-  --fg: #171c29;
-  --fg-muted: #5b6478;
-  --border: #e3e7ef;
-  --ring: #3363ff;
+  --bg-subtle: #f4eeec;
+  --fg: #25273f;
+  --fg-muted: #635d70;
+  --border: #ebe2df;
+  --ring: #b77973;
   color-scheme: light;
 }
 
 :root[data-theme="dark"] {
-  --bg: #0d111b;
-  --bg-elevated: #161c29;
-  --bg-subtle: #1c2331;
-  --fg: #eef0f4;
-  --fg-muted: #98a1b3;
-  --border: #2a3242;
-  --ring: #598cff;
+  --bg: #15162a;
+  --bg-elevated: #1e1f35;
+  --bg-subtle: #26273e;
+  --fg: #f4eeec;
+  --fg-muted: #aba4b8;
+  --border: #34354d;
+  --ring: #d09c92;
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0d111b;
-    --bg-elevated: #161c29;
-    --bg-subtle: #1c2331;
-    --fg: #eef0f4;
-    --fg-muted: #98a1b3;
-    --border: #2a3242;
-    --ring: #598cff;
+    --bg: #15162a;
+    --bg-elevated: #1e1f35;
+    --bg-subtle: #26273e;
+    --fg: #f4eeec;
+    --fg-muted: #aba4b8;
+    --border: #34354d;
+    --ring: #d09c92;
     color-scheme: dark;
   }
 }

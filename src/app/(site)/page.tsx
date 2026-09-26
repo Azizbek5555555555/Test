@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getProfile, profileHasPremium } from "@/lib/auth";
 import { getContactSettings } from "@/lib/settings";
 import { getLeaderboard } from "@/lib/queries";
-import { EXAM_YEARS } from "@/lib/constants";
+import { EXAM_YEARS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { formatXp } from "@/lib/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -34,7 +34,11 @@ export default async function HomePage() {
       {/* ==================================================== HERO */}
       <section className="relative overflow-hidden border-b border-line">
         <div
-          className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900"
+          className="absolute inset-0 bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700"
+          aria-hidden
+        />
+        <div
+          className="absolute -right-24 -top-24 w-[28rem] h-[28rem] rounded-full bg-brand-500/25 blur-3xl"
           aria-hidden
         />
         <div
@@ -50,7 +54,7 @@ export default async function HomePage() {
         <div className="container-page relative py-16 sm:py-24">
           <div className="max-w-3xl">
             <p className="text-brand-200 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mb-4">
-              Learn · Practice · Take Exam · Improve
+              {SITE_NAME} · {SITE_TAGLINE}
             </p>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.08] text-balance-title">
@@ -165,7 +169,7 @@ export default async function HomePage() {
             items={["Reading", "Listening", "Writing", "Speaking"]}
             href="/full-mock"
             cta="START"
-            accent="from-sky-500 to-blue-600"
+            accent="from-brand-400 to-brand-600"
           />
 
           <HomeSectionCard
@@ -176,7 +180,7 @@ export default async function HomePage() {
             items={EXAM_YEARS}
             href="/latest-questions"
             cta="EXPLORE"
-            accent="from-emerald-500 to-teal-600"
+            accent="from-brand-500 to-brand-700"
           />
 
           <HomeSectionCard
@@ -187,7 +191,7 @@ export default async function HomePage() {
             items={["Articles", "Listening Practice", "Vocabulary"]}
             href="/boost"
             cta="START LEARNING"
-            accent="from-violet-500 to-purple-600"
+            accent="from-brand-700 to-brand-900"
           />
 
           <HomeSectionCard
@@ -198,7 +202,7 @@ export default async function HomePage() {
             items={["Play", "Earn points", "Compete", "Weekly Ranking"]}
             href="/vocabulary-battle"
             cta="PLAY NOW"
-            accent="from-orange-500 to-rose-600"
+            accent="from-brand-600 to-brand-800"
           />
 
           <HomeSectionCard
@@ -283,7 +287,7 @@ export default async function HomePage() {
             </div>
 
             <div
-              className="lg:col-span-2 bg-gradient-to-br from-orange-500 to-rose-600 p-6 sm:p-8
+              className="lg:col-span-2 bg-gradient-to-br from-brand-500 via-brand-700 to-brand-900 p-6 sm:p-8
                          flex flex-col justify-center text-white"
             >
               <p className="text-4xl mb-3" aria-hidden>
@@ -302,6 +306,63 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ==================================================== BIZ HAQIMIZDA */}
+      <section className="container-page pb-14" id="about">
+        <div className="card p-0 overflow-hidden">
+          <div className="grid lg:grid-cols-5">
+            <div className="lg:col-span-3 p-6 sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600 dark:text-brand-400 mb-2">
+                Biz haqimizda
+              </p>
+              <h2 className="text-3xl font-extrabold">
+                {SITE_NAME}
+              </h2>
+              <div className="space-y-3 mt-4 text-muted leading-relaxed">
+                <p>
+                  LevelX English — ingliz tilini o&apos;rganishni yanada
+                  tizimli, amaliy va natijaga yo&apos;naltirilgan qilish
+                  maqsadida yaratilgan ta&apos;lim brendi. Bizning asosiy
+                  maqsadimiz o&apos;quvchiga shunchaki ingliz tilini
+                  o&apos;rgatish emas, balki uning mavjud imkoniyatlaridan
+                  yuqoriga chiqishiga yordam berishdir.
+                </p>
+                <p>
+                  Platformada Reading, Listening, Writing va Speaking
+                  ko&apos;nikmalari bir tizim asosida rivojlanadi: to&apos;liq
+                  mock testlar, so&apos;nggi imtihon savollari, General English
+                  materiallari, maqolalar, listening practice va vocabulary.
+                </p>
+                <p>
+                  Biz uchun sifatli ta&apos;lim — bu ko&apos;proq material
+                  berish emas, balki kerakli materialni to&apos;g&apos;ri
+                  tartibda, tushunarli shaklda va aniq maqsad bilan taqdim
+                  etishdir.
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="lg:col-span-2 bg-gradient-to-br from-brand-800 to-brand-950 p-6 sm:p-8
+                         flex flex-col justify-center gap-4 text-white"
+            >
+              <div>
+                <p className="font-display text-5xl font-bold text-brand-300">4</p>
+                <p className="text-sm text-white/80 mt-1">
+                  ko&apos;nikma — Reading, Listening, Writing, Speaking
+                </p>
+              </div>
+              <div className="h-px bg-white/15" />
+              <div>
+                <p className="font-display text-5xl font-bold text-brand-300">1</p>
+                <p className="text-sm text-white/80 mt-1">
+                  maqsad — <span className="font-semibold text-white">{SITE_TAGLINE}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ==================================================== CONTACT */}
       <section className="container-page pb-16">
         <div className="card p-6 sm:p-8">
@@ -312,7 +373,9 @@ export default async function HomePage() {
                 Savollaringiz bormi? Kurslar, Premium yoki natijalar bo&apos;yicha
                 biz bilan bog&apos;laning.
               </p>
-              <p className="text-sm text-muted mt-3">{contact.address}</p>
+              {contact.address ? (
+                <p className="text-sm text-muted mt-3">{contact.address}</p>
+              ) : null}
             </div>
 
             <div className="flex flex-wrap gap-2.5">

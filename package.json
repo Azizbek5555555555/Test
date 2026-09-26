@@ -2,7 +2,7 @@
   "name": "multilevel-plus",
   "version": "1.0.0",
   "private": true,
-  "description": "Multilevel Plus — Learn · Practice · Take Exam · Improve",
+  "description": "LevelX English — Push Past Your Limits",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

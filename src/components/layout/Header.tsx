@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { MobileNav } from "./MobileNav";
+import { BrandMark, BrandWordmark } from "./BrandLogo";
 
 export async function Header() {
   const profile = await getProfile();
@@ -18,16 +19,8 @@ export async function Header() {
             className="flex items-center gap-2.5 shrink-0"
             aria-label={`${SITE_NAME} — bosh sahifa`}
           >
-            <span
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700
-                         text-white grid place-items-center font-extrabold text-sm shadow-sm"
-              aria-hidden
-            >
-              M+
-            </span>
-            <span className="font-extrabold text-lg tracking-tight hidden sm:block">
-              Multilevel<span className="text-brand-600">Plus</span>
-            </span>
+            <BrandMark size={38} />
+            <BrandWordmark className="text-xl hidden sm:block" />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-0.5 ml-2">

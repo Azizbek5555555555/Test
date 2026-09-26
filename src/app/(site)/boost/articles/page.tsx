@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 export default async function ArticlesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ topic?: string }>;
+  searchParams: Promise<{ topic?: string; level?: string }>;
 }) {
-  const { topic } = await searchParams;
+  const { topic, level } = await searchParams;
   const activeTopic = ARTICLE_TOPICS.some((t) => t.slug === topic)
     ? (topic as string)
     : "all";
@@ -27,17 +27,47 @@ export default async function ArticlesPage({
   const [profile, all] = await Promise.all([getProfile(), listArticles()]);
   const unlocked = profileHasPremium(profile);
 
+  // Mavjud darajalar (A2, B1, B2, C1 ...) — tartib bilan
+  const levels = Array.from(
+    new Set(all.map((a) => a.level).filter((l): l is string => Boolean(l))),
+  ).sort();
+  const activeLevel = level && levels.includes(level) ? level : "all";
+
+  const byLevel =
+    activeLevel === "all" ? all : all.filter((a) => a.level === activeLevel);
   const visible =
-    activeTopic === "all" ? all : all.filter((a) => a.topic === activeTopic);
+    activeTopic === "all"
+      ? byLevel
+      : byLevel.filter((a) => a.topic === activeTopic);
+
+  const href = (next: { topic?: string; level?: string }) => {
+    const params = new URLSearchParams();
+    const t = next.topic ?? activeTopic;
+    const l = next.level ?? activeLevel;
+    if (t !== "all") params.set("topic", t);
+    if (l !== "all") params.set("level", l);
+    const qs = params.toString();
+    return qs ? `/boost/articles?${qs}` : "/boost/articles";
+  };
+
+  const levelTabs = [
+    { id: "all", label: "Barcha darajalar", href: href({ level: "all" }), count: all.length },
+    ...levels.map((l) => ({
+      id: l,
+      label: l,
+      href: href({ level: l }),
+      count: all.filter((a) => a.level === l).length,
+    })),
+  ];
 
   const tabs = [
-    { id: "all", label: "Barchasi", href: "/boost/articles", count: all.length },
-    ...ARTICLE_TOPICS.filter((t) => all.some((a) => a.topic === t.slug)).map(
+    { id: "all", label: "Barchasi", href: href({ topic: "all" }), count: byLevel.length },
+    ...ARTICLE_TOPICS.filter((t) => byLevel.some((a) => a.topic === t.slug)).map(
       (t) => ({
         id: t.slug,
         label: `${t.emoji} ${t.label}`,
-        href: `/boost/articles?topic=${t.slug}`,
-        count: all.filter((a) => a.topic === t.slug).length,
+        href: href({ topic: t.slug }),
+        count: byLevel.filter((a) => a.topic === t.slug).length,
       }),
     ),
   ];
@@ -56,9 +86,16 @@ export default async function ArticlesPage({
         title="Articles"
         description="Har bir maqola ichida: matn, yangi vocabulary va Reading savollari (True/False/Not Given, Multiple Choice, Gap Filling)."
       >
-        {tabs.length > 1 ? (
-          <LinkTabs items={tabs} activeId={activeTopic} />
-        ) : null}
+        <div className="space-y-3">
+          {levels.length > 1 ? (
+            <LinkTabs items={levelTabs} activeId={activeLevel} />
+          ) : null}
+          {tabs.length > 1 ? (
+            <div>
+              <LinkTabs items={tabs} activeId={activeTopic} />
+            </div>
+          ) : null}
+        </div>
       </PageHeader>
 
       {visible.length === 0 ? (
@@ -112,7 +149,7 @@ export default async function ArticlesPage({
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-4 pt-4 border-t border-line text-xs text-muted">
                   <span>⏱ {article.read_minutes} daqiqa</span>
                   {article.word_count > 0 ? (
-                    <span>📖 {article.word_count} ta so&apos;z</span>
+                    <span>📖 {article.word_count} ta yangi so&apos;z</span>
                   ) : null}
                   {article.question_count > 0 ? (
                     <span>❓ {article.question_count} ta savol</span>

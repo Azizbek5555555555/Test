@@ -7,7 +7,7 @@ import { ContactForm } from "@/components/forms/ContactForm";
 export const metadata: Metadata = {
   title: "Biz bilan bog'lanish",
   description:
-    "Telegram, Instagram, telefon, email va manzil — Multilevel Plus bilan bog'lanish uchun.",
+    "Telegram, Instagram, telefon va email — LevelX English bilan bog'lanish uchun.",
 };
 
 export default async function ContactPage() {
@@ -19,12 +19,24 @@ export default async function ContactPage() {
   const channels = [
     {
       icon: "✈️",
-      label: "Telegram",
+      label: "Telegram kanal",
       value: contact.telegram_label,
       href: contact.telegram,
       external: true,
       accent: "from-sky-500 to-blue-600",
     },
+    ...(contact.telegram_admin
+      ? [
+          {
+            icon: "💬",
+            label: "Telegram admin",
+            value: contact.telegram_admin_label || contact.telegram_admin,
+            href: contact.telegram_admin,
+            external: true,
+            accent: "from-cyan-500 to-sky-600",
+          },
+        ]
+      : []),
     {
       icon: "📸",
       label: "Instagram",
@@ -90,9 +102,14 @@ export default async function ContactPage() {
             ))}
           </div>
 
+          {contact.address || contact.working_hours || contact.map_url ? (
           <div className="card p-6">
-            <h2 className="font-extrabold text-lg mb-3">📍 Manzil</h2>
-            <p className="leading-relaxed">{contact.address}</p>
+            <h2 className="font-extrabold text-lg mb-3">
+              {contact.address ? "📍 Manzil" : "🌐 Qanday ishlaymiz"}
+            </h2>
+            {contact.address ? (
+              <p className="leading-relaxed">{contact.address}</p>
+            ) : null}
             {contact.working_hours ? (
               <p className="text-sm text-muted mt-2">
                 🕐 {contact.working_hours}
@@ -111,6 +128,7 @@ export default async function ContactPage() {
               </a>
             ) : null}
           </div>
+          ) : null}
         </div>
 
         <div className="card p-6">

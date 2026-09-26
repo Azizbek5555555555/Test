@@ -1,5 +1,5 @@
 import type { Attempt, SkillSection } from "@/lib/types";
-import { SECTION_ICON, SECTION_LABEL, SECTIONS } from "@/lib/constants";
+import { SECTION_ICON, SECTION_LABEL, SECTIONS, SITE_NAME } from "@/lib/constants";
 import { formatDateTime } from "@/lib/format";
 import { CefrBadge } from "@/components/ui/Badge";
 import { cn } from "@/lib/format";
@@ -28,7 +28,7 @@ export function ResultCard({
     <div className="card p-0 overflow-hidden print:shadow-none print:border-ink-300">
       <div className="bg-gradient-to-r from-brand-700 to-brand-900 p-6 sm:p-8 text-white">
         <p className="text-brand-200 text-xs font-bold uppercase tracking-[0.2em]">
-          Multilevel Plus
+          {SITE_NAME}
         </p>
         <h2 className="text-2xl sm:text-3xl font-extrabold mt-1">
           MULTILEVEL RESULT
