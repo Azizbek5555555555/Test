@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getProfile, isAdmin, isStaff } from "@/lib/auth";
 import { Badge } from "@/components/ui/Badge";
+import { COURSES_ENABLED } from "@/lib/constants";
 
 const NAV = [
   { href: "/admin", label: "Boshqaruv paneli", icon: "🏠", adminOnly: false },
@@ -10,8 +11,12 @@ const NAV = [
   { href: "/admin/tests", label: "Testlar", icon: "📝", adminOnly: false },
   { href: "/admin/articles", label: "Maqolalar", icon: "📰", adminOnly: false },
   { href: "/admin/vocabulary", label: "Vocabulary", icon: "📘", adminOnly: false },
-  { href: "/admin/courses", label: "Kurslar", icon: "🏫", adminOnly: false },
-  { href: "/admin/applications", label: "Kurs arizalari", icon: "📋", adminOnly: false },
+  ...(COURSES_ENABLED
+    ? [
+        { href: "/admin/courses", label: "Kurslar", icon: "🏫", adminOnly: false },
+        { href: "/admin/applications", label: "Kurs arizalari", icon: "📋", adminOnly: false },
+      ]
+    : []),
   { href: "/admin/messages", label: "Xabarlar", icon: "✉️", adminOnly: false },
   { href: "/admin/users", label: "Foydalanuvchilar", icon: "👥", adminOnly: true },
   { href: "/admin/premium", label: "Premium so'rovlar", icon: "⭐", adminOnly: true },

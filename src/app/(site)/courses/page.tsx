@@ -5,6 +5,8 @@ import { getContactSettings } from "@/lib/settings";
 import { PageHeader, EmptyState } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
+import { COURSES_ENABLED } from "@/lib/constants";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Offline kurslar",
@@ -13,6 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default async function CoursesPage() {
+  // Kurslar bo'limi o'chirilgan bo'lsa (constants.ts → COURSES_ENABLED)
+  if (!COURSES_ENABLED) notFound();
+
   const [courses, contact] = await Promise.all([
     getCourses(),
     getContactSettings(),

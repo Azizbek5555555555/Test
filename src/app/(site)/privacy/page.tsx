@@ -34,9 +34,8 @@ export default async function PrivacyPage() {
             Vocabulary o&apos;yini ballari.
           </li>
           <li>
-            <strong>Formalar:</strong> kursga yozilish, Premium so&apos;rovi
-            yoki biz bilan bog&apos;lanish formasida yozgan ism, telefon va
-            xabaringiz.
+            <strong>Formalar:</strong> Premium so&apos;rovi yoki biz bilan
+            bog&apos;lanish formasida yozgan ism, telefon va xabaringiz.
           </li>
         </ul>
       </LegalSection>

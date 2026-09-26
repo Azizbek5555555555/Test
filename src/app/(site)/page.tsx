@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getProfile, profileHasPremium } from "@/lib/auth";
 import { getContactSettings } from "@/lib/settings";
 import { getLeaderboard } from "@/lib/queries";
-import { EXAM_YEARS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { COURSES_ENABLED, EXAM_YEARS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { formatXp } from "@/lib/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -217,6 +217,7 @@ export default async function HomePage() {
             badge={<Badge tone="premium">🔒 PREMIUM</Badge>}
           />
 
+          {COURSES_ENABLED ? (
           <HomeSectionCard
             index={6}
             emoji="🏫"
@@ -227,6 +228,7 @@ export default async function HomePage() {
             cta="LEARN MORE"
             accent="from-ink-500 to-ink-700"
           />
+          ) : null}
         </div>
       </section>
 
@@ -370,7 +372,7 @@ export default async function HomePage() {
             <div>
               <h2 className="text-2xl font-extrabold">CONTACT US</h2>
               <p className="text-muted mt-2 text-sm leading-relaxed max-w-lg">
-                Savollaringiz bormi? Kurslar, Premium yoki natijalar bo&apos;yicha
+                Savollaringiz bormi? Testlar, Premium yoki natijalar bo&apos;yicha
                 biz bilan bog&apos;laning.
               </p>
               {contact.address ? (

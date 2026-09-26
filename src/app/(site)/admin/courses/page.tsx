@@ -8,6 +8,8 @@ import { AdminForm } from "@/components/admin/AdminForm";
 import { Collapsible } from "@/components/admin/Collapsible";
 import { courseFields } from "@/components/admin/fieldSpecs";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
+import { COURSES_ENABLED } from "@/lib/constants";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Kurslar",
@@ -15,6 +17,9 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminCoursesPage() {
+  // Kurslar bo'limi o'chirilgan bo'lsa (constants.ts → COURSES_ENABLED)
+  if (!COURSES_ENABLED) notFound();
+
   const courses = await listAllCourses();
 
   return (

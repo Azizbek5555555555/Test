@@ -24,7 +24,7 @@ uslubidagi so'z o'yini va real imtihon simulyatsiyasi.
 | 🎯 **Exam Full Checking** | Premium: real imtihon simulyatsiyasi (L→R→W→S) |
 | 📊 **Natijalar** | Har bo'lim uchun ball + CEFR daraja + PDF |
 | ⭐ **Free / Premium** | Har bo'limda bepul va qulflangan kontent |
-| 🏫 **Offline kurslar** | Kurs sahifalari + onlayn ariza |
+| 🏫 **Offline kurslar** | Hozircha yashirilgan (`src/lib/constants.ts` → `COURSES_ENABLED`) |
 | 📞 **Biz bilan bog'lanish** | Telegram · Instagram · Telefon · Email · Manzil |
 | 🛠️ **Admin panel** | Kontent, foydalanuvchilar, Premium, tekshirish navbati |
 
