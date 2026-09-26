@@ -24,6 +24,16 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  // Supabase qaytish manzilini "Redirect URLs" ro'yxatida topmasa,
+  // foydalanuvchini Site URL'ga (bosh sahifaga) `?code=...` bilan qaytaradi.
+  // Bunday holda ham kirishni yakunlaymiz — kodni /auth/callback ga uzatamiz.
+  const authCode = request.nextUrl.searchParams.get("code");
+  if (request.nextUrl.pathname === "/" && authCode && /^[\w-]{8,}$/.test(authCode)) {
+    return NextResponse.redirect(
+      publicUrl(`/auth/callback?code=${encodeURIComponent(authCode)}&next=%2F`, request),
+    );
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
