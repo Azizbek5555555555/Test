@@ -124,11 +124,18 @@ export const CEFR_COLOR: Record<string, string> = {
 /* -------------------------------------------------------------------------
    Asosiy navigatsiya
    ------------------------------------------------------------------------- */
+/**
+ * Offline kurslar bo'limi. LevelX English onlayn platforma bo'lgani uchun
+ * hozircha yashirilgan. Qaytarish uchun `true` qiling — sahifalar, menyu,
+ * bosh sahifa kartasi va admin bo'limlari o'z-o'zidan qaytadi.
+ */
+export const COURSES_ENABLED = false;
+
 export const MAIN_NAV = [
   { href: "/full-mock", label: "Full Mock" },
   { href: "/latest-questions", label: "Oxirgi savollar" },
   { href: "/boost", label: "General English" },
   { href: "/vocabulary-battle", label: "Vocabulary" },
   { href: "/exam-checking", label: "Exam Checking" },
-  { href: "/courses", label: "Kurslar" },
+  ...(COURSES_ENABLED ? [{ href: "/courses", label: "Kurslar" }] : []),
 ];

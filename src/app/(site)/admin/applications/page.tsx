@@ -4,6 +4,8 @@ import { updateApplicationStatusAction } from "@/lib/actions/admin";
 import { formatDateTime } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/Card";
+import { COURSES_ENABLED } from "@/lib/constants";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Kurs arizalari",
@@ -25,6 +27,9 @@ const NEXT_STATUS = [
 ];
 
 export default async function AdminApplicationsPage() {
+  // Kurslar bo'limi o'chirilgan bo'lsa (constants.ts → COURSES_ENABLED)
+  if (!COURSES_ENABLED) notFound();
+
   const applications = await listApplications();
 
   return (

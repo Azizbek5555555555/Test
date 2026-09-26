@@ -68,7 +68,7 @@ export default async function ContactPage() {
       <PageHeader
         eyebrow="Contact us"
         title="Biz bilan bog'lanish"
-        description="Savollaringiz, takliflaringiz yoki kurslar bo'yicha murojaatlaringizni kutamiz."
+        description="Savollaringiz, takliflaringiz yoki Premium bo'yicha murojaatlaringizni kutamiz."
       />
 
       <div className="grid lg:grid-cols-[1fr_400px] gap-8 items-start">

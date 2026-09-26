@@ -6,6 +6,7 @@ import { getProfile, isAdmin } from "@/lib/auth";
 import { formatDateTime } from "@/lib/format";
 import { Stat, Alert } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { COURSES_ENABLED } from "@/lib/constants";
 import { ButtonLink } from "@/components/ui/Button";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
@@ -28,7 +29,9 @@ export default async function AdminDashboard() {
     { href: "/admin/tests", icon: "📝", label: "Test qo'shish" },
     { href: "/admin/articles", icon: "📰", label: "Maqola qo'shish" },
     { href: "/admin/vocabulary", icon: "📘", label: "So'z to'plami" },
-    { href: "/admin/courses", icon: "🏫", label: "Kurs qo'shish" },
+    ...(COURSES_ENABLED
+      ? [{ href: "/admin/courses", icon: "🏫", label: "Kurs qo'shish" }]
+      : []),
   ];
 
   return (
@@ -82,13 +85,15 @@ export default async function AdminDashboard() {
             hint="Tasdiqlash kerak"
           />
         ) : null}
-        <ActionCard
-          href="/admin/applications"
-          icon="📋"
-          count={counts.newApplications}
-          label="Yangi kurs arizalari"
-          hint="Bog'lanish kerak"
-        />
+        {COURSES_ENABLED ? (
+          <ActionCard
+            href="/admin/applications"
+            icon="📋"
+            count={counts.newApplications}
+            label="Yangi kurs arizalari"
+            hint="Bog'lanish kerak"
+          />
+        ) : null}
         <ActionCard
           href="/admin/messages"
           icon="✉️"

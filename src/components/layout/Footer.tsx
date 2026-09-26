@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getContactSettings } from "@/lib/settings";
-import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { COURSES_ENABLED, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { BrandMark, BrandWordmark } from "./BrandLogo";
 
 export async function Footer() {
@@ -29,7 +29,7 @@ export async function Footer() {
       title: "Platforma",
       links: [
         { href: "/premium", label: "Premium" },
-        { href: "/courses", label: "Offline kurslar" },
+        ...(COURSES_ENABLED ? [{ href: "/courses", label: "Offline kurslar" }] : []),
         { href: "/contact", label: "Biz bilan bog'lanish" },
       ],
     },

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { COURSES_ENABLED } from "@/lib/constants";
 import { getProfile } from "@/lib/auth";
 import { getCourseBySlug } from "@/lib/queries";
 import { getContactSettings } from "@/lib/settings";
@@ -26,6 +27,8 @@ export default async function CoursePage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  // Kurslar bo'limi o'chirilgan bo'lsa (constants.ts → COURSES_ENABLED)
+  if (!COURSES_ENABLED) notFound();
   const { slug } = await params;
 
   const [course, profile, contact] = await Promise.all([
