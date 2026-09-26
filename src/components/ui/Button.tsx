@@ -8,7 +8,9 @@ export type ButtonVariant =
   | "ghost"
   | "premium"
   | "danger"
-  | "outline";
+  | "outline"
+  | "light"
+  | "glass";
 
 export type ButtonSize = "sm" | "md" | "lg";
 
@@ -29,6 +31,9 @@ const VARIANTS: Record<ButtonVariant, string> = {
     "bg-gradient-to-r from-gold-400 to-gold-500 text-gold-950 hover:from-gold-300 " +
     "hover:to-gold-400 shadow-sm hover:shadow-md",
   danger: "bg-rose-600 text-white hover:bg-rose-700",
+  // Rangli (ko'k) fon ustida: oq tugma va shaffof tugma
+  light: "bg-white text-brand-800 hover:bg-brand-50 shadow-sm hover:shadow-md",
+  glass: "bg-white/10 text-white border border-white/30 hover:bg-white/20",
 };
 
 const SIZES: Record<ButtonSize, string> = {

@@ -65,8 +65,8 @@ export default async function HomePage() {
                 <>
                   Multilevel imtihoniga
                   <br />
-                  <span className="text-brand-200">tayyorgarlikning</span> to
-                  &apos;liq tizimi
+                  <span className="text-brand-200">tayyorgarlikning</span>{" "}
+                  to&apos;liq tizimi
                 </>
               )}
             </h1>
@@ -81,7 +81,7 @@ export default async function HomePage() {
               <ButtonLink
                 href="/full-mock"
                 size="lg"
-                className="bg-white text-brand-800 hover:bg-brand-50"
+                variant="light"
               >
                 🚀 Bepul mock testni boshlash
               </ButtonLink>
@@ -93,7 +93,7 @@ export default async function HomePage() {
                 <ButtonLink
                   href="/premium"
                   size="lg"
-                  className="bg-white/10 text-white border border-white/30 hover:bg-white/20"
+                  variant="glass"
                 >
                   Premium imkoniyatlari
                 </ButtonLink>
