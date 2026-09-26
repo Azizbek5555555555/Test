@@ -435,7 +435,10 @@ O'zgaruvchilarni saqlagach: **Deployments** → yuqoridagi **⋮** →
    `https://multilevel-plus-production.up.railway.app`
 4. Bu manzilni nusxalab oling
 
-> Agar Railway port so'rasa — **3000** deb kiriting.
+> Agar Railway port so'rasa — **Deployments → oxirgi deploy → Deploy Logs**
+> ni oching va `- Local: http://localhost:XXXX` qatoridagi raqamni kiriting
+> (odatda **8080**). ⚠️ 3000 emas — Railway saytga o'z portini beradi,
+> noto'g'ri port kiritilsa sayt *502 Bad Gateway* ko'rsatadi.
 
 ### 9.5. Supabase'ga yangi manzilni aytish
 
@@ -632,6 +635,14 @@ serverni qayta ishga tushiring. Railway'da ham shu o'zgaruvchini
 - `0004_storage.sql` ishga tushirilganini tekshiring
 - Supabase → **Storage** da `speaking` papkasi borligini ko'ring
 - `SUPABASE_SERVICE_ROLE_KEY` sozlangan bo'lishi kerak
+</details>
+
+<details>
+<summary><b>Railway manzili "502 Bad Gateway" / "Application failed to respond"</b></summary>
+
+Railway → **Settings → Networking** da domen yonidagi port saytning
+haqiqiy portiga mos emas. **Deploy Logs** dagi `Local: http://localhost:XXXX`
+raqamini ko'ring va domenni tahrirlab, shu portni qo'ying (odatda 8080).
 </details>
 
 <details>
