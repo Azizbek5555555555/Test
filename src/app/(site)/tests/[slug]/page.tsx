@@ -61,11 +61,17 @@ export default async function TestOverviewPage({
   const parts = await getTestParts(testSet.id);
   const questions = await getQuestionsForParts(parts.map((p) => p.id));
 
+  // Moslashtirish savolidagi har bir qator alohida savol sifatida sanaladi
+  const weightOf = (question: (typeof questions)[number]) =>
+    question.kind === "matching" && Array.isArray(question.options) && question.options.length > 0
+      ? question.options.length
+      : 1;
+  const totalQuestions = questions.reduce((sum, q) => sum + weightOf(q), 0);
   const questionsByPart = new Map<string, number>();
   for (const question of questions) {
     questionsByPart.set(
       question.part_id,
-      (questionsByPart.get(question.part_id) ?? 0) + 1,
+      (questionsByPart.get(question.part_id) ?? 0) + weightOf(question),
     );
   }
 
@@ -103,7 +109,7 @@ export default async function TestOverviewPage({
                 <Badge tone="neutral">{testSet.level}</Badge>
               ) : null}
               <Badge tone="info">⏱ {formatDuration(testSet.duration_minutes)}</Badge>
-              <Badge tone="neutral">❓ {questions.length} ta savol</Badge>
+              <Badge tone="neutral">❓ {totalQuestions} ta savol</Badge>
             </div>
           </PageHeader>
 

@@ -3,6 +3,7 @@ import "server-only";
 import { createServerSupabase } from "./supabase/server";
 import { createAdminSupabase } from "./supabase/admin";
 import { isSupabaseConfigured } from "./supabase/env";
+import { TEST_PART_COLUMNS } from "./queries";
 import type {
   Article,
   Attempt,
@@ -230,11 +231,22 @@ export async function getTestSetForAdmin(id: string): Promise<{
 
     const { data: parts } = await supabase
       .from("test_parts")
-      .select("*")
+      .select(TEST_PART_COLUMNS)
       .eq("test_set_id", id)
       .order("order_index", { ascending: true });
 
-    const partRows = (parts ?? []) as TestPart[];
+    // Skriptlar alohida (ustun oddiy o'qishdan yopilgan) — xodimlarga ochiq
+    const { data: transcriptRows } = await supabase.rpc("get_part_transcripts", {
+      p_test_set_id: id,
+    });
+    const transcripts = new Map(
+      ((transcriptRows ?? []) as { part_id: string; transcript: string }[]).map(
+        (row) => [row.part_id, row.transcript],
+      ),
+    );
+    const partRows = ((parts ?? []) as Omit<TestPart, "transcript">[]).map(
+      (part) => ({ ...part, transcript: transcripts.get(part.id) ?? null }),
+    );
 
     // To'g'ri javoblarni ko'rish uchun service_role kerak
     const admin = adminOrNull();

@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getProfile, isStaff } from "@/lib/auth";
+import { getProfile, isStaff, profileHasPremium } from "@/lib/auth";
 import {
   getAttempt,
   getAttemptReview,
+  getPartTranscripts,
   getTestParts,
   getTestSetById,
+  withTranscripts,
 } from "@/lib/queries";
 import { ButtonLink } from "@/components/ui/Button";
 import { ResultCard } from "@/components/test/ResultCard";
@@ -41,12 +43,17 @@ export default async function ResultPage({
   const testSet = await getTestSetById(attempt.test_set_id);
   const review = await getAttemptReview(attempt.id);
 
-  // Listening transkriptlari — test yakunlangach o'quvchiga ochiladi
-  const transcripts = testSet
-    ? (await getTestParts(testSet.id)).filter(
-        (part) => part.section === "listening" && part.transcript,
-      )
+  // Listening skriptlari — faqat Premium (va o'qituvchi) uchun, baza tekshiradi
+  const listeningParts = testSet
+    ? (await getTestParts(testSet.id)).filter((part) => part.section === "listening")
     : [];
+  const transcriptMap =
+    testSet && listeningParts.length > 0 ? await getPartTranscripts(testSet.id) : {};
+  const transcripts = withTranscripts(listeningParts, transcriptMap).filter(
+    (part) => part.transcript,
+  );
+  const scriptLocked =
+    listeningParts.length > 0 && transcripts.length === 0 && !profileHasPremium(profile);
 
   return (
     <div className="container-page py-10">
@@ -86,12 +93,25 @@ export default async function ResultPage({
             beradi.
           </p>
 
+          {scriptLocked ? (
+            <div className="card p-4 mb-8 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm">
+                📄 <strong>Audio skripti</strong> — 🔒 faqat Premium
+                foydalanuvchilar uchun. Qaysi so&apos;zni eshitmaganingizni
+                skript orqali aniqlang.
+              </p>
+              <ButtonLink href="/premium" size="sm" variant="premium">
+                ⭐ Premiumga o&apos;tish
+              </ButtonLink>
+            </div>
+          ) : null}
+
           {transcripts.length > 0 ? (
             <div className="space-y-3 mb-8">
               {transcripts.map((part) => (
                 <details key={part.id} className="card p-0 overflow-hidden">
                   <summary className="cursor-pointer select-none p-4 font-bold text-sm hover:bg-[var(--bg-subtle)]">
-                    📄 Transkript — {part.title}
+                    📄 Audio skripti — {part.title}
                   </summary>
                   <p className="px-4 pb-4 text-sm leading-relaxed whitespace-pre-line">
                     {part.transcript}

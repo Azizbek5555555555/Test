@@ -5,6 +5,7 @@ import { countQuestionsByTestSet, getTestSets } from "@/lib/queries";
 import { PageHeader, EmptyState, Alert } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { TestSetCard } from "@/components/test/TestSetCard";
+import { LinkTabs } from "@/components/ui/Tabs";
 
 export const metadata: Metadata = {
   title: "Listening Practice",
@@ -12,11 +13,33 @@ export const metadata: Metadata = {
     "Audio, transkript, gap filling, matching va comprehension savollari bilan listening mashg'ulotlari.",
 };
 
-export default async function ListeningPracticePage() {
-  const [profile, sets] = await Promise.all([
+export default async function ListeningPracticePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ level?: string }>;
+}) {
+  const { level } = await searchParams;
+  const [profile, allSets] = await Promise.all([
     getProfile(),
     getTestSets({ category: "general_english", section: "listening" }),
   ]);
+
+  // Daraja bo'yicha filtr (A2, B1, B2, C1 ...)
+  const levels = Array.from(
+    new Set(allSets.map((s) => s.level).filter((l): l is string => Boolean(l))),
+  ).sort();
+  const activeLevel = level && levels.includes(level) ? level : "all";
+  const sets =
+    activeLevel === "all" ? allSets : allSets.filter((s) => s.level === activeLevel);
+  const levelTabs = [
+    { id: "all", label: "Barcha darajalar", href: "/boost/listening", count: allSets.length },
+    ...levels.map((l) => ({
+      id: l,
+      label: l,
+      href: `/boost/listening?level=${encodeURIComponent(l)}`,
+      count: allSets.filter((s) => s.level === l).length,
+    })),
+  ];
 
   const unlocked = profileHasPremium(profile);
   const counts = await countQuestionsByTestSet(sets.map((s) => s.id));
@@ -33,14 +56,18 @@ export default async function ListeningPracticePage() {
       <PageHeader
         eyebrow="Learn"
         title="Listening Practice"
-        description="Har bir mashg'ulotda audio, kerak bo'lsa transkript, hamda gap filling, multiple choice, matching va comprehension savollari bo'ladi."
-      />
+        description="Har bir mashg'ulotda audio hamda gap filling, multiple choice, matching va boshqa savollar bo'ladi. Audio skripti — Premium foydalanuvchilar uchun."
+      >
+        {levels.length > 1 ? (
+          <LinkTabs items={levelTabs} activeId={activeLevel} />
+        ) : null}
+      </PageHeader>
 
       <div className="mb-8">
         <Alert tone="info" title="Maslahat">
-          Avval audioni <strong>transkriptsiz</strong> tinglang. Javob
-          berganingizdan keyin transkriptni o&apos;qib, qaysi so&apos;zni
-          eshitmaganingizni aniqlang — eng tez o&apos;sish shu yerda.
+          Avval audioni diqqat bilan tinglang va javob bering. Test
+          tugagach natija sahifasida audio <strong>skriptini</strong> o&apos;qib,
+          qaysi so&apos;zni eshitmaganingizni aniqlang (skript — ⭐ Premium).
         </Alert>
       </div>
 

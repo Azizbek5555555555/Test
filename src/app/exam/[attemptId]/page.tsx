@@ -3,9 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { getProfile, profileHasPremium } from "@/lib/auth";
 import {
   getAttempt,
+  getPartTranscripts,
   getQuestionsForParts,
   getTestParts,
   getTestSetById,
+  withTranscripts,
 } from "@/lib/queries";
 import { EXAM_SECTION_ORDER } from "@/lib/constants";
 import {
@@ -55,7 +57,11 @@ export default async function ExamRunnerPage({
   const testSet = await getTestSetById(attempt.test_set_id);
   if (!testSet) notFound();
 
-  const rawParts = await getTestParts(testSet.id);
+  // Imtihon Premium uchun — skriptlar ham shu yerda qo'shiladi
+  const rawParts = withTranscripts(
+    await getTestParts(testSet.id),
+    await getPartTranscripts(testSet.id),
+  );
 
   // Hujjatning 11-bo'limi: Listening → Reading → Writing → Speaking
   const ordered: TestPart[] = [];

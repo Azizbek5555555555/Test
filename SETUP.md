@@ -97,7 +97,7 @@ git pull
 
 Supabase panelida chap menyudan **SQL Editor** ni oching.
 
-Endi loyihadagi `supabase/` papkasidan **5 ta faylni ketma-ket** ishga
+Endi loyihadagi `supabase/` papkasidan **6 ta faylni ketma-ket** ishga
 tushirasiz. Har birida: faylni ochib, **butun matnini nusxalang**, SQL Editor
 oynasiga qo'ying va **RUN** (yoki `Ctrl+Enter`) bosing.
 
@@ -110,10 +110,12 @@ oynasiga qo'ying va **RUN** (yoki `Ctrl+Enter`) bosing.
 | 3 | `supabase/migrations/0003_functions.sql` | Baholash mantiqi |
 | 4 | `supabase/migrations/0004_storage.sql` | Audio fayllar uchun papkalar |
 | 5 | `supabase/migrations/0005_security_hardening.sql` | Qo'shimcha himoya: soxta natija, o'yinda aldash, Premium so'rovni soxtalashtirishdan |
+| 6 | `supabase/migrations/0006_premium_transcripts.sql` | Listening skriptlari faqat Premium uchun |
 
-> 💡 **Bazani oldin yaratgan bo'lsangiz** (1–4 fayllarni avval ishga
-> tushirgan bo'lsangiz), faqat **5-faylni** ishga tushirsangiz kifoya —
-> mavjud ma'lumotlar o'chmaydi.
+> 💡 **Bazani oldin yaratgan bo'lsangiz**, faqat hali ishga tushirilmagan
+> yangi fayllarni (masalan **5** va **6**) ishga tushirsangiz kifoya —
+> mavjud ma'lumotlar o'chmaydi. Qaysi biri qo'llanganini `/setup-check`
+> sahifasi ko'rsatadi.
 
 Har birida `Success. No rows returned` yozuvi chiqishi kerak.
 
