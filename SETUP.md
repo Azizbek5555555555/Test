@@ -248,6 +248,12 @@ ni oching (saytga qaysi Google akkaunt bilan kirsangiz — o'sha egasi bo'ladi).
 5. **Contact information:** emailingiz → **Next**
 6. Shartlarga belgi qo'ying → **Continue** → **Create**
 
+> ⚠️ **Branding** sahifasida **logo YUKLAMANG** — logo qo'yilsa Google
+> ilovani qo'lda tekshirishni (bir necha kun/hafta) talab qiladi.
+> *App domain* (home page, privacy, terms) maydonlarini bo'sh qoldirsangiz
+> bo'ladi. *Authorized domains* da Supabase manzili o'zi paydo bo'ladi —
+> tegmang.
+
 **c) Client (kalit) yaratish**
 1. Chap menyu → **Clients** → **+ Create client**
 2. **Application type:** `Web application`
