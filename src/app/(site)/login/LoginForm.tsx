@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -248,8 +249,15 @@ export function LoginForm({
       )}
 
       <p className="text-xs text-muted text-center leading-relaxed">
-        Davom etish orqali siz platformadan foydalanish shartlariga rozilik
-        bildirasiz.
+        Davom etish orqali siz{" "}
+        <Link href="/terms" className="underline hover:text-fg">
+          Foydalanish shartlari
+        </Link>{" "}
+        va{" "}
+        <Link href="/privacy" className="underline hover:text-fg">
+          Maxfiylik siyosati
+        </Link>
+        ga rozilik bildirasiz.
       </p>
     </div>
   );
