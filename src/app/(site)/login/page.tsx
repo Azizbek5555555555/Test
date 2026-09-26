@@ -76,7 +76,11 @@ export default async function LoginPage({
             </p>
           </div>
 
-          <LoginForm next={next} initialError={params.error} />
+          <LoginForm
+            next={next}
+            initialError={params.error}
+            emailEnabled={process.env.EMAIL_LOGIN === "on"}
+          />
 
           <p className="text-center text-sm text-muted mt-6">
             <Link href="/" className="hover:text-fg font-semibold">

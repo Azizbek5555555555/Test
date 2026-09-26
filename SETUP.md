@@ -308,19 +308,34 @@ Buni qilmasangiz, Google'dan keyin sayt o'rniga xato sahifa chiqadi.
 
 ---
 
-## 6-QADAM · Email orqali 6 xonali kod yuborishni sozlash
+## 6-QADAM · Email orqali kirish (ixtiyoriy — o'z domeningiz bo'lganda)
 
-Hujjatda: *"Foydalanuvchining emailiga tasdiqlash kodi keladi"*.
+Asosiy kirish usuli — **Google** (5-qadam), u hamma uchun ishlaydi.
+Email + 6 xonali kod bilan kirish **sukut bo'yicha yashirilgan**, chunki:
 
-Supabase sukut bo'yicha **havola** yuboradi. Uni **kod**ga o'zgartiramiz:
+- Supabase'ning o'z pochtasi xatni **faqat loyiha jamoasiga** (sizga)
+  yuboradi va soatiga bir necha xat bilan cheklangan;
+- email shablonini (kod yuborishni) faqat **o'z pochta xizmatingiz (SMTP)**
+  ulangandan keyin tahrirlash mumkin.
 
-1. Supabase → **Authentication** → **Emails** → **Templates**
-2. **Magic Link** shablonini tanlang
-3. Matndagi `{{ .ConfirmationURL }}` o'rniga `{{ .Token }}` yozing.
-4. **Confirm signup** shablonini ham tanlab, xuddi shunday qiling
-   (saytga **birinchi marta** kirayotgan odamga aynan shu shablon boradi).
+O'z domeningiz bo'lganda quyidagicha yoqasiz:
 
-Masalan, ikkala shablonni ham butunlay quyidagiga almashtiring:
+**6.1. Pochta xizmatini ulash (Resend misolida)**
+1. [resend.com](https://resend.com) → ro'yxatdan o'ting → **Domains** →
+   domeningizni qo'shing va ko'rsatilgan DNS yozuvlarini domen panelingizga
+   kiriting (tasdiqlanishini kuting)
+2. **API Keys** → **Create API Key** → nusxalang
+3. Supabase → **Authentication** → **Emails** → **SMTP Settings** → yoqing:
+   - **Sender email:** `noreply@SIZNING-DOMEN`
+   - **Sender name:** `Multilevel Plus`
+   - **Host:** `smtp.resend.com` · **Port:** `465`
+   - **Username:** `resend` · **Password:** Resend API kaliti
+   - **Save**
+
+**6.2. Shablonlarni kodga almashtirish**
+Supabase → **Authentication** → **Emails** → **Templates** da
+**Magic link or OTP** va **Confirm signup** shablonlarining **Body**
+(Source) qismini quyidagiga almashtiring → **Save changes**:
 
 ```html
 <h2>Multilevel Plus — tasdiqlash kodi</h2>
@@ -330,16 +345,15 @@ Masalan, ikkala shablonni ham butunlay quyidagiga almashtiring:
 <p>Agar bu siz bo'lmasangiz, bu xatni e'tiborsiz qoldiring.</p>
 ```
 
-5. Har birida **Save**
+**Authentication → Sign In / Providers → Email → Email OTP Length** = `6`.
 
-> ℹ️ Kod uzunligi: **Authentication → Sign In / Providers → Email →
-> Email OTP Length** — `6` qilib qo'ying (sayt 6–10 xonali kodni qabul
-> qiladi, lekin sahifadagi yozuvlar "6 xonali" deydi).
+**6.3. Saytda email bo'limini yoqish**
+Railway → **Variables** → **New Variable**: `EMAIL_LOGIN` = `on` → saqlang
+(Railway o'zi qayta ishga tushiradi). Lokal uchun `.env.local` ga
+`EMAIL_LOGIN=on` qatorini qo'shing.
 
-> ℹ️ Bepul tarifda Supabase soatiga ~3 ta email yuboradi — sinov uchun
-> yetarli. Haqiqiy foydalanuvchilar ko'payganda **Authentication → Emails →
-> SMTP Settings** dan o'z pochta xizmatingizni (masalan
-> [Resend](https://resend.com) yoki Gmail SMTP) ulaysiz.
+> ℹ️ Shablon o'zgartirilmagan bo'lsa ham email kirish ishlaydi: xatda kod
+> o'rniga **"Sign in" havolasi** keladi, uni **shu brauzerda** ochish kifoya.
 
 ---
 
@@ -592,10 +606,10 @@ Google Cloud'dagi o'zgarishlar 5 daqiqagacha kuchga kirishi mumkin.
 <summary><b>Email kodi kelmayapti</b></summary>
 
 - Spam papkasini tekshiring
-- Supabase bepul tarifida soatiga ~3 ta email chegarasi bor
-- 6-qadamdagi shablonda `{{ .Token }}` borligiga ishonch hosil qiling
-- Doimiy yechim: **Authentication → Emails → SMTP Settings** dan o'z pochta
-  xizmatingizni ulang
+- SMTP ulanmagan bo'lsa, Supabase xatni **faqat loyiha jamoasiga** yuboradi —
+  boshqa odamlarga umuman bormaydi (6.1-qadam)
+- Xatda kod o'rniga "Sign in" havolasi kelsa — shablon o'zgartirilmagan
+  (6.2-qadam); havolani shu brauzerda ochsangiz ham kirasiz
 </details>
 
 <details>
