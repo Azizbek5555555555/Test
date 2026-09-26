@@ -3,11 +3,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth";
 import { LoginForm } from "./LoginForm";
+import { BrandMark } from "@/components/layout/BrandLogo";
 
 export const metadata: Metadata = {
   title: "Kirish",
   description:
-    "Multilevel Plus platformasiga Google yoki email orqali kiring va tayyorgarlikni boshlang.",
+    "LevelX English platformasiga Google orqali kiring va tayyorgarlikni boshlang.",
 };
 
 export default async function LoginPage({
@@ -62,13 +63,7 @@ export default async function LoginPage({
         {/* O'ng tomon — forma */}
         <div className="card p-6 sm:p-8 w-full max-w-md mx-auto lg:mx-0">
           <div className="text-center mb-7">
-            <span
-              className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700
-                         text-white grid place-items-center font-extrabold mx-auto mb-4 shadow-sm"
-              aria-hidden
-            >
-              M+
-            </span>
+            <BrandMark size={64} className="rounded-2xl mx-auto mb-4" />
             <h2 className="text-2xl font-extrabold">Xush kelibsiz</h2>
             <p className="text-sm text-muted mt-1.5">
               Kirish va ro&apos;yxatdan o&apos;tish bir xil — hisobingiz

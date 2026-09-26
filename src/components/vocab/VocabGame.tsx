@@ -236,7 +236,7 @@ export function VocabGame({
     return (
       <div className="max-w-lg mx-auto">
         <div className="card p-0 overflow-hidden animate-pop">
-          <div className="bg-gradient-to-br from-orange-500 to-rose-600 p-8 text-center text-white">
+          <div className="bg-gradient-to-br from-brand-500 via-brand-700 to-brand-900 p-8 text-center text-white">
             <p className="text-5xl mb-3" aria-hidden>
               {accuracy >= 80 ? "🏆" : accuracy >= 50 ? "🎯" : "💪"}
             </p>

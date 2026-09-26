@@ -12,14 +12,17 @@ import type {
 } from "./types";
 
 export const DEFAULT_CONTACT: ContactSettings = {
-  telegram: "https://t.me/multilevelplus",
-  telegram_label: "@multilevelplus",
-  instagram: "https://instagram.com/multilevelplus",
-  instagram_label: "@multilevelplus",
-  phone: "+998 90 123 45 67",
-  email: "info@multilevelplus.uz",
-  address: "Toshkent sh., Chilonzor tumani, Bunyodkor shoh ko'chasi 12",
-  working_hours: "Dushanba – Shanba, 09:00 – 20:00",
+  telegram: "https://t.me/levelxenglish",
+  telegram_label: "@levelxenglish",
+  telegram_admin: "https://t.me/assistant_boo",
+  telegram_admin_label: "@assistant_boo",
+  instagram: "https://instagram.com/levelxenglish",
+  instagram_label: "@levelxenglish",
+  phone: "+998 90 166 09 58",
+  email: "levelxenglishash@gmail.com",
+  // Manzil hozircha yo'q — bo'sh bo'lsa saytda ko'rsatilmaydi
+  address: "",
+  working_hours: "Onlayn platforma",
 };
 
 export const DEFAULT_PLANS: PremiumPlan[] = [
@@ -36,7 +39,7 @@ export const DEFAULT_PLANS: PremiumPlan[] = [
 
 export const DEFAULT_PAYMENT: PaymentSettings = {
   card_number: "8600 0000 0000 0000",
-  card_owner: "MULTILEVEL PLUS",
+  card_owner: "LEVELX ENGLISH",
   instruction:
     "To'lovni amalga oshirgach, chek rasmini Telegram orqali yuboring. " +
     "Admin tasdiqlagach Premium faollashadi.",

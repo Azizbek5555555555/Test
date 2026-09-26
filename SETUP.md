@@ -236,14 +236,14 @@ ni oching (saytga qaysi Google akkaunt bilan kirsangiz — o'sha egasi bo'ladi).
 
 **a) Loyiha yaratish**
 1. Yuqori chapdagi loyiha tanlagich → **New Project**
-2. **Project name:** `Multilevel Plus` → **Create**
+2. **Project name:** `LevelX English` → **Create**
 3. Yaratilgach, yuqoridan aynan shu loyiha tanlanganiga ishonch hosil qiling
 
 **b) Ruxsat oynasi (Branding)**
 1. Yuqoridagi qidiruvga `Google Auth Platform` yozing → oching
    (yoki menyu → **APIs & Services** → **OAuth consent screen**)
 2. **Get started** tugmasi
-3. **App name:** `Multilevel Plus` · **User support email:** emailingiz → **Next**
+3. **App name:** `LevelX English` · **User support email:** emailingiz → **Next**
 4. **Audience:** `External` → **Next**
 5. **Contact information:** emailingiz → **Next**
 6. Shartlarga belgi qo'ying → **Continue** → **Create**
@@ -257,7 +257,7 @@ ni oching (saytga qaysi Google akkaunt bilan kirsangiz — o'sha egasi bo'ladi).
 **c) Client (kalit) yaratish**
 1. Chap menyu → **Clients** → **+ Create client**
 2. **Application type:** `Web application`
-3. **Name:** `Multilevel Plus Web`
+3. **Name:** `LevelX English Web`
 4. **Authorized redirect URIs** → **+ Add URI** → 5.1 da nusxalagan
    Supabase manzilini qo'ying
 5. **Create**
@@ -327,7 +327,7 @@ O'z domeningiz bo'lganda quyidagicha yoqasiz:
 2. **API Keys** → **Create API Key** → nusxalang
 3. Supabase → **Authentication** → **Emails** → **SMTP Settings** → yoqing:
    - **Sender email:** `noreply@SIZNING-DOMEN`
-   - **Sender name:** `Multilevel Plus`
+   - **Sender name:** `LevelX English`
    - **Host:** `smtp.resend.com` · **Port:** `465`
    - **Username:** `resend` · **Password:** Resend API kaliti
    - **Save**
@@ -338,7 +338,7 @@ Supabase → **Authentication** → **Emails** → **Templates** da
 (Source) qismini quyidagiga almashtiring → **Save changes**:
 
 ```html
-<h2>Multilevel Plus — tasdiqlash kodi</h2>
+<h2>LevelX English — tasdiqlash kodi</h2>
 <p>Saytga kirish uchun quyidagi kodni kiriting:</p>
 <p style="font-size:32px;font-weight:bold;letter-spacing:8px">{{ .Token }}</p>
 <p>Kod 1 soat davomida amal qiladi.</p>

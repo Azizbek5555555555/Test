@@ -185,7 +185,7 @@ export default async function PremiumPage({
                 {payment.instruction}
               </p>
               <a
-                href={contact.telegram}
+                href={contact.telegram_admin || contact.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl

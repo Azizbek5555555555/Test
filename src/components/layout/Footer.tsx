@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getContactSettings } from "@/lib/settings";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { BrandMark, BrandWordmark } from "./BrandLogo";
 
 export async function Footer() {
   const contact = await getContactSettings();
@@ -40,25 +41,21 @@ export async function Footer() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5">
-              <span
-                className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700
-                           text-white grid place-items-center font-extrabold text-sm"
-                aria-hidden
-              >
-                M+
-              </span>
-              <span className="font-extrabold text-lg">
-                Multilevel<span className="text-brand-600">Plus</span>
-              </span>
+              <BrandMark size={40} />
+              <BrandWordmark className="text-xl" />
             </div>
             <p className="text-sm text-muted mt-3 max-w-xs leading-relaxed">
               {SITE_TAGLINE}
             </p>
-            <p className="text-sm text-muted mt-4 leading-relaxed">
-              {contact.address}
-            </p>
+            {contact.address ? (
+              <p className="text-sm text-muted mt-4 leading-relaxed">
+                {contact.address}
+              </p>
+            ) : null}
             {contact.working_hours ? (
-              <p className="text-sm text-muted mt-1">{contact.working_hours}</p>
+              <p className={contact.address ? "text-sm text-muted mt-1" : "text-sm text-muted mt-4"}>
+                {contact.working_hours}
+              </p>
             ) : null}
           </div>
 

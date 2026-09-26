@@ -71,7 +71,7 @@ export default async function ArticlePage({
             {article.title}
           </h1>
 
-          {article.excerpt ? (
+          {article.excerpt && !bodyStartsWithExcerpt(article.body, article.excerpt) ? (
             <p className="text-lg text-muted mt-4 leading-relaxed">
               {article.excerpt}
             </p>
@@ -95,23 +95,24 @@ export default async function ArticlePage({
         <aside className="lg:sticky lg:top-24 h-fit space-y-4">
           {vocabulary.length > 0 ? (
             <div className="card p-5">
-              <h2 className="font-extrabold text-lg mb-1">New vocabulary</h2>
+              <h2 className="font-extrabold text-lg mb-1">
+                New vocabulary{" "}
+                <span className="text-sm text-muted font-semibold">({vocabulary.length})</span>
+              </h2>
               <p className="text-xs text-muted mb-4">
                 Bu so&apos;zlarni yodlab oling — imtihonda ko&apos;p uchraydi.
               </p>
 
-              <ul className="space-y-3">
+              {/* 40 tagacha so'z — ro'yxat o'z ichida aylanadi, sahifa cho'zilmaydi */}
+              <ul className="divide-y divide-[var(--border)] max-h-[60vh] overflow-y-auto -mx-2 px-2">
                 {vocabulary.map((entry, i) => (
-                  <li
-                    key={`${entry.word}-${i}`}
-                    className="rounded-xl border border-line bg-[var(--bg-subtle)] p-3"
-                  >
-                    <p className="font-bold">{entry.word}</p>
+                  <li key={`${entry.word}-${i}`} className="py-2.5">
+                    <p className="font-bold text-sm">{entry.word}</p>
                     <p className="text-sm text-brand-600 dark:text-brand-400 font-semibold">
                       {entry.meaning}
                     </p>
                     {entry.example ? (
-                      <p className="text-xs text-muted mt-1.5 italic leading-relaxed">
+                      <p className="text-xs text-muted mt-1 italic leading-relaxed">
                         “{entry.example}”
                       </p>
                     ) : null}
@@ -178,4 +179,12 @@ function LockedArticle({
       </div>
     </div>
   );
+}
+
+/** Qisqa tavsif matnning birinchi jumlalaridan olingan bo'lsa, uni ikki marta ko'rsatmaymiz */
+function bodyStartsWithExcerpt(body: string, excerpt: string): boolean {
+  const plain = (text: string) =>
+    text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+  const head = plain(excerpt).replace(/…$/, "").slice(0, 60);
+  return head.length > 0 && plain(body).startsWith(head);
 }

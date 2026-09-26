@@ -1,8 +1,9 @@
-# 🎓 Multilevel Plus
+# LevelX English
 
-**Learn · Practice · Take Exam · Improve**
+**Push Past Your Limits**
 
-Multilevel imtihoniga tayyorgarlik uchun to'liq veb-platforma: mock testlar,
+Ingliz tilini tizimli o'rganish va Multilevel imtihoniga tayyorgarlik uchun
+onlayn ta'lim platformasi: mock testlar,
 o'tgan yillarda tushgan savollar, General English materiallari, Kahoot
 uslubidagi so'z o'yini va real imtihon simulyatsiyasi.
 

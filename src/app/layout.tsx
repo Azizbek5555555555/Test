@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Bodoni_Moda, Inter } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import "./globals.css";
 
@@ -9,11 +9,12 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const jakarta = Plus_Jakarta_Sans({
+// Sarlavhalar uchun — brend qo'llanmasi tavsiya qilgan shrift
+const bodoni = Bodoni_Moda({
   subsets: ["latin", "latin-ext"],
-  weight: ["600", "700", "800"],
+  weight: ["500", "600", "700", "800"],
   display: "swap",
-  variable: "--font-jakarta",
+  variable: "--font-bodoni",
 });
 
 export const metadata: Metadata = {
@@ -24,6 +25,8 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
   keywords: [
+    "LevelX English",
+    "LevelX",
     "Multilevel",
     "Multilevel imtihon",
     "ingliz tili",
@@ -45,8 +48,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f7fb" },
-    { media: "(prefers-color-scheme: dark)", color: "#0d111b" },
+    { media: "(prefers-color-scheme: light)", color: "#faf7f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#15162a" },
   ],
 };
 
@@ -68,7 +71,7 @@ export default function RootLayout({
   return (
     <html
       lang="uz"
-      className={`${inter.variable} ${jakarta.variable}`}
+      className={`${inter.variable} ${bodoni.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

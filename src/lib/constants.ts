@@ -1,10 +1,11 @@
 import type { SkillSection } from "./types";
 
-export const SITE_NAME = "Multilevel Plus";
-export const SITE_TAGLINE = "Learn · Practice · Take Exam · Improve";
+export const SITE_NAME = "LevelX English";
+/** Brendning asosiy shiori */
+export const SITE_TAGLINE = "Push Past Your Limits";
 export const SITE_DESCRIPTION =
-  "Multilevel imtihoniga tayyorgarlik platformasi: Full Mock testlar, oxirgi tushgan savollar, " +
-  "General English materiallari, Vocabulary Battle va real imtihon simulyatsiyasi.";
+  "LevelX English — ingliz tilini tizimli o'rganish, real imtihon formatida mashq qilish " +
+  "va natijangizni yangi bosqichga olib chiqish uchun yaratilgan zamonaviy ta'lim platformasi.";
 
 /* -------------------------------------------------------------------------
    Ko'nikmalar (sections)

@@ -25,7 +25,7 @@ export default async function BoostPage() {
       description:
         "Turli mavzulardagi maqolalar: matn, yangi lug'at va Reading savollari (True/False/Not Given, Multiple Choice, Gap Filling).",
       count: `${articles.length} ta maqola`,
-      accent: "from-sky-500 to-blue-600",
+      accent: "from-brand-400 to-brand-600",
       items: ARTICLE_TOPICS.slice(0, 5).map((t) => t.label),
     },
     {
@@ -35,7 +35,7 @@ export default async function BoostPage() {
       description:
         "Audio, transkript, gap filling, multiple choice, matching va comprehension savollari.",
       count: `${listening.length} ta mashg'ulot`,
-      accent: "from-violet-500 to-purple-600",
+      accent: "from-brand-700 to-brand-900",
       items: ["Audio", "Transcript", "Gap filling", "Matching"],
     },
     {
@@ -45,7 +45,7 @@ export default async function BoostPage() {
       description:
         "So'z boyligini o'yin tarzida oshiring: Vocabulary Battle va haftalik reyting.",
       count: `${packs.length} ta to'plam`,
-      accent: "from-orange-500 to-rose-600",
+      accent: "from-brand-500 to-brand-700",
       items: ["Game format", "Points", "Ranking"],
     },
   ];
