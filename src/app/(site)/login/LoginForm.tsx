@@ -13,9 +13,12 @@ type Step = "email" | "code";
 export function LoginForm({
   next,
   initialError,
+  emailEnabled,
 }: {
   next: string;
   initialError?: string;
+  /** Email orqali kirish (SMTP ulanganda yoqiladi — SETUP.md, 6-qadam) */
+  emailEnabled: boolean;
 }) {
   const router = useRouter();
 
@@ -86,7 +89,10 @@ export function LoginForm({
       } else {
         setEmail(trimmed);
         setStep("code");
-        setInfo(`Tasdiqlash kodi ${trimmed} manziliga yuborildi.`);
+        setInfo(
+          `${trimmed} manziliga xat yuborildi. Xatda kod bo'lsa — pastga kiriting. ` +
+            `"Sign in" havolasi bo'lsa — uni shu brauzerda oching.`,
+        );
       }
     } catch {
       setError(
@@ -155,42 +161,46 @@ export function LoginForm({
             {loading === "google" ? "Ochilmoqda…" : "Google orqali davom etish"}
           </Button>
 
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-[var(--border)]" />
-            <span className="text-xs text-muted font-semibold">yoki</span>
-            <span className="h-px flex-1 bg-[var(--border)]" />
-          </div>
+          {emailEnabled ? (
+            <>
+              <div className="flex items-center gap-3">
+                <span className="h-px flex-1 bg-[var(--border)]" />
+                <span className="text-xs text-muted font-semibold">yoki</span>
+                <span className="h-px flex-1 bg-[var(--border)]" />
+              </div>
 
-          {/* ------------------------------------------ Muqobil: email + kod */}
-          <form onSubmit={sendCode} className="space-y-4">
-            <Field
-              label="Email manzilingiz"
-              htmlFor="email"
-              hint="Ushbu manzilga 6 xonali tasdiqlash kodi yuboriladi"
-            >
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                autoComplete="email"
-                inputMode="email"
-                placeholder="siz@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading !== null}
-              />
-            </Field>
+              {/* ------------------------------------------ Muqobil: email + kod */}
+              <form onSubmit={sendCode} className="space-y-4">
+                <Field
+                  label="Email manzilingiz"
+                  htmlFor="email"
+                  hint="Ushbu manzilga 6 xonali tasdiqlash kodi yuboriladi"
+                >
+                  <Input
+                    id="email"
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    placeholder="siz@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={loading !== null}
+                  />
+                </Field>
 
-            <Button
-              type="submit"
-              size="lg"
-              fullWidth
-              disabled={loading !== null}
-            >
-              {loading === "email" ? "Yuborilmoqda…" : "Kod yuborish"}
-            </Button>
-          </form>
+                <Button
+                  type="submit"
+                  size="lg"
+                  fullWidth
+                  disabled={loading !== null}
+                >
+                  {loading === "email" ? "Yuborilmoqda…" : "Kod yuborish"}
+                </Button>
+              </form>
+            </>
+          ) : null}
         </>
       ) : (
         /* --------------------------------------------------- Kodni kiritish */
