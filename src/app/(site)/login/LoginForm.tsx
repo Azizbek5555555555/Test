@@ -39,7 +39,8 @@ export function LoginForm({
         provider: "google",
         options: {
           redirectTo,
-          queryParams: { access_type: "offline", prompt: "consent" },
+          // Bir nechta Google akkaunti bo'lsa — qaysi biri bilan kirishni so'raydi
+          queryParams: { prompt: "select_account" },
         },
       });
 
