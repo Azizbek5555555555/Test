@@ -82,9 +82,17 @@ export async function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-line flex flex-wrap items-center justify-between gap-4">
-          <p className="text-xs text-muted">
-            © {year} {SITE_NAME}. Barcha huquqlar himoyalangan.
-          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <p className="text-xs text-muted">
+              © {year} {SITE_NAME}. Barcha huquqlar himoyalangan.
+            </p>
+            <Link href="/privacy" className="text-xs text-muted hover:text-fg underline-offset-2 hover:underline">
+              Maxfiylik siyosati
+            </Link>
+            <Link href="/terms" className="text-xs text-muted hover:text-fg underline-offset-2 hover:underline">
+              Foydalanish shartlari
+            </Link>
+          </div>
           <div className="flex items-center gap-3">
             <a
               href={contact.telegram}

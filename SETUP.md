@@ -248,6 +248,12 @@ ni oching (saytga qaysi Google akkaunt bilan kirsangiz — o'sha egasi bo'ladi).
 5. **Contact information:** emailingiz → **Next**
 6. Shartlarga belgi qo'ying → **Continue** → **Create**
 
+> ⚠️ **Branding** sahifasida **logo YUKLAMANG** — logo qo'yilsa Google
+> ilovani qo'lda tekshirishni (bir necha kun/hafta) talab qiladi.
+> *App domain* (home page, privacy, terms) maydonlarini bo'sh qoldirsangiz
+> bo'ladi. *Authorized domains* da Supabase manzili o'zi paydo bo'ladi —
+> tegmang.
+
 **c) Client (kalit) yaratish**
 1. Chap menyu → **Clients** → **+ Create client**
 2. **Application type:** `Web application`
@@ -258,13 +264,19 @@ ni oching (saytga qaysi Google akkaunt bilan kirsangiz — o'sha egasi bo'ladi).
 6. Chiqqan oynadan **Client ID** va **Client secret** ni nusxalang
    (secret'ni hech kimga yubormang, GitHub'ga yozmang)
 
-**d) Ilovani hammaga ochish** ⚠️ muhim
-1. Chap menyu → **Audience**
-2. **Publishing status: Testing** turgan bo'lsa → **Publish app** → **Confirm**
+**d) Test foydalanuvchilarni qo'shish (hozircha)** ⚠️ muhim
 
-> Buni qilmasangiz, faqat "Test users" ro'yxatidagi odamlar kira oladi,
-> qolganlarga *"Access blocked"* chiqadi. Biz faqat ism, email va rasmni
-> so'raymiz — shuning uchun Google tekshiruvi talab qilinmaydi.
+Yangi ilova **Testing** holatida bo'ladi: faqat ro'yxatdagi Gmail'lar kira
+oladi (100 tagacha). Google **Publish app** uchun sayt manzili, maxfiylik
+siyosati va shartlar havolasini talab qiladi — ular sayt Railway'ga
+chiqqandan keyin bo'ladi (9.7-qadam). Hozircha:
+
+1. Chap menyu → **Audience** → **Test users** → **+ Add users**
+2. O'zingizning va sinab ko'radigan odamlarning Gmail manzillarini yozing →
+   **Save**
+
+> Ro'yxatda yo'q odamga *"Access blocked: ... has not completed the Google
+> verification process"* chiqadi — bu normal, 9.7-qadamda hal bo'ladi.
 
 ### 5.3. Supabase'ga ulash
 
@@ -454,6 +466,24 @@ ogohlantirish **bo'lmasligi** kerak. Google orqali kirib ko'ring.
 
 ---
 
+### 9.7. Google login'ni hamma uchun ochish (Publish app)
+
+Sayt endi real manzilda (masalan `https://multilevel-plus-production.up.railway.app`).
+
+1. Google Cloud → **Google Auth Platform** → **Branding**:
+   - **Application home page:** `https://SIZNING-MANZIL`
+   - **Application privacy policy link:** `https://SIZNING-MANZIL/privacy`
+   - **Application terms of service link:** `https://SIZNING-MANZIL/terms`
+   - **Authorized domains** → **+ Add domain** → manzilingiz, `https://`
+     siz (masalan `multilevel-plus-production.up.railway.app`)
+   - **Logo yuklamang** → **Save**
+2. **Audience** → **Publish app** → **Confirm** → holat **In production**
+
+Endi istalgan Gmail egasi kira oladi. O'z domeningizni ulaganingizda
+shu havolalarni yangi domen bilan almashtirasiz.
+
+---
+
 ## 10-QADAM · Kontent qo'shishni boshlash
 
 Admin panel → chap menyu:
@@ -548,7 +578,7 @@ muddatni tanlang → **Premium berish**
 |---|---|
 | `Unsupported provider: provider is not enabled` | Supabase'da Google yoqilmagan yoki **Save** bosilmagan (5.3) |
 | Google: `Error 400: redirect_uri_mismatch` | Google Cloud'dagi **Authorized redirect URI** Supabase'dagi Callback URL bilan harfma-harf bir xil emas (oxirida `/` yoki bo'sh joy bo'lmasin) (5.2-c) |
-| Google: `Access blocked` / `has not completed the Google verification process` | Ilova hali **Testing** holatida — **Audience → Publish app** (5.2-d) |
+| Google: `Access blocked` / `has not completed the Google verification process` | Ilova **Testing** holatida va bu Gmail **Test users** ro'yxatida yo'q (5.2-d). Sayt Railway'da bo'lsa — **Publish app** (9.7) |
 | Google: `invalid_client` | Client ID yoki secret noto'g'ri nusxalangan (5.3) |
 | Kirgandan keyin `localhost:3000` o'rniga boshqa sahifa yoki xato | Supabase → **URL Configuration → Redirect URLs** ga `http://localhost:3000/**` qo'shilmagan (5.4) |
 
