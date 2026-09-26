@@ -336,10 +336,12 @@ Masalan, ikkala shablonni ham butunlay quyidagiga almashtiring:
 > Email OTP Length** — `6` qilib qo'ying (sayt 6–10 xonali kodni qabul
 > qiladi, lekin sahifadagi yozuvlar "6 xonali" deydi).
 
-> ℹ️ Bepul tarifda Supabase soatiga ~3 ta email yuboradi — sinov uchun
-> yetarli. Haqiqiy foydalanuvchilar ko'payganda **Authentication → Emails →
-> SMTP Settings** dan o'z pochta xizmatingizni (masalan
-> [Resend](https://resend.com) yoki Gmail SMTP) ulaysiz.
+> ⚠️ **Supabase'ning o'z pochta xizmati faqat sinov uchun:** u kod faqat
+> **loyiha jamoasi a'zolarining** emailiga (ya'ni sizga) yuboradi va soatiga
+> bir necha xat bilan cheklangan. Boshqa odamlarga email kodi borishi uchun
+> o'z pochta xizmatingizni ulash **shart**: **Authentication → Emails →
+> SMTP Settings** (masalan [Resend](https://resend.com) — bepul tarifi bor).
+> Google orqali kirish bunga bog'liq emas — u hamma uchun ishlaydi.
 
 ---
 
