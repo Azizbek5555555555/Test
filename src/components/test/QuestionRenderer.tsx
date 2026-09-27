@@ -22,12 +22,37 @@ export const AUTO_GRADED: QuestionKind[] = [
 
 export const MANUAL_GRADED: QuestionKind[] = ["essay", "speaking_prompt"];
 
+/**
+ * Savollarning imtihondagi haqiqiy raqamlari (har bo'lim — Listening, Reading
+ * va h.k. — 1 dan boshlanadi). Matching savoli nechta qatordan iborat bo'lsa,
+ * shuncha raqam egallaydi: masalan Listening Part 3 → 15–18.
+ */
+export function numberQuestions(
+  parts: { id: string; section: string }[],
+  questionsByPart: Record<string, PublicQuestion[]>,
+): Record<string, number> {
+  const numbers: Record<string, number> = {};
+  const nextBySection: Record<string, number> = {};
+  for (const part of parts) {
+    let next = nextBySection[part.section] ?? 1;
+    for (const question of questionsByPart[part.id] ?? []) {
+      numbers[question.id] = next;
+      next +=
+        question.kind === "matching"
+          ? Math.max(1, asMatchingOptions(question.options).length)
+          : 1;
+    }
+    nextBySection[part.section] = next;
+  }
+  return numbers;
+}
+
 function asStringOptions(options: unknown): string[] {
   if (!Array.isArray(options)) return [];
   return options.filter((o): o is string => typeof o === "string");
 }
 
-function asMatchingOptions(options: unknown): MatchingOption[] {
+export function asMatchingOptions(options: unknown): MatchingOption[] {
   if (!Array.isArray(options)) return [];
   return options.filter(
     (o): o is MatchingOption =>
@@ -258,8 +283,19 @@ function renderControl({
           ? (value as Record<string, string>)
           : {};
 
+      // Uzun variantlar (A–J bayonotlar, sarlavhalar) — oldindan ro'yxat qilib ko'rsatiladi
+      const choices = rows[0]?.right ?? [];
+      const showChoices = choices.some((choice) => choice.length > 3);
+
       return (
         <div className="space-y-2.5">
+          {showChoices ? (
+            <ul className="rounded-xl border border-line p-3.5 space-y-1.5 text-sm leading-relaxed">
+              {choices.map((choice) => (
+                <li key={choice}>{choice}</li>
+              ))}
+            </ul>
+          ) : null}
           {rows.map((row) => (
             <div
               key={row.left}

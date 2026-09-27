@@ -12,7 +12,7 @@ import { SECTION_ICON, SECTION_LABEL } from "@/lib/constants";
 import { cn, formatClock } from "@/lib/format";
 import { saveAnswersAction, submitAttemptAction } from "@/lib/actions/attempts";
 import { Button } from "@/components/ui/Button";
-import { QuestionRenderer } from "./QuestionRenderer";
+import { QuestionRenderer, numberQuestions } from "./QuestionRenderer";
 import { AudioPlayer } from "./AudioPlayer";
 
 export interface TestPlayerProps {
@@ -80,6 +80,12 @@ export function TestPlayer({
 
   const allQuestions = useMemo(
     () => parts.flatMap((part) => questionsByPart[part.id] ?? []),
+    [parts, questionsByPart],
+  );
+
+  // Imtihondagi haqiqiy raqamlar (Listening 1–35, Reading 1–35 ...)
+  const questionNumbers = useMemo(
+    () => numberQuestions(parts, questionsByPart),
     [parts, questionsByPart],
   );
 
@@ -259,6 +265,7 @@ export function TestPlayer({
                 >
                   {passed ? "✓ " : locked ? "🔒 " : ""}
                   {SECTION_LABEL[part.section]}
+                  {partNumber(part.title)}
                 </button>
               );
             })}
@@ -296,17 +303,7 @@ export function TestPlayer({
           </div>
         ) : null}
 
-        {/* Audio hali yuklanmagan bo'lsa — bo'lim ishlashi uchun transkript ko'rsatiladi */}
-        {!currentPart.audio_url && currentPart.transcript ? (
-          <details className="card p-0 mb-5 overflow-hidden" open>
-            <summary className="cursor-pointer select-none p-4 font-bold text-sm hover:bg-[var(--bg-subtle)]">
-              📄 Transkript (audio o&apos;rniga)
-            </summary>
-            <p className="px-4 pb-4 text-sm leading-relaxed whitespace-pre-line">
-              {currentPart.transcript}
-            </p>
-          </details>
-        ) : null}
+        {/* Skript test paytida ko'rsatilmaydi (javoblarni ochib qo'yadi) — faqat natija sahifasida, Premium uchun */}
 
         {/* Writing Task 1 uchun grafik / jadval rasmi */}
         {currentPart.image_url ? (
@@ -353,7 +350,7 @@ export function TestPlayer({
                   >
                     <QuestionRenderer
                       question={question}
-                      number={i + 1}
+                      number={questionNumbers[question.id] ?? i + 1}
                       value={answers[question.id] ?? null}
                       onChange={(value) => updateAnswer(question.id, value)}
                       disabled={submitting}
@@ -397,6 +394,7 @@ export function TestPlayer({
             <aside className="lg:sticky lg:top-32 h-fit">
               <QuestionPalette
                 questions={currentQuestions}
+                numbers={questionNumbers}
                 answers={answers}
                 answeredCount={answeredCount}
                 totalCount={allQuestions.length}
@@ -409,6 +407,7 @@ export function TestPlayer({
           <div className="mt-6">
             <QuestionPalette
               questions={currentQuestions}
+              numbers={questionNumbers}
               answers={answers}
               answeredCount={answeredCount}
               totalCount={allQuestions.length}
@@ -505,14 +504,22 @@ function SaveIndicator({ state }: { state: SaveState }) {
   return <span className={item.tone}>{item.text}</span>;
 }
 
+/** "Part 3" / "Task 1" / "Part 1.2" → tugmada " 3" / " 1" / " 1.2" */
+function partNumber(title: string): string {
+  const match = /^(?:Part|Task)\s+(\d+(?:\.\d+)?)$/i.exec(title.trim());
+  return match ? ` ${match[1]}` : "";
+}
+
 function QuestionPalette({
   questions,
+  numbers,
   answers,
   answeredCount,
   totalCount,
   horizontal,
 }: {
   questions: PublicQuestion[];
+  numbers: Record<string, number>;
   answers: AnswerMap;
   answeredCount: number;
   totalCount: number;
@@ -550,7 +557,7 @@ function QuestionPalette({
                   : "border-line text-muted hover:border-brand-400 hover:text-fg",
               )}
             >
-              {i + 1}
+              {numbers[question.id] ?? i + 1}
             </a>
           );
         })}

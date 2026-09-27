@@ -1,4 +1,4 @@
-import type { Attempt, SkillSection } from "@/lib/types";
+import type { Attempt, SectionBreakdownEntry, SkillSection } from "@/lib/types";
 import { SECTION_ICON, SECTION_LABEL, SECTIONS, SITE_NAME } from "@/lib/constants";
 import { formatDateTime } from "@/lib/format";
 import { CefrBadge } from "@/components/ui/Badge";
@@ -49,8 +49,8 @@ export function ResultCard({
               key={section}
               section={section}
               score={scores[section] ?? null}
-              correct={breakdown[section]?.correct}
-              total={breakdown[section]?.total}
+              correct={pointsOrCount(breakdown[section], "correct")}
+              total={pointsOrCount(breakdown[section], "total")}
               pending={scores[section] == null}
             />
           ))}
@@ -118,6 +118,23 @@ export function ResultCard({
       </div>
     </div>
   );
+}
+
+/**
+ * "X / Y to'g'ri" — ball bo'yicha (matching savolining har bir qatori alohida
+ * ball, shuning uchun Full Mock'da Listening/Reading → "/ 35"). Eski
+ * natijalarda ball bo'lmasa, savollar soni ko'rsatiladi.
+ */
+function pointsOrCount(
+  entry: SectionBreakdownEntry | undefined,
+  field: "correct" | "total",
+): number | undefined {
+  if (!entry) return undefined;
+  if (typeof entry.max === "number" && entry.max > 0) {
+    const value = field === "total" ? entry.max : entry.earned;
+    return typeof value === "number" ? Math.round(value * 100) / 100 : undefined;
+  }
+  return entry[field];
 }
 
 function ScoreRow({

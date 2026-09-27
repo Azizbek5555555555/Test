@@ -34,9 +34,8 @@ export function AudioPlayer({
         className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm
                    text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
       >
-        🎧 <strong>Audio hali yuklanmagan.</strong> Admin panel → Testlar
-        bo&apos;limidan ushbu bo&apos;limga audio fayl manzilini qo&apos;shing.
-        Transkript bo&apos;lsa, u pastda ko&apos;rsatiladi.
+        🎧 <strong>Bu bo&apos;lim uchun audio tez orada qo&apos;shiladi.</strong>{" "}
+        Hozircha keyingi bo&apos;limga o&apos;tishingiz mumkin.
       </div>
     );
   }
