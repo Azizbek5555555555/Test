@@ -31,6 +31,10 @@ function renderAnswer(value: unknown): string {
   return "—";
 }
 
+function formatPoints(value: number): string {
+  return String(Math.round(value * 100) / 100);
+}
+
 export function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
   if (rows.length === 0) return null;
 
@@ -46,7 +50,17 @@ export function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
     <div className="space-y-8">
       {Array.from(bySection.entries()).map(([section, list]) => {
         const auto = list.filter((r) => r.ratio != null);
-        const correct = auto.filter((r) => (r.ratio ?? 0) >= 0.999).length;
+        // Ball bo'yicha: matching savolining har bir qatori — alohida ball
+        const earned = auto.reduce((sum, r) => sum + r.points * (r.ratio ?? 0), 0);
+        const max = auto.reduce((sum, r) => sum + r.points, 0);
+        const allCorrect = auto.every((r) => (r.ratio ?? 0) >= 0.999);
+        // Imtihondagi raqamlar: matching savoli nechta qator bo'lsa, shuncha raqam oladi
+        const numbers: number[] = [];
+        let next = 1;
+        for (const r of list) {
+          numbers.push(next);
+          next += r.kind === "matching" && Array.isArray(r.options) ? Math.max(1, r.options.length) : 1;
+        }
 
         return (
           <section key={section}>
@@ -56,8 +70,8 @@ export function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
                 {SECTION_LABEL[section]}
               </h3>
               {auto.length > 0 ? (
-                <Badge tone={correct === auto.length ? "success" : "neutral"}>
-                  {correct} / {auto.length} to&apos;g&apos;ri
+                <Badge tone={allCorrect ? "success" : "neutral"}>
+                  {formatPoints(earned)} / {formatPoints(max)} to&apos;g&apos;ri
                 </Badge>
               ) : (
                 <Badge tone="warning">O&apos;qituvchi tekshiradi</Badge>
@@ -66,7 +80,7 @@ export function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
 
             <ol className="space-y-3">
               {list.map((row, i) => (
-                <ReviewItem key={row.question_id} row={row} number={i + 1} />
+                <ReviewItem key={row.question_id} row={row} number={numbers[i]} />
               ))}
             </ol>
           </section>

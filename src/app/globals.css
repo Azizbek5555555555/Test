@@ -240,6 +240,35 @@ input[type="number"]::-webkit-inner-spin-button {
     color: var(--fg-muted);
     margin-block: 1em;
   }
+  /* Imtihon matnlaridagi jadvallar (e'lonlar, FOR/AGAINST, eslatmalar) */
+  & table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin-block: 1em;
+    font-size: 0.95em;
+    line-height: 1.6;
+  }
+  & th,
+  & td {
+    border: 1px solid var(--border);
+    padding: 0.6rem 0.75rem;
+    vertical-align: top;
+    text-align: start;
+  }
+  & th {
+    background: var(--bg-subtle);
+    font-weight: 700;
+  }
+  /* Writing Task 1 — kelgan xat */
+  & .exam-letter {
+    border: 1px solid var(--border);
+    border-inline-start: 3px solid var(--color-brand-400);
+    border-radius: 0.75rem;
+    background: var(--bg-subtle);
+    padding: 0.25rem 1.1rem;
+    margin-block: 1em;
+  }
 }
 
 /* --------------------------------------------------------------------------
