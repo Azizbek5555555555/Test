@@ -275,7 +275,7 @@ function renderControl({
                 onChange={(e) =>
                   onChange({ ...current, [row.left]: e.target.value })
                 }
-                className="max-w-[240px] bg-surface"
+                className="w-full sm:w-auto sm:min-w-[260px] sm:max-w-[60%] bg-surface"
                 aria-label={row.label}
               >
                 <option value="">— tanlang —</option>

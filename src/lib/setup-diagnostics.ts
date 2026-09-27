@@ -257,6 +257,38 @@ export async function runSetupDiagnostics(): Promise<SetupCheck[]> {
     }
   }
 
+  /* ----------- 5c. Jonli tekshiruv: 0006 (skriptlar faqat Premium uchun) qo'llanganmi */
+  if (urlOk && anonRaw && (anon.kind === "publishable" || anon.kind === "jwt-anon")) {
+    const title = "Listening skriptlari himoyasi (0006_premium_transcripts.sql)";
+    try {
+      const client = createClient(rawUrl!, anonRaw.trim(), {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      // Mehmon uchun bu funksiya yopiq bo'lishi kerak ("permission denied").
+      // "Could not find the function" (PGRST202) — fayl hali ishga tushirilmagan.
+      const { error } = await client.rpc("get_part_transcripts", {
+        p_test_set_id: "00000000-0000-0000-0000-000000000000",
+      });
+      const missing = error?.code === "PGRST202";
+      checks.push(
+        missing
+          ? {
+              title,
+              status: "fail",
+              detail: `[${error?.code}] ${error?.message}`,
+              fix: "Supabase → SQL Editor'da supabase/migrations/0006_premium_transcripts.sql faylini ishga tushiring. Busiz testlar va natijalar sahifasi ishlamaydi.",
+            }
+          : { title, status: "ok", detail: "Qo'llangan." },
+      );
+    } catch (error) {
+      checks.push({
+        title,
+        status: "fail",
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   /* ----------------------------- 6. Jonli tekshiruv: admin kaliti ishlaydimi */
   const serviceRaw = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (urlOk && serviceRaw && (service.kind === "secret" || service.kind === "jwt-service")) {

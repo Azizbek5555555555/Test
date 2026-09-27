@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { getProfile } from "@/lib/auth";
+import { getProfile, isStaff, profileHasPremium } from "@/lib/auth";
 import {
   getAttempt,
+  getPartTranscripts,
   getQuestionsForParts,
   getTestParts,
   getTestSetById,
+  withTranscripts,
 } from "@/lib/queries";
 import {
   attemptMinutesLeft,
@@ -57,7 +59,12 @@ export default async function TestRunnerPage({
     redirect(`/exam/${attempt.id}`);
   }
 
-  const parts = await getTestParts(testSet.id);
+  // Skript faqat Premium uchun (audio bo'lmasa zaxira sifatida ko'rsatiladi)
+  const rawParts = await getTestParts(testSet.id);
+  const parts =
+    profileHasPremium(profile) || isStaff(profile)
+      ? withTranscripts(rawParts, await getPartTranscripts(testSet.id))
+      : rawParts;
   const questions = await getQuestionsForParts(parts.map((p) => p.id));
 
   const questionsByPart: Record<string, PublicQuestion[]> = {};

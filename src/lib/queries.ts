@@ -97,19 +97,64 @@ export async function getTestSetById(id: string): Promise<TestSet | null> {
   }
 }
 
+/**
+ * MUHIM: `test_parts.transcript` ustuni oddiy foydalanuvchilar uchun
+ * bloklangan (0006_premium_transcripts.sql) — `select('*')` QILMANG.
+ * Skript kerak bo'lsa `getPartTranscripts()` dan oling.
+ */
+export const TEST_PART_COLUMNS =
+  "id, test_set_id, section, title, instructions, passage, audio_url, image_url, duration_minutes, order_index";
+
 export async function getTestParts(testSetId: string): Promise<TestPart[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const supabase = await db();
     const { data } = await supabase
       .from("test_parts")
-      .select("*")
+      .select(TEST_PART_COLUMNS)
       .eq("test_set_id", testSetId)
       .order("order_index", { ascending: true });
-    return (data ?? []) as TestPart[];
+    return ((data ?? []) as Omit<TestPart, "transcript">[]).map((part) => ({
+      ...part,
+      transcript: null,
+    }));
   } catch {
     return [];
   }
+}
+
+/**
+ * Listening skriptlari — faqat Premium foydalanuvchi va o'qituvchi/admin uchun.
+ * Qolganlarga baza bo'sh natija qaytaradi.
+ */
+export async function getPartTranscripts(
+  testSetId: string,
+): Promise<Record<string, string>> {
+  if (!isSupabaseConfigured()) return {};
+  try {
+    const supabase = await db();
+    const { data } = await supabase.rpc("get_part_transcripts", {
+      p_test_set_id: testSetId,
+    });
+    const map: Record<string, string> = {};
+    for (const row of (data ?? []) as { part_id: string; transcript: string }[]) {
+      map[row.part_id] = row.transcript;
+    }
+    return map;
+  } catch {
+    return {};
+  }
+}
+
+/** Bo'limlarga skriptlarni qo'shadi (skript yo'q bo'lsa — null qoladi) */
+export function withTranscripts(
+  parts: TestPart[],
+  transcripts: Record<string, string>,
+): TestPart[] {
+  return parts.map((part) => ({
+    ...part,
+    transcript: transcripts[part.id] ?? null,
+  }));
 }
 
 export async function getQuestionsForParts(
@@ -146,7 +191,7 @@ export async function countQuestionsByTestSet(
 
     const { data: questions } = await supabase
       .from("questions")
-      .select("id, part_id")
+      .select("id, part_id, kind, options")
       .in(
         "part_id",
         partRows.map((p) => p.id),
@@ -154,9 +199,19 @@ export async function countQuestionsByTestSet(
 
     const partToSet = new Map(partRows.map((p) => [p.id, p.test_set_id]));
     const counts: Record<string, number> = {};
-    for (const q of (questions ?? []) as { part_id: string }[]) {
+    for (const q of (questions ?? []) as {
+      part_id: string;
+      kind: string;
+      options: unknown;
+    }[]) {
       const setId = partToSet.get(q.part_id);
-      if (setId) counts[setId] = (counts[setId] ?? 0) + 1;
+      if (!setId) continue;
+      // Moslashtirish savolidagi har bir qator — alohida savol (masalan 5 ta spiker)
+      const weight =
+        q.kind === "matching" && Array.isArray(q.options) && q.options.length > 0
+          ? q.options.length
+          : 1;
+      counts[setId] = (counts[setId] ?? 0) + weight;
     }
     return counts;
   } catch {
