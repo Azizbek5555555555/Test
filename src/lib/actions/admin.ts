@@ -388,6 +388,53 @@ export async function deleteTestPartAction(formData: FormData): Promise<void> {
   revalidatePath(`/admin/tests/${testSetId}`);
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Admin paneldagi "Audio yuklash": fayl brauzerdan to'g'ridan-to'g'ri
+ * Storage'ga yuklanadi, bu yerda esa uning manzili bo'lim(lar)ga yoziladi.
+ * Bir nechta bo'lim — Full Mock'ning butun Listening qismi uchun bitta audio.
+ * `audioUrl = null` — audioni olib tashlash.
+ */
+export async function setPartsAudioAction(
+  testSetId: string,
+  partIds: string[],
+  audioUrl: string | null,
+): Promise<ActionResult> {
+  const denied = await requireStaffAction();
+  if (denied) return denied;
+
+  const ids = partIds.filter((id) => UUID_RE.test(id));
+  if (!UUID_RE.test(testSetId) || ids.length === 0) {
+    return { ok: false, message: "Bo'lim tanlanmagan." };
+  }
+  if (audioUrl !== null && !/^(https?:\/\/|\/)\S+$/.test(audioUrl)) {
+    return { ok: false, message: "Audio manzili noto'g'ri." };
+  }
+
+  try {
+    const supabase = await createServerSupabase();
+    const { error, count } = await supabase
+      .from("test_parts")
+      .update({ audio_url: audioUrl }, { count: "exact" })
+      .in("id", ids)
+      .eq("test_set_id", testSetId);
+
+    if (error) return { ok: false, message: error.message };
+    if (!count) {
+      return { ok: false, message: "Bo'lim topilmadi yoki ruxsat yo'q." };
+    }
+  } catch (error) {
+    return { ok: false, message: describeError(error) };
+  }
+
+  revalidatePath(`/admin/tests/${testSetId}`);
+  return {
+    ok: true,
+    message: audioUrl ? "Audio saqlandi." : "Audio olib tashlandi.",
+  };
+}
+
 export async function upsertQuestionAction(
   _prev: ActionResult | null,
   formData: FormData,

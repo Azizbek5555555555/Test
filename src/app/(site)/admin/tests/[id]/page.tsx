@@ -20,6 +20,7 @@ import {
   testSetFields,
 } from "@/components/admin/fieldSpecs";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
+import { AudioUpload } from "@/components/admin/AudioUpload";
 
 export const metadata: Metadata = {
   title: "Testni tahrirlash",
@@ -43,6 +44,13 @@ export default async function AdminTestDetailPage({
   }
 
   const serviceKeyMissing = questions.length === 0 && parts.length > 0;
+
+  // Listening audio: Full Mock'da odatda bitta fayl barcha qismlar uchun
+  const listeningParts = parts.filter((part) => part.section === "listening");
+  const listeningUrls = new Set(listeningParts.map((part) => part.audio_url ?? ""));
+  const sharedAudioUrl =
+    listeningUrls.size === 1 ? listeningParts[0]?.audio_url ?? null : null;
+  const mixedAudio = listeningUrls.size > 1;
 
   return (
     <div className="space-y-6">
@@ -96,6 +104,37 @@ export default async function AdminTestDetailPage({
           submitLabel="Sozlamalarni saqlash"
         />
       </Collapsible>
+
+      {/* ------------------------------------------- Listening audio */}
+      {listeningParts.length > 0 ? (
+        <div className="card p-5 space-y-3">
+          <div>
+            <h3 className="font-bold">
+              🎧 Listening audio
+              {listeningParts.length > 1
+                ? ` — barcha ${listeningParts.length} ta qism uchun bitta fayl`
+                : ""}
+            </h3>
+            {mixedAudio ? (
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                Qismlarda har xil audio bor. Bu yerdan yuklasangiz, hammasiga
+                bitta audio qo&apos;yiladi. Alohida audio uchun pastdagi
+                bo&apos;limlardan foydalaning.
+              </p>
+            ) : null}
+          </div>
+          <AudioUpload
+            testSetId={testSet.id}
+            partIds={listeningParts.map((part) => part.id)}
+            currentUrl={sharedAudioUrl}
+            hint={
+              listeningParts.length > 1
+                ? "Full Mock'da odatda Listening uchun bitta audio fayl bo'ladi: u barcha qismlarga ulanadi va o'quvchi keyingi qismga o'tganda audio to'xtamasdan davom etadi. 25 MB dan katta fayl yuklashdan oldin avtomatik kichraytiriladi (1–3 daqiqa) — sahifani yopmang."
+                : "25 MB dan katta fayl yuklashdan oldin avtomatik kichraytiriladi (1–3 daqiqa) — sahifani yopmang."
+            }
+          />
+        </div>
+      ) : null}
 
       {/* ------------------------------------------- Yangi bo'lim */}
       <Collapsible
@@ -165,6 +204,26 @@ export default async function AdminTestDetailPage({
                 </div>
 
                 <div className="p-4 space-y-3">
+                  {part.section === "listening" && listeningParts.length > 1 ? (
+                    <Collapsible
+                      title="🎧 Faqat shu qism uchun audio"
+                      subtitle={
+                        part.audio_url
+                          ? part.audio_url === sharedAudioUrl
+                            ? "Umumiy Listening audiosi ulangan"
+                            : "Alohida audio ulangan"
+                          : "Audio yo'q"
+                      }
+                    >
+                      <AudioUpload
+                        testSetId={testSet.id}
+                        partIds={[part.id]}
+                        currentUrl={part.audio_url}
+                        hint="Faqat har bir qism uchun alohida audio fayl bo'lsa ishlating."
+                      />
+                    </Collapsible>
+                  ) : null}
+
                   <Collapsible
                     title="✏️ Bo'limni tahrirlash"
                     subtitle="Matn, audio, transkript, ko'rsatma"

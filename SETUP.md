@@ -539,10 +539,19 @@ Admin panel → chap menyu:
 
 ### 🎧 Audio yuklash
 
-1. Supabase → **Storage** → **audio** papkasi
-2. **Upload file** → mp3 faylni yuklang
-3. Fayl ustiga bosing → **Get URL** → nusxalang
-4. Admin panel → test bo'limi → **Audio manzili** maydoniga qo'ying
+1. Admin panel → **Testlar** → kerakli test → **Tahrirlash**
+2. **🎧 Listening audio** blokida → **Audio yuklash** → mp3 faylni tanlang
+3. Kuting (katta fayl bo'lsa 1–3 daqiqa) va sahifani yopmang.
+   "✅ Audio yuklandi" chiqsa — tayyor.
+
+- Full Mock'da bitta audio **barcha Listening qismlariga** ulanadi —
+  o'quvchi keyingi qismga o'tganda audio to'xtamasdan davom etadi.
+- Har qism uchun alohida audio bo'lsa — qism ichidagi
+  **🎧 Faqat shu qism uchun audio** bandidan yuklang.
+- **25 MB dan katta** fayl yuklashdan oldin brauzerning o'zida avtomatik
+  kichraytiriladi (nutq uchun sifat yetarli, 45 daqiqalik audio ≈ 19 MB).
+  Supabase bepul tarifida bitta fayl 50 MB dan oshmasligi kerak — shuning
+  uchun bu kerak. Google Chrome'dan foydalaning.
 
 ### 📰 Maqolalar
 
