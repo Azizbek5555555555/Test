@@ -83,6 +83,15 @@ export function TestPlayer({
     [parts, questionsByPart],
   );
 
+  // Bir nechta qismga ulangan (umumiy) audio manzillari
+  const sharedAudioUrls = useMemo(() => {
+    const seen = new Map<string, number>();
+    for (const part of parts) {
+      if (part.audio_url) seen.set(part.audio_url, (seen.get(part.audio_url) ?? 0) + 1);
+    }
+    return new Set([...seen].filter(([, count]) => count > 1).map(([url]) => url));
+  }, [parts]);
+
   // Imtihondagi haqiqiy raqamlar (Listening 1–35, Reading 1–35 ...)
   const questionNumbers = useMemo(
     () => numberQuestions(parts, questionsByPart),
@@ -296,9 +305,16 @@ export function TestPlayer({
         {currentPart.audio_url || currentPart.section === "listening" ? (
           <div className="mb-5">
             <AudioPlayer
-              key={currentPart.id}
+              // Bir nechta qismga bitta audio ulangan bo'lsa (Full Mock),
+              // qism almashganda pleyer qayta yaratilmaydi — audio davom etadi
+              key={currentPart.audio_url ?? currentPart.id}
               src={currentPart.audio_url}
               singlePlay={singlePlayAudio}
+              label={
+                currentPart.audio_url && sharedAudioUrls.has(currentPart.audio_url)
+                  ? "Listening audio — barcha qismlar uchun bitta"
+                  : undefined
+              }
             />
           </div>
         ) : null}
