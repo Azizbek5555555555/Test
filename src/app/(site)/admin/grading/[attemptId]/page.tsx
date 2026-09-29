@@ -171,7 +171,7 @@ export default async function GradingDetailPage({
                           className="w-full mt-4"
                         />
                       ) : question.audioPath ? (
-                        <p className="text-sm text-amber-700 dark:text-amber-400 mt-4">
+                        <p className="text-sm text-warning mt-4">
                           ⚠️ Audio mavjud, lekin havolani yaratib bo&apos;lmadi
                           (SUPABASE_SERVICE_ROLE_KEY yoki &quot;speaking&quot;
                           bucket tekshiring).

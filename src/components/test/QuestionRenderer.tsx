@@ -147,7 +147,7 @@ function renderControl({
                 className={cn(
                   "flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition-all",
                   selected
-                    ? "border-brand-500 bg-brand-50 dark:bg-brand-950/40 ring-1 ring-brand-500/40"
+                    ? "border-brand-500 bg-brand-950/40 ring-1 ring-brand-500/40"
                     : "border-line hover:border-brand-300 hover:bg-[var(--bg-subtle)]",
                   disabled && "cursor-not-allowed opacity-70",
                 )}
@@ -165,7 +165,7 @@ function renderControl({
                     "shrink-0 w-6 h-6 rounded-full border-2 grid place-items-center text-xs font-bold",
                     selected
                       ? "border-brand-400 bg-brand-400 text-ink-950"
-                      : "border-ink-300 dark:border-ink-600 text-muted",
+                      : "border-ink-600 text-muted",
                   )}
                   aria-hidden
                 >
@@ -193,7 +193,7 @@ function renderControl({
                 className={cn(
                   "flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition-all",
                   checked
-                    ? "border-brand-500 bg-brand-50 dark:bg-brand-950/40 ring-1 ring-brand-500/40"
+                    ? "border-brand-500 bg-brand-950/40 ring-1 ring-brand-500/40"
                     : "border-line hover:border-brand-300 hover:bg-[var(--bg-subtle)]",
                   disabled && "cursor-not-allowed opacity-70",
                 )}
@@ -215,7 +215,7 @@ function renderControl({
                     "shrink-0 w-6 h-6 rounded-md border-2 grid place-items-center text-xs font-bold",
                     checked
                       ? "border-brand-400 bg-brand-400 text-ink-950"
-                      : "border-ink-300 dark:border-ink-600 text-muted",
+                      : "border-ink-600 text-muted",
                   )}
                   aria-hidden
                 >
@@ -348,7 +348,7 @@ function renderControl({
             <span
               className={cn(
                 "font-bold tabular-nums",
-                words < 100 ? "text-muted" : "text-emerald-600 dark:text-emerald-400",
+                words < 100 ? "text-muted" : "text-success",
               )}
             >
               {words} so&apos;z

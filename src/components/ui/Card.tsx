@@ -176,7 +176,7 @@ export function ProgressBar({
   const pct = Math.max(0, Math.min(100, max ? (value / max) * 100 : 0));
   const tones = {
     brand: "bg-brand-500",
-    success: "bg-emerald-500",
+    success: "bg-success",
     gold: "bg-gold-400",
   };
   return (

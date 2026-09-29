@@ -98,9 +98,9 @@ export default async function SettingsPage() {
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
-                className="w-full rounded-xl border border-rose-200 dark:border-rose-800
-                           bg-rose-50 dark:bg-rose-950/40 px-4 py-2.5 text-sm font-bold
-                           text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-950/60
+                className="w-full rounded-xl border border-danger/40
+                            bg-danger/10 px-4 py-2.5 text-sm font-bold
+                            text-danger hover:bg-danger/10
                            transition-colors"
               >
                 🚪 Chiqish

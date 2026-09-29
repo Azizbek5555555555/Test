@@ -75,7 +75,7 @@ export function Field({
       </Label>
       {children}
       {error ? (
-        <p className="text-xs text-rose-600 dark:text-rose-400 mt-1.5 font-medium">
+        <p className="text-xs text-danger mt-1.5 font-medium">
           {error}
         </p>
       ) : null}

@@ -183,7 +183,7 @@ function ActionCard({
     <Link
       href={href}
       className={`card p-4 hover:shadow-[var(--shadow-lift)] transition-all ${
-        count > 0 ? "border-brand-300 dark:border-brand-800" : ""
+        count > 0 ? "border-brand-800" : ""
       }`}
     >
       <div className="flex items-start justify-between gap-2">

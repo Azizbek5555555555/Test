@@ -111,8 +111,8 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                   <Link
                     onClick={close}
                     href="/premium"
-                    className="block px-3 py-2.5 rounded-lg font-semibold text-gold-700 dark:text-gold-400
-                               hover:bg-gold-50 dark:hover:bg-gold-950/40"
+                    className="block px-3 py-2.5 rounded-lg font-semibold text-gold-400
+                                hover:bg-gold-950/40"
                   >
                     ⭐ Premium
                   </Link>

@@ -100,7 +100,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
             </div>
             <div className="flex items-center gap-2 mt-3">
               {user.isPremium ? (
-                <span className="text-xs font-bold text-gold-700 dark:text-gold-400">
+                <span className="text-xs font-bold text-gold-400">
                   ⭐ PREMIUM
                 </span>
               ) : (

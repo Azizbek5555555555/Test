@@ -187,8 +187,8 @@ export function SpeakingRecorder({
                 type="button"
                 onClick={stopRecording}
                 disabled={disabled}
-                className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5
-                           text-sm font-bold text-white hover:bg-rose-700 transition-colors"
+                className="inline-flex items-center gap-2 rounded-xl bg-danger px-4 py-2.5
+                           text-sm font-bold text-white hover:bg-danger transition-colors"
               >
                 <span className="w-2.5 h-2.5 rounded-sm bg-white" aria-hidden />
                 To&apos;xtatish
@@ -210,8 +210,8 @@ export function SpeakingRecorder({
             )}
 
             {status === "recording" ? (
-              <span className="inline-flex items-center gap-2 text-sm font-bold text-rose-600 tabular-nums">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" aria-hidden />
+              <span className="inline-flex items-center gap-2 text-sm font-bold text-danger tabular-nums">
+                <span className="w-2 h-2 rounded-full bg-danger animate-pulse" aria-hidden />
                 {formatClock(seconds)} / {formatClock(MAX_SECONDS)}
               </span>
             ) : null}
@@ -221,7 +221,7 @@ export function SpeakingRecorder({
             ) : null}
 
             {status === "done" && answer.audio ? (
-              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              <span className="text-sm font-semibold text-success">
                 ✅ Yozildi va saqlandi
               </span>
             ) : null}
@@ -248,7 +248,7 @@ export function SpeakingRecorder({
           ) : null}
 
           {error ? (
-            <p className="text-xs text-amber-700 dark:text-amber-400 mt-3 leading-relaxed">
+            <p className="text-xs text-warning mt-3 leading-relaxed">
               ⚠️ {error}
             </p>
           ) : null}

@@ -8,7 +8,7 @@ export function SetupBanner() {
   if (isSupabaseConfigured()) return null;
 
   return (
-    <div className="bg-amber-100 border-b border-amber-300 text-amber-950 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-100">
+    <div className="border-b bg-warning/10 border-warning/40 text-warning">
       <div className="container-page py-2.5 text-sm flex flex-wrap items-center gap-x-2 gap-y-1">
         <span aria-hidden>⚙️</span>
         <strong>Ma&apos;lumotlar bazasi hali ulanmagan.</strong>

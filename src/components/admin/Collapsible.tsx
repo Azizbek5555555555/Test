@@ -23,7 +23,7 @@ export function Collapsible({
     <div
       className={cn(
         "card p-0 overflow-hidden",
-        tone === "accent" && "border-brand-300 dark:border-brand-800",
+        tone === "accent" && "border-brand-800",
       )}
     >
       <button
