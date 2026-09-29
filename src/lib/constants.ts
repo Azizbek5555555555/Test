@@ -1,4 +1,4 @@
-import type { SkillSection } from "./types";
+import type { QuestionKind, SkillSection } from "./types";
 
 export const SITE_NAME = "LevelX English";
 /** Brendning asosiy shiori */
@@ -139,3 +139,13 @@ export const MAIN_NAV = [
   { href: "/exam-checking", label: "Exam Checking" },
   ...(COURSES_ENABLED ? [{ href: "/courses", label: "Kurslar" }] : []),
 ];
+
+/** Savol turlari nomi (maqola va mashq sahifalarida) */
+export const KIND_LABEL: Partial<Record<QuestionKind, string>> = {
+  true_false_ng: "True / False / Not Given",
+  mcq: "Multiple Choice",
+  multi_select: "Bir nechta javobli savol",
+  gap_fill: "Gap Filling",
+  matching: "Matching",
+  short_answer: "Qisqa javob",
+};

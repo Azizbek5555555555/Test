@@ -364,6 +364,21 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
+/* Waveform ustunlari — yumshoq "nafas" */
+@keyframes ml-wave {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.72);
+  }
+}
+
+.wave-bar {
+  animation: ml-wave 1.8s ease-in-out infinite;
+}
+
 /* Progress ring: yoy 0 dan qiymatgacha to'ladi */
 @keyframes ml-ring {
   from {
@@ -423,6 +438,7 @@ input[type="number"]::-webkit-inner-spin-button {
   .animate-float,
   .animate-ken-burns,
   .animate-ring,
+  .wave-bar,
   .animate-fade-up,
   .animate-slide-in,
   .animate-pop {

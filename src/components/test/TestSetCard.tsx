@@ -30,7 +30,7 @@ export function TestSetCard({
   return (
     <Link
       href={locked ? "/premium?reason=locked" : href}
-      className="group card lift flex flex-col p-6 hover:border-brand-400/40"
+      className="group card lift flex h-full flex-col p-6 hover:border-brand-400/40"
     >
       <div className="flex items-center justify-between gap-3">
         {testSet.is_premium ? (

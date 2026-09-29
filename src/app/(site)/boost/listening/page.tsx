@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getProfile, profileHasPremium } from "@/lib/auth";
-import { countQuestionsByTestSet, getTestSets } from "@/lib/queries";
-import { PageHeader, EmptyState, Alert } from "@/components/ui/Card";
+import { getTestSets } from "@/lib/queries";
+import { getTestOutlines } from "@/lib/test-outlines";
+import { EmptyState, Alert } from "@/components/ui/Card";
+import { PageHero } from "@/components/marketing/PageHero";
+import { ChipLink, ChipRow } from "@/components/ui/ChipLink";
+import { Reveal } from "@/components/motion/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { TestSetCard } from "@/components/test/TestSetCard";
-import { LinkTabs } from "@/components/ui/Tabs";
 
 export const metadata: Metadata = {
   title: "Listening Practice",
@@ -42,56 +45,60 @@ export default async function ListeningPracticePage({
   ];
 
   const unlocked = profileHasPremium(profile);
-  const counts = await countQuestionsByTestSet(sets.map((s) => s.id));
+  const outlines = await getTestOutlines(sets.map((s) => s.id));
 
   return (
-    <div className="container-page py-10">
-      <Link
-        href="/boost"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg mb-6"
-      >
-        ← Boost Your General English
-      </Link>
+    <div>
+      <PageHero eyebrow="Boost Your General English" title="Listening Practice">
+        Har bir mashg&apos;ulotda audio hamda gap filling, multiple choice, matching va boshqa
+        savollar bo&apos;ladi. Audio skripti — Premium foydalanuvchilar uchun.{" "}
+        <Link href="/boost" className="text-brand-400 hover:text-brand-300">
+          ← Bo&apos;lim sahifasi
+        </Link>
+      </PageHero>
 
-      <PageHeader
-        eyebrow="Learn"
-        title="Listening Practice"
-        description="Har bir mashg'ulotda audio hamda gap filling, multiple choice, matching va boshqa savollar bo'ladi. Audio skripti — Premium foydalanuvchilar uchun."
-      >
+      <div className="container-page">
         {levels.length > 1 ? (
-          <LinkTabs items={levelTabs} activeId={activeLevel} />
+          <ChipRow className="mb-6">
+            {levelTabs.map((t) => (
+              <ChipLink key={t.id} href={t.href} active={activeLevel === t.id}>
+                {t.label} · {t.count}
+              </ChipLink>
+            ))}
+          </ChipRow>
         ) : null}
-      </PageHeader>
 
-      <div className="mb-8">
-        <Alert tone="info" title="Maslahat">
-          Avval audioni diqqat bilan tinglang va javob bering. Test
-          tugagach natija sahifasida audio <strong>skriptini</strong> o&apos;qib,
-          qaysi so&apos;zni eshitmaganingizni aniqlang (skript — ⭐ Premium).
-        </Alert>
-      </div>
-
-      {sets.length === 0 ? (
-        <EmptyState
-          icon="🎧"
-          title="Mashg'ulotlar hali qo'shilmagan"
-          description="Admin panel orqali 'General English' turkumida Listening mashg'ulotlarini qo'shing."
-          action={<ButtonLink href="/boost">Orqaga</ButtonLink>}
-        />
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {sets.map((testSet) => (
-            <TestSetCard
-              key={testSet.id}
-              testSet={testSet}
-              questionCount={counts[testSet.id]}
-              unlocked={unlocked}
-              href={`/tests/${testSet.slug}`}
-              sections={["listening"]}
-            />
-          ))}
+        <div className="mb-8">
+          <Alert tone="info" title="Maslahat">
+            Avval audioni diqqat bilan tinglang va javob bering. Test tugagach natija
+            sahifasida audio <strong>skriptini</strong> o&apos;qib, qaysi so&apos;zni
+            eshitmaganingizni aniqlang (skript — Premium).
+          </Alert>
         </div>
-      )}
+
+        {sets.length === 0 ? (
+          <EmptyState
+            icon="🎧"
+            title="Mashg'ulotlar hali qo'shilmagan"
+            description="Admin panel orqali 'General English' turkumida Listening mashg'ulotlarini qo'shing."
+            action={<ButtonLink href="/boost">Orqaga</ButtonLink>}
+          />
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {sets.map((testSet, i) => (
+              <Reveal key={testSet.id} delay={(i % 3) * 70}>
+                <TestSetCard
+                  testSet={testSet}
+                  questionCount={outlines[testSet.id]?.questions}
+                  unlocked={unlocked}
+                  href={`/tests/${testSet.slug}`}
+                  sections={["listening"]}
+                />
+              </Reveal>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

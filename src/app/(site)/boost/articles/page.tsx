@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getProfile, profileHasPremium } from "@/lib/auth";
 import { listArticles } from "@/lib/queries";
-import { ARTICLE_TOPICS, topicMeta } from "@/lib/constants";
-import { PageHeader, EmptyState } from "@/components/ui/Card";
-import { LinkTabs } from "@/components/ui/Tabs";
-import { AccessBadge, Badge } from "@/components/ui/Badge";
+import { ARTICLE_TOPICS } from "@/lib/constants";
+import { EmptyState } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { ChipLink, ChipRow } from "@/components/ui/ChipLink";
+import { PageHero } from "@/components/marketing/PageHero";
+import { ArticleCard } from "@/components/boost/ArticleCard";
+import { Reveal } from "@/components/motion/Reveal";
 
 export const metadata: Metadata = {
   title: "Articles",
@@ -50,117 +52,69 @@ export default async function ArticlesPage({
     return qs ? `/boost/articles?${qs}` : "/boost/articles";
   };
 
-  const levelTabs = [
-    { id: "all", label: "Barcha darajalar", href: href({ level: "all" }), count: all.length },
-    ...levels.map((l) => ({
-      id: l,
-      label: l,
-      href: href({ level: l }),
-      count: all.filter((a) => a.level === l).length,
-    })),
-  ];
-
-  const tabs = [
-    { id: "all", label: "Barchasi", href: href({ topic: "all" }), count: byLevel.length },
-    ...ARTICLE_TOPICS.filter((t) => byLevel.some((a) => a.topic === t.slug)).map(
-      (t) => ({
-        id: t.slug,
-        label: `${t.emoji} ${t.label}`,
-        href: href({ topic: t.slug }),
-        count: byLevel.filter((a) => a.topic === t.slug).length,
-      }),
-    ),
-  ];
+  const topics = ARTICLE_TOPICS.filter((t) => byLevel.some((a) => a.topic === t.slug));
 
   return (
-    <div className="container-page py-10">
-      <Link
-        href="/boost"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg mb-6"
-      >
-        ← Boost Your General English
-      </Link>
+    <div>
+      <PageHero eyebrow="Boost Your General English" title="Maqolalar o'qish zali">
+        Har bir maqolada: matn, yangi so&apos;zlar va Reading savollari (True/False/Not Given,
+        Multiple Choice, Gap Filling).{" "}
+        <Link href="/boost" className="text-brand-400 hover:text-brand-300">
+          ← Bo&apos;lim sahifasi
+        </Link>
+      </PageHero>
 
-      <PageHeader
-        eyebrow="Learn"
-        title="Articles"
-        description="Har bir maqola ichida: matn, yangi vocabulary va Reading savollari (True/False/Not Given, Multiple Choice, Gap Filling)."
-      >
+      <div className="container-page">
         <div className="space-y-3">
           {levels.length > 1 ? (
-            <LinkTabs items={levelTabs} activeId={activeLevel} />
+            <ChipRow>
+              <ChipLink href={href({ level: "all" })} active={activeLevel === "all"}>
+                Barcha darajalar
+              </ChipLink>
+              {levels.map((l) => (
+                <ChipLink key={l} href={href({ level: l })} active={activeLevel === l}>
+                  {l}
+                </ChipLink>
+              ))}
+            </ChipRow>
           ) : null}
-          {tabs.length > 1 ? (
-            <div>
-              <LinkTabs items={tabs} activeId={activeTopic} />
-            </div>
+          {topics.length > 0 ? (
+            <ChipRow>
+              <ChipLink href={href({ topic: "all" })} active={activeTopic === "all"}>
+                Barchasi · {byLevel.length}
+              </ChipLink>
+              {topics.map((t) => (
+                <ChipLink key={t.slug} href={href({ topic: t.slug })} active={activeTopic === t.slug}>
+                  {t.label} · {byLevel.filter((a) => a.topic === t.slug).length}
+                </ChipLink>
+              ))}
+            </ChipRow>
           ) : null}
         </div>
-      </PageHeader>
 
-      {visible.length === 0 ? (
-        <EmptyState
-          icon="📰"
-          title="Maqolalar topilmadi"
-          description="Bu mavzuda hali maqola yo'q. Admin panel orqali qo'shishingiz mumkin."
-          action={
-            <ButtonLink href="/boost/articles" variant="secondary">
-              Barcha maqolalar
-            </ButtonLink>
-          }
-        />
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {visible.map((article) => {
-            const meta = topicMeta(article.topic);
-            const locked = article.is_premium && !unlocked;
-
-            return (
-              <Link
-                key={article.id}
-                href={
-                  locked
-                    ? "/premium?reason=locked"
-                    : `/boost/articles/${article.slug}`
-                }
-                className="group card p-5 flex flex-col
-                           hover:shadow-[var(--shadow-lift)] hover:-translate-y-0.5 transition-all duration-200"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <Badge tone="brand">
-                    {meta.emoji} {meta.label}
-                  </Badge>
-                  <AccessBadge
-                    isPremium={article.is_premium}
-                    unlocked={unlocked}
-                  />
-                </div>
-
-                <h2 className="font-bold text-lg mt-3 leading-snug">
-                  {article.title}
-                </h2>
-
-                {article.excerpt ? (
-                  <p className="text-sm text-muted mt-2 leading-relaxed line-clamp-3 flex-1">
-                    {article.excerpt}
-                  </p>
-                ) : null}
-
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-4 pt-4 border-t border-line text-xs text-muted">
-                  <span>⏱ {article.read_minutes} daqiqa</span>
-                  {article.word_count > 0 ? (
-                    <span>📖 {article.word_count} ta yangi so&apos;z</span>
-                  ) : null}
-                  {article.question_count > 0 ? (
-                    <span>❓ {article.question_count} ta savol</span>
-                  ) : null}
-                  {article.level ? <Badge tone="neutral">{article.level}</Badge> : null}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+        {visible.length === 0 ? (
+          <div className="mt-8">
+            <EmptyState
+              icon="📰"
+              title="Maqolalar topilmadi"
+              description="Bu mavzuda hali maqola yo'q. Admin panel orqali qo'shishingiz mumkin."
+              action={
+                <ButtonLink href="/boost/articles" variant="secondary">
+                  Barcha maqolalar
+                </ButtonLink>
+              }
+            />
+          </div>
+        ) : (
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {visible.map((article, i) => (
+              <Reveal key={article.id} delay={(i % 3) * 70}>
+                <ArticleCard article={article} unlocked={unlocked} />
+              </Reveal>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
