@@ -116,7 +116,7 @@ export default async function AdminTestDetailPage({
                 : ""}
             </h3>
             {mixedAudio ? (
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+              <p className="text-sm text-warning mt-1">
                 Qismlarda har xil audio bor. Bu yerdan yuklasangiz, hammasiga
                 bitta audio qo&apos;yiladi. Alohida audio uchun pastdagi
                 bo&apos;limlardan foydalaning.
@@ -192,9 +192,9 @@ export default async function AdminTestDetailPage({
                       />
                       <ConfirmSubmitButton
                         message="Bu bo'limni o'chirasizmi? Ichidagi barcha savollar ham o'chadi."
-                        className="rounded-lg border border-rose-200 dark:border-rose-800
-                                   px-3 py-1.5 text-sm font-semibold text-rose-600 dark:text-rose-400
-                                   hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                        className="rounded-lg border border-danger/40
+                                   px-3 py-1.5 text-sm font-semibold text-danger
+                                    hover:bg-danger/10 transition-colors"
                         title="Bo'limni o'chirish"
                       >
                         🗑 Bo&apos;limni o&apos;chirish
@@ -286,7 +286,7 @@ export default async function AdminTestDetailPage({
                               />
                               <ConfirmSubmitButton
                                 message="Bu savolni o'chirasizmi?"
-                                className="text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline"
+                                className="text-sm font-semibold text-danger hover:underline"
                               >
                                 🗑 Bu savolni o&apos;chirish
                               </ConfirmSubmitButton>

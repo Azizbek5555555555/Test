@@ -31,8 +31,8 @@ export function AudioPlayer({
   if (!src) {
     return (
       <div
-        className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm
-                   text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+        className="rounded-xl border p-4 text-sm
+                    border-warning/40 bg-warning/10 text-warning"
       >
         🎧 <strong>Bu bo&apos;lim uchun audio tez orada qo&apos;shiladi.</strong>{" "}
         Hozircha keyingi bo&apos;limga o&apos;tishingiz mumkin.
@@ -43,8 +43,8 @@ export function AudioPlayer({
   if (failed) {
     return (
       <div
-        className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm
-                   text-rose-900 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200"
+        className="rounded-xl border p-4 text-sm
+                    border-danger/40 bg-danger/10 text-danger"
       >
         ⛔ Audio faylni yuklab bo&apos;lmadi. Manzil to&apos;g&apos;riligini
         tekshiring yoki administratorga murojaat qiling.
@@ -79,7 +79,7 @@ export function AudioPlayer({
             "w-12 h-12 rounded-full grid place-items-center text-lg shrink-0 transition-colors",
             blocked
               ? "bg-[var(--bg-subtle)] text-muted cursor-not-allowed"
-              : "bg-brand-600 text-white hover:bg-brand-700",
+              : "bg-brand-400 text-ink-950 hover:bg-brand-300",
           )}
         >
           {playing ? "⏸" : "▶"}

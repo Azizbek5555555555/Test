@@ -83,9 +83,9 @@ export default async function AdminArticlesPage() {
                     <input type="hidden" name="id" value={article.id} />
                     <ConfirmSubmitButton
                       message="Bu maqolani va uning barcha savollarini o'chirasizmi?"
-                      className="rounded-lg border border-rose-200 dark:border-rose-800
-                                 px-3 py-1.5 text-sm font-semibold text-rose-600 dark:text-rose-400
-                                 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                      className="rounded-lg border border-danger/40
+                                 px-3 py-1.5 text-sm font-semibold text-danger
+                                  hover:bg-danger/10 transition-colors"
                       title="O'chirish"
                     >
                       🗑

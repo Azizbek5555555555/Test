@@ -120,7 +120,7 @@ export default async function AdminVocabPackPage({
                     <input type="hidden" name="pack_id" value={pack.id} />
                     <ConfirmSubmitButton
                       message="Bu so'zni o'chirasizmi?"
-                      className="text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline"
+                      className="text-sm font-semibold text-danger hover:underline"
                     >
                       🗑 Bu so&apos;zni o&apos;chirish
                     </ConfirmSubmitButton>

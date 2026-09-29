@@ -21,7 +21,7 @@ export function PremiumRequestActions({
 
   if (state?.ok) {
     return (
-      <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+      <p className="text-sm font-semibold text-success">
         ✅ {state.message}
       </p>
     );
@@ -52,7 +52,7 @@ export function PremiumRequestActions({
       </div>
 
       {state && !state.ok ? (
-        <p className="text-xs text-rose-600 dark:text-rose-400">
+        <p className="text-xs text-danger">
           {state.message}
         </p>
       ) : null}

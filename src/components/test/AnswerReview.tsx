@@ -1,5 +1,7 @@
 import type { AnswerValue, AttemptReviewRow, SkillSection } from "@/lib/types";
-import { SECTION_ICON, SECTION_LABEL } from "@/lib/constants";
+import { CheckCircle, Clock, MinusCircle, XCircle } from "react-feather";
+import { SECTION_LABEL } from "@/lib/constants";
+import { SectionIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
 
@@ -65,8 +67,8 @@ export function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
         return (
           <section key={section}>
             <div className="flex flex-wrap items-center gap-3 mb-4">
-              <h3 className="font-extrabold text-lg">
-                <span aria-hidden>{SECTION_ICON[section]}</span>{" "}
+              <h3 className="display-title flex items-center gap-2 text-xl">
+                <SectionIcon section={section} className="text-brand-400" />
                 {SECTION_LABEL[section]}
               </h3>
               {auto.length > 0 ? (
@@ -98,12 +100,20 @@ function ReviewItem({ row, number }: { row: AttemptReviewRow; number: number }) 
   const tone = manual
     ? "border-line"
     : isCorrect
-      ? "border-emerald-300 dark:border-emerald-800"
+      ? "border-success/40"
       : isPartial
-        ? "border-amber-300 dark:border-amber-800"
-        : "border-rose-300 dark:border-rose-800";
+        ? "border-warning/40"
+        : "border-danger/40";
 
-  const mark = manual ? "⏳" : isCorrect ? "✅" : isPartial ? "◐" : "❌";
+  const mark = manual ? (
+    <Clock size={18} className="text-muted" />
+  ) : isCorrect ? (
+    <CheckCircle size={18} className="text-success" />
+  ) : isPartial ? (
+    <MinusCircle size={18} className="text-warning" />
+  ) : (
+    <XCircle size={18} className="text-danger" />
+  );
 
   return (
     <li className={cn("card p-4 border", tone)}>
@@ -128,8 +138,8 @@ function ReviewItem({ row, number }: { row: AttemptReviewRow; number: number }) 
                   manual
                     ? ""
                     : isCorrect
-                      ? "text-emerald-700 dark:text-emerald-400"
-                      : "text-rose-700 dark:text-rose-400",
+                      ? "text-success"
+                      : "text-danger",
                 )}
               >
                 {renderAnswer(row.given_answer as AnswerValue)}
@@ -139,7 +149,7 @@ function ReviewItem({ row, number }: { row: AttemptReviewRow; number: number }) 
             {!manual && !isCorrect ? (
               <div className="flex flex-wrap gap-x-2">
                 <dt className="text-muted shrink-0">To&apos;g&apos;ri javob:</dt>
-                <dd className="font-semibold text-emerald-700 dark:text-emerald-400 min-w-0">
+                <dd className="font-semibold text-success min-w-0">
                   {renderAnswer(row.correct_answer)}
                 </dd>
               </div>

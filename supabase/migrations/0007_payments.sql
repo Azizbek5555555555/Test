@@ -86,6 +86,8 @@ revoke all on public.payment_orders     from anon, authenticated;
 revoke all on public.payme_transactions from anon, authenticated;
 revoke all on public.click_transactions from anon, authenticated;
 grant select on public.payment_orders to authenticated;
+-- Server (service_role) — to'lov tizimlari so'rovlarini qayta ishlash uchun
+grant all on public.payment_orders, public.payme_transactions, public.click_transactions to service_role;
 
 drop policy if exists "payment_orders_read_own_or_staff" on public.payment_orders;
 create policy "payment_orders_read_own_or_staff" on public.payment_orders

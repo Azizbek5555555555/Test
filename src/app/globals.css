@@ -1,101 +1,93 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   LEVELX ENGLISH — Design tokens
+   LEVELX ENGLISH — Design tokens (Figma: "Cinematic Editorial Dark")
    Push Past Your Limits
-   Brend qo'llanmasi (ASH brand guide): Deep Navy #25273F · Muted Plum #3E3852 ·
-   Rose Clay #B77973 · Soft Blush #D09C92 · Rich Mauve #8A5355
+
+   Figma style guide:
+     ink/base #0B1220 · ink/surface #121B2B · ink/surface-raised #1A2438
+     ink/border #24314A · accent/base #E3A79B · accent/hover #EFBDB2
+     accent/deep #C9756A · gold #D9B382 · text/primary #F2EDE9
+     text/secondary #A9B4C6 · text/muted #6E7C93
+     success #6FBF8B · warning #E0B267 · danger #D4756B
+   Shriftlar: Cormorant Garamond (sarlavhalar) + Inter (matn)
    ========================================================================== */
 
+/* Sayt faqat qorong'i mavzuda — `dark:` klasslari doim ishlaydi */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  /* Brand — och tomoni rose-gold (Rose Clay / Soft Blush), to'q tomoni
-     plum va navy. Tugmalar 600 (oq matn bilan kontrast ≥ 4.5), fonlar 700–950. */
-  --color-brand-50: #fbf4f3;
-  --color-brand-100: #f6e6e3;
-  --color-brand-200: #eccdc7;
-  --color-brand-300: #dfb0a7;
-  --color-brand-400: #d09c92;
-  --color-brand-500: #b77973;
-  --color-brand-600: #9a5d5a;
-  --color-brand-700: #6e4a5a;
-  --color-brand-800: #3e3852;
-  --color-brand-900: #25273f;
-  --color-brand-950: #181a2c;
+  /* Accent — rose (accent/base = 400, hover = 300, deep = 600) */
+  --color-brand-50: #fcf3f1;
+  --color-brand-100: #f8e4df;
+  --color-brand-200: #f4d0c7;
+  --color-brand-300: #efbdb2;
+  --color-brand-400: #e3a79b;
+  --color-brand-500: #d68f82;
+  --color-brand-600: #c9756a;
+  --color-brand-700: #a45a51;
+  --color-brand-800: #6f403d;
+  --color-brand-900: #3a2a30;
+  --color-brand-950: #221a22;
 
-  /* Premium — gold */
-  --color-gold-50: #fffbeb;
-  --color-gold-100: #fef3c7;
-  --color-gold-200: #fde68a;
-  --color-gold-300: #fcd34d;
-  --color-gold-400: #fbbf24;
-  --color-gold-500: #f59e0b;
-  --color-gold-600: #d97706;
-  --color-gold-700: #b45309;
-  --color-gold-800: #92400e;
-  --color-gold-900: #78350f;
+  /* Premium — gold (#D9B382) */
+  --color-gold-50: #fbf6ee;
+  --color-gold-100: #f5ead8;
+  --color-gold-200: #ecd6b3;
+  --color-gold-300: #e3c49a;
+  --color-gold-400: #d9b382;
+  --color-gold-500: #c99d68;
+  --color-gold-600: #ad8150;
+  --color-gold-700: #86633f;
+  --color-gold-800: #5a4430;
+  --color-gold-900: #3a2d22;
+  --color-gold-950: #231b16;
 
-  /* Ink / surfaces */
-  --color-ink-50: #f7f8fa;
-  --color-ink-100: #eef0f4;
-  --color-ink-200: #dfe3ea;
-  --color-ink-300: #c6ccd8;
-  --color-ink-400: #98a1b3;
-  --color-ink-500: #6b7488;
-  --color-ink-600: #4d566b;
-  --color-ink-700: #3a4256;
-  --color-ink-800: #252b3b;
-  --color-ink-900: #171c29;
-  --color-ink-950: #0d111b;
+  /* Ink — fon va matn */
+  --color-ink-50: #f2ede9;
+  --color-ink-100: #e4e3e4;
+  --color-ink-200: #cdd4df;
+  --color-ink-300: #a9b4c6;
+  --color-ink-400: #8d99ad;
+  --color-ink-500: #6e7c93;
+  --color-ink-600: #3a4861;
+  --color-ink-700: #24314a;
+  --color-ink-800: #1a2438;
+  --color-ink-900: #121b2b;
+  --color-ink-950: #0b1220;
+
+  /* Holat ranglari */
+  --color-success: #6fbf8b;
+  --color-warning: #e0b267;
+  --color-danger: #d4756b;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-bodoni), "Bodoni Moda", Georgia, "Times New Roman",
-    serif;
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia,
+    "Times New Roman", serif;
 
-  --radius-card: 1rem;
+  --radius-card: 0.75rem;
 
-  --shadow-soft: 0 1px 2px rgba(16, 24, 40, 0.04),
-    0 8px 24px -8px rgba(16, 24, 40, 0.12);
-  --shadow-lift: 0 2px 4px rgba(16, 24, 40, 0.05),
-    0 20px 40px -12px rgba(16, 24, 40, 0.18);
+  --shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.02) inset;
+  --shadow-lift: 0 24px 48px -24px rgba(0, 0, 0, 0.6);
 }
 
 /* --------------------------------------------------------------------------
-   Semantic surface variables (light + dark)
+   Semantic surface variables
    -------------------------------------------------------------------------- */
 :root {
-  --bg: #faf7f6;
-  --bg-elevated: #ffffff;
-  --bg-subtle: #f4eeec;
-  --fg: #25273f;
-  --fg-muted: #635d70;
-  --border: #ebe2df;
-  --ring: #b77973;
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  --bg: #15162a;
-  --bg-elevated: #1e1f35;
-  --bg-subtle: #26273e;
-  --fg: #f4eeec;
-  --fg-muted: #aba4b8;
-  --border: #34354d;
-  --ring: #d09c92;
+  --bg: #0b1220;
+  --bg-elevated: #121b2b;
+  --bg-subtle: #1a2438;
+  --fg: #f2ede9;
+  --fg-muted: #a9b4c6;
+  --fg-faint: #6e7c93;
+  --border: #24314a;
+  --ring: #e3a79b;
+  --accent: #e3a79b;
+  --accent-hover: #efbdb2;
+  --gold: #d9b382;
   color-scheme: dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #15162a;
-    --bg-elevated: #1e1f35;
-    --bg-subtle: #26273e;
-    --fg: #f4eeec;
-    --fg-muted: #aba4b8;
-    --border: #34354d;
-    --ring: #d09c92;
-    color-scheme: dark;
-  }
 }
 
 @theme inline {
@@ -104,12 +96,15 @@
   --color-subtle: var(--bg-subtle);
   --color-fg: var(--fg);
   --color-muted: var(--fg-muted);
+  --color-faint: var(--fg-faint);
   --color-line: var(--border);
+  --color-accent: var(--accent);
 }
 
 /* --------------------------------------------------------------------------
-   Base
+   Base — @layer base ichida, shunda utility klasslar (font-sans va h.k.) ustun
    -------------------------------------------------------------------------- */
+@layer base {
 * {
   border-color: var(--border);
 }
@@ -133,7 +128,14 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+::selection {
+  background: rgba(227, 167, 155, 0.35);
+  color: #f2ede9;
 }
 
 :focus-visible {
@@ -148,31 +150,6 @@ input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
-/* --------------------------------------------------------------------------
-   Mavzu tugmasi belgilari — React state'siz, faqat CSS
-   -------------------------------------------------------------------------- */
-.theme-icon-moon {
-  display: inline;
-}
-.theme-icon-sun {
-  display: none;
-}
-
-:root[data-theme="dark"] .theme-icon-moon {
-  display: none;
-}
-:root[data-theme="dark"] .theme-icon-sun {
-  display: inline;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-icon-moon {
-    display: none;
-  }
-  :root:not([data-theme="light"]) .theme-icon-sun {
-    display: inline;
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -182,14 +159,48 @@ input[type="number"]::-webkit-inner-spin-button {
   width: 100%;
   margin-inline: auto;
   padding-inline: 1rem;
-  max-width: 80rem;
+  /* Figma: 1440px ekranda 80px chekka → 1280px kontent */
+  max-width: 83rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
 }
 
 @utility card {
   background-color: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-soft);
+}
+
+/* Figma: "Glass card" — 4% oq fon + 12px blur */
+@utility card-glass {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Bo'lim ustidagi kichik yozuv: "—— REAL EXAM SIMULATOR" */
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Katta sarlavhalar (Cormorant Garamond) */
+@utility display-title {
+  font-family: var(--font-display);
+  font-variant-numeric: lining-nums;
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: 0;
 }
 
 @utility text-balance-title {
@@ -311,6 +322,131 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .animate-pop {
   animation: ml-pop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes ml-slide-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: ml-slide-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Sekin "suzish" — hero bezaklari uchun */
+@keyframes ml-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: ml-float 7s ease-in-out infinite;
+}
+
+/* Hero fonidagi tog' rasmi sekin kattalashadi (Ken Burns) */
+@keyframes ml-ken-burns {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Waveform ustunlari — yumshoq "nafas" */
+@keyframes ml-wave {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.72);
+  }
+}
+
+.wave-bar {
+  animation: ml-wave 1.8s ease-in-out infinite;
+}
+
+/* Progress ring: yoy 0 dan qiymatgacha to'ladi */
+@keyframes ml-ring {
+  from {
+    stroke-dashoffset: var(--ring-full);
+  }
+}
+
+.animate-ring {
+  animation: ml-ring 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* Reveal ichidagi halqa — faqat ekranga kirganda to'la boshlaydi */
+.reveal:not(.is-visible) .animate-ring {
+  animation-play-state: paused;
+}
+
+.animate-ken-burns {
+  animation: ml-ken-burns 14s ease-out both;
+}
+
+/* Scroll bo'yicha paydo bo'lish — <Reveal> komponenti */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Kartochkalar hover — yengil ko'tarilish va accent chegara */
+.lift {
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.3s,
+    background-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.lift:hover {
+  transform: translateY(-4px);
+  border-color: rgba(227, 167, 155, 0.45);
+  box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .animate-float,
+  .animate-ken-burns,
+  .animate-ring,
+  .wave-bar,
+  .animate-fade-up,
+  .animate-slide-in,
+  .animate-pop {
+    animation: none;
+  }
+  .lift:hover {
+    transform: none;
+  }
 }
 
 /* --------------------------------------------------------------------------

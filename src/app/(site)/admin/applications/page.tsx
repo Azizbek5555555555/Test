@@ -62,7 +62,7 @@ export default async function AdminApplicationsPage() {
 
                     <a
                       href={`tel:${application.phone.replace(/\s/g, "")}`}
-                      className="text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+                      className="text-sm font-semibold text-brand-400 hover:underline"
                     >
                       📞 {application.phone}
                     </a>

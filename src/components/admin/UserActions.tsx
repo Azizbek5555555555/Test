@@ -53,7 +53,7 @@ export function PremiumControl({
           <button
             type="submit"
             disabled={pending}
-            className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline disabled:opacity-50"
+            className="text-xs font-semibold text-danger hover:underline disabled:opacity-50"
           >
             Premiumni o&apos;chirish
           </button>
@@ -64,8 +64,8 @@ export function PremiumControl({
         <p
           className={`text-xs ${
             state.ok
-              ? "text-emerald-600 dark:text-emerald-400"
-              : "text-rose-600 dark:text-rose-400"
+              ? "text-success"
+              : "text-danger"
           }`}
         >
           {state.message}
@@ -119,8 +119,8 @@ export function RoleControl({
         <p
           className={`text-xs ${
             state.ok
-              ? "text-emerald-600 dark:text-emerald-400"
-              : "text-rose-600 dark:text-rose-400"
+              ? "text-success"
+              : "text-danger"
           }`}
         >
           {state.message}

@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 const ICON: Record<CheckStatus, string> = { ok: "✅", warn: "⚠️", fail: "❌" };
 
 const TONE: Record<CheckStatus, string> = {
-  ok: "border-emerald-300 dark:border-emerald-800",
-  warn: "border-amber-300 dark:border-amber-800",
-  fail: "border-rose-300 dark:border-rose-800",
+  ok: "border-success/40",
+  warn: "border-warning/40",
+  fail: "border-danger/40",
 };
 
 /**

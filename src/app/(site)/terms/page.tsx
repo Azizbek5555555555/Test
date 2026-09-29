@@ -42,7 +42,7 @@ export default function TermsPage() {
           </li>
           <li>
             Narxlar{" "}
-            <Link href="/premium" className="text-brand-600 underline">
+            <Link href="/premium" className="text-brand-400 underline">
               Premium
             </Link>{" "}
             sahifasida ko&apos;rsatilgan.
@@ -87,11 +87,11 @@ export default function TermsPage() {
         <p>
           Shartlar yangilanishi mumkin — yangi tahrir shu sahifada e&apos;lon
           qilinadi. Savollar bo&apos;lsa,{" "}
-          <Link href="/contact" className="text-brand-600 underline">
+          <Link href="/contact" className="text-brand-400 underline">
             biz bilan bog&apos;laning
           </Link>
           . Ma&apos;lumotlaringiz qanday himoyalanishi{" "}
-          <Link href="/privacy" className="text-brand-600 underline">
+          <Link href="/privacy" className="text-brand-400 underline">
             Maxfiylik siyosati
           </Link>
           da yozilgan.

@@ -91,7 +91,7 @@ export default async function PrivacyPage() {
       <LegalSection title="6. Sizning huquqlaringiz">
         <ul>
           <li>
-            Ismingizni <Link href="/profile" className="text-brand-600 underline">Profil</Link>{" "}
+            Ismingizni <Link href="/profile" className="text-brand-400 underline">Profil</Link>{" "}
             sahifasida istalgan vaqtda o&apos;zgartirishingiz mumkin.
           </li>
           <li>
@@ -105,7 +105,7 @@ export default async function PrivacyPage() {
               href="https://myaccount.google.com/permissions"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-brand-600 underline"
+              className="text-brand-400 underline"
             >
               myaccount.google.com/permissions
             </a>{" "}
@@ -120,7 +120,7 @@ export default async function PrivacyPage() {
           {contact.email ? <li>Email: {contact.email}</li> : null}
           {contact.phone ? <li>Telefon: {contact.phone}</li> : null}
           <li>
-            <Link href="/contact" className="text-brand-600 underline">
+            <Link href="/contact" className="text-brand-400 underline">
               Biz bilan bog&apos;lanish sahifasi
             </Link>
           </li>

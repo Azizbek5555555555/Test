@@ -6,6 +6,7 @@ import type { VocabRoundWord, VocabSession } from "@/lib/types";
 import {
   GAME_BASE_POINTS,
   GAME_MAX_BONUS,
+  GAME_QUESTION_COUNT,
   GAME_TIME_LIMIT_MS,
 } from "@/lib/constants";
 import { cn, formatXp, percent } from "@/lib/format";
@@ -19,14 +20,7 @@ import { Alert } from "@/components/ui/Card";
 
 type Phase = "intro" | "loading" | "playing" | "feedback" | "done" | "error";
 
-const OPTION_STYLES = [
-  "bg-rose-500 hover:bg-rose-600",
-  "bg-sky-500 hover:bg-sky-600",
-  "bg-amber-500 hover:bg-amber-600",
-  "bg-emerald-500 hover:bg-emerald-600",
-];
-
-const OPTION_SHAPES = ["▲", "◆", "●", "■"];
+const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 /** Vaqtni o'lchash uchun yordamchi (render paytida chaqirilmaydi) */
 function nowMs(): number {
@@ -171,30 +165,33 @@ export function VocabGame({
 
   if (phase === "intro") {
     return (
-      <div className="card p-8 text-center max-w-lg mx-auto">
-        <p className="text-5xl mb-4" aria-hidden>
+      <div className="card mx-auto max-w-md animate-fade-up rounded-2xl p-8 text-center">
+        <span className="rounded bg-ink-700 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-300">
+          Lobby
+        </span>
+        <p className="mt-5 text-4xl" aria-hidden>
           {packEmoji}
         </p>
-        <h1 className="text-2xl font-extrabold">{packTitle}</h1>
-        <p className="text-muted mt-3 leading-relaxed">
-          {words.length || 20} ta so&apos;z · har biriga 15 soniya. Tez va
-          to&apos;g&apos;ri javob bering — qancha tez bo&apos;lsangiz, shuncha
-          ko&apos;p ball.
+        <h1 className="display-title mt-3 text-[32px]">{packTitle}</h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          {words.length || GAME_QUESTION_COUNT} ta so&apos;z · har biriga{" "}
+          {Math.round(GAME_TIME_LIMIT_MS / 1000)} soniya. Tez va to&apos;g&apos;ri javob bering —
+          qancha tez bo&apos;lsangiz, shuncha ko&apos;p ball.
         </p>
 
-        <div className="grid grid-cols-2 gap-3 mt-6 text-sm">
-          <div className="rounded-xl bg-[var(--bg-subtle)] border border-line p-3">
-            <p className="font-extrabold text-lg">{GAME_BASE_POINTS}</p>
+        <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
+          <div className="rounded-xl border border-line bg-ink-800 p-3">
+            <p className="font-display text-2xl text-fg lining-nums">{GAME_BASE_POINTS}</p>
             <p className="text-xs text-muted">to&apos;g&apos;ri javob uchun</p>
           </div>
-          <div className="rounded-xl bg-[var(--bg-subtle)] border border-line p-3">
-            <p className="font-extrabold text-lg">+{GAME_MAX_BONUS}</p>
+          <div className="rounded-xl border border-line bg-ink-800 p-3">
+            <p className="font-display text-2xl text-gold-400 lining-nums">+{GAME_MAX_BONUS}</p>
             <p className="text-xs text-muted">tezlik bonusi</p>
           </div>
         </div>
 
-        <Button size="lg" fullWidth className="mt-6" onClick={start}>
-          🎮 Boshlash
+        <Button size="lg" fullWidth className="mt-7" onClick={start}>
+          Jangni boshlash
         </Button>
       </div>
     );
@@ -202,18 +199,19 @@ export function VocabGame({
 
   if (phase === "loading") {
     return (
-      <div className="card p-12 text-center max-w-lg mx-auto">
-        <div className="text-4xl animate-pulse" aria-hidden>
-          ⏳
-        </div>
-        <p className="text-muted mt-4">Tayyorlanmoqda…</p>
+      <div className="card mx-auto max-w-md rounded-2xl p-12 text-center">
+        <span
+          className="mx-auto block size-10 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400"
+          aria-hidden
+        />
+        <p className="mt-4 text-sm text-muted">Tayyorlanmoqda…</p>
       </div>
     );
   }
 
   if (phase === "error") {
     return (
-      <div className="max-w-lg mx-auto space-y-4">
+      <div className="mx-auto max-w-md space-y-4">
         <Alert tone="danger" title="Xatolik">
           {error}
         </Alert>
@@ -234,60 +232,48 @@ export function VocabGame({
     const accuracy = percent(session.correct_count, session.total_count);
 
     return (
-      <div className="max-w-lg mx-auto">
-        <div className="card p-0 overflow-hidden animate-pop">
-          <div className="bg-gradient-to-br from-brand-500 via-brand-700 to-brand-900 p-8 text-center text-white">
-            <p className="text-5xl mb-3" aria-hidden>
-              {accuracy >= 80 ? "🏆" : accuracy >= 50 ? "🎯" : "💪"}
-            </p>
-            <p className="text-white/80 text-xs font-bold uppercase tracking-[0.2em]">
-              Your Score
-            </p>
-            <p className="text-5xl font-extrabold tabular-nums mt-1">
-              {formatXp(session.score)}
-            </p>
+      <div className="card mx-auto max-w-md animate-pop rounded-2xl p-8 text-center">
+        <span className="rounded bg-success/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-success">
+          O&apos;yin yakunlandi
+        </span>
+        <p className="mt-6 text-[13px] uppercase tracking-wide text-muted">Yakuniy ball</p>
+        <p className="mt-1 font-display text-6xl text-gold-400 lining-nums">
+          {formatXp(session.score)} XP
+        </p>
+        <span aria-hidden className="mx-auto my-6 block h-px w-4/5 bg-line" />
+
+        <dl className="space-y-2.5 text-left text-sm">
+          <div className="flex justify-between">
+            <dt className="text-muted">To&apos;g&apos;ri javoblar:</dt>
+            <dd className="font-semibold text-fg tabular-nums">
+              {session.correct_count} / {session.total_count}
+            </dd>
           </div>
-
-          <div className="p-6">
-            <dl className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-[var(--bg-subtle)] border border-line p-4 text-center">
-                <dt className="text-xs text-muted font-semibold">
-                  Correct Answers
-                </dt>
-                <dd className="text-2xl font-extrabold tabular-nums mt-1">
-                  {session.correct_count}/{session.total_count}
-                </dd>
-              </div>
-              <div className="rounded-xl bg-[var(--bg-subtle)] border border-line p-4 text-center">
-                <dt className="text-xs text-muted font-semibold">Your Rank</dt>
-                <dd className="text-2xl font-extrabold tabular-nums mt-1">
-                  {rank ? `#${rank}` : "—"}
-                </dd>
-              </div>
-            </dl>
-
-            <p className="text-sm text-muted text-center mt-4">
-              Aniqlik: <strong className="text-fg">{accuracy}%</strong> ·
-              Haftalik reytingdagi o&apos;rningiz yangilandi.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button fullWidth onClick={start}>
-                🔁 Yana o&apos;ynash
-              </Button>
-              <ButtonLink href="/leaderboard" variant="secondary" fullWidth>
-                🏆 Reyting
-              </ButtonLink>
-            </div>
-
-            <Link
-              href="/vocabulary-battle"
-              className="block text-center text-sm text-muted hover:text-fg font-semibold mt-4"
-            >
-              Boshqa to&apos;plamni tanlash
-            </Link>
+          <div className="flex justify-between">
+            <dt className="text-muted">Aniqlik:</dt>
+            <dd className="font-semibold text-success tabular-nums">{accuracy}%</dd>
           </div>
+          <div className="flex justify-between">
+            <dt className="text-muted">Haftalik o&apos;rningiz:</dt>
+            <dd className="font-semibold text-brand-400 tabular-nums">{rank ? `#${rank}` : "—"}</dd>
+          </div>
+        </dl>
+
+        <div className="mt-7 space-y-3">
+          <Button fullWidth onClick={start}>
+            Yana o&apos;ynash
+          </Button>
+          <ButtonLink href="/leaderboard" variant="secondary" fullWidth>
+            Reytingni ko&apos;rish
+          </ButtonLink>
         </div>
+
+        <Link
+          href="/vocabulary-battle"
+          className="mt-5 block text-center text-sm font-semibold text-muted hover:text-fg"
+        >
+          Boshqa to&apos;plamni tanlash
+        </Link>
       </div>
     );
   }
@@ -300,56 +286,53 @@ export function VocabGame({
   const seconds = Math.ceil(msLeft / 1000);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="mx-auto max-w-xl rounded-2xl border-[1.5px] border-brand-400/80 bg-ink-900 p-6 shadow-[0_24px_60px_-30px_rgba(227,167,155,0.35)] sm:p-8">
       {/* Yuqori qator */}
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <span className="text-sm font-bold tabular-nums text-muted">
-          {index + 1} / {words.length}
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-sm font-semibold tabular-nums text-gold-400">
+          Savol {index + 1} / {words.length}
         </span>
-        <span className="text-sm font-extrabold tabular-nums text-brand-600 dark:text-brand-400">
-          {formatXp(localScore)} ball
+        <span className="inline-flex items-center gap-1 rounded bg-ink-700 px-2 py-1 text-[11px] font-semibold text-gold-400">
+          ⚡ {packTitle}
         </span>
       </div>
 
-      <div className="h-1.5 rounded-full bg-[var(--bg-subtle)] overflow-hidden mb-6">
+      <div className="mt-4 h-1 overflow-hidden rounded-full bg-ink-700">
         <div
-          className="h-full bg-brand-500 transition-all duration-300"
+          className="h-full rounded-full bg-brand-400 transition-all duration-300"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      {/* Savol */}
-      <div className="card p-8 text-center mb-5">
-        <p className="text-xs font-bold uppercase tracking-[0.15em] text-muted mb-3">
-          Ushbu so&apos;zning ma&apos;nosi qaysi?
-        </p>
-        <p className="text-3xl sm:text-4xl font-extrabold tracking-tight break-words">
-          {current.word}
-        </p>
-
-        {/* Taymer */}
-        <div className="mt-6 flex items-center gap-3">
-          <div className="h-2.5 flex-1 rounded-full bg-[var(--bg-subtle)] overflow-hidden">
-            <div
-              className={cn(
-                "h-full rounded-full transition-all duration-100",
-                timePct > 50
-                  ? "bg-emerald-500"
-                  : timePct > 20
-                    ? "bg-amber-500"
-                    : "bg-rose-500",
-              )}
-              style={{ width: `${Math.max(0, timePct)}%` }}
-            />
-          </div>
-          <span className="text-lg font-extrabold tabular-nums w-8 text-right">
-            {seconds}
-          </span>
-        </div>
+      {/* Taymer */}
+      <div className="mt-3 flex items-center justify-between text-[13px]">
+        <span className="text-muted">Qolgan vaqt</span>
+        <span
+          className={cn(
+            "font-semibold tabular-nums",
+            timePct > 50 ? "text-brand-400" : timePct > 20 ? "text-warning" : "text-danger",
+          )}
+        >
+          00:{String(seconds).padStart(2, "0")}
+        </span>
+      </div>
+      <div className="mt-2 h-0.5 overflow-hidden rounded-full bg-ink-800">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all duration-100",
+            timePct > 50 ? "bg-brand-400/70" : timePct > 20 ? "bg-warning" : "bg-danger",
+          )}
+          style={{ width: `${Math.max(0, timePct)}%` }}
+        />
       </div>
 
+      {/* Savol */}
+      <p key={current.id} className="display-title mt-5 animate-fade-up text-[28px] leading-snug break-words sm:text-[32px]">
+        “{current.word}” so&apos;zining ma&apos;nosi?
+      </p>
+
       {/* Variantlar */}
-      <div className="grid sm:grid-cols-2 gap-3">
+      <div className="mt-6 space-y-3">
         {(current.options ?? []).map((option, i) => {
           const isSelected = selected === i;
           return (
@@ -359,29 +342,28 @@ export function VocabGame({
               disabled={phase === "feedback"}
               onClick={() => answer(i)}
               className={cn(
-                "flex items-center gap-3 rounded-2xl p-4 text-left text-white font-bold",
-                "transition-all duration-150 active:scale-[0.98] shadow-sm",
-                OPTION_STYLES[i % OPTION_STYLES.length],
+                "flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left text-[15px] transition-all duration-150 active:scale-[0.99]",
+                isSelected
+                  ? "border-brand-400 bg-brand-400/15 text-fg"
+                  : "border-line bg-ink-800 text-fg hover:border-brand-400/60 hover:bg-ink-700",
                 phase === "feedback" && !isSelected && "opacity-40",
-                isSelected && "ring-4 ring-white/60 scale-[1.02]",
                 phase === "feedback" && "cursor-default",
               )}
             >
-              <span
-                className="w-9 h-9 rounded-xl bg-white/25 grid place-items-center text-base shrink-0"
-                aria-hidden
-              >
-                {OPTION_SHAPES[i % OPTION_SHAPES.length]}
-              </span>
+              <span className="font-semibold text-muted">{OPTION_LETTERS[i] ?? i + 1}.</span>
               <span className="min-w-0">{option}</span>
             </button>
           );
         })}
       </div>
 
-      <p className="text-center text-xs text-muted mt-5">
-        To&apos;g&apos;ri javob o&apos;yin oxirida serverda hisoblanadi — halol
-        natija kafolatlanadi.
+      <div className="mt-6 flex items-center justify-between text-[13px]">
+        <span className="text-muted">Joriy ball</span>
+        <span className="text-lg font-semibold tabular-nums text-fg">{formatXp(localScore)}</span>
+      </div>
+
+      <p className="mt-4 text-center text-xs text-faint">
+        To&apos;g&apos;ri javob o&apos;yin oxirida serverda hisoblanadi — halol natija kafolatlanadi.
       </p>
     </div>
   );

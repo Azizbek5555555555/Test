@@ -70,7 +70,7 @@ export default async function AdminCoursesPage() {
                   ) : null}
                   <Link
                     href={`/courses/${course.slug}`}
-                    className="text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+                    className="text-sm font-semibold text-brand-400 hover:underline"
                   >
                     👁 Saytda ko&apos;rish
                   </Link>
@@ -91,7 +91,7 @@ export default async function AdminCoursesPage() {
                   <input type="hidden" name="id" value={course.id} />
                   <ConfirmSubmitButton
                     message="Bu kursni o'chirasizmi? Unga kelgan barcha arizalar ham o'chadi."
-                    className="text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline"
+                    className="text-sm font-semibold text-danger hover:underline"
                   >
                     🗑 Bu kursni o&apos;chirish
                   </ConfirmSubmitButton>

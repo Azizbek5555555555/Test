@@ -183,7 +183,7 @@ function ActionCard({
     <Link
       href={href}
       className={`card p-4 hover:shadow-[var(--shadow-lift)] transition-all ${
-        count > 0 ? "border-brand-300 dark:border-brand-800" : ""
+        count > 0 ? "border-brand-800" : ""
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -192,7 +192,7 @@ function ActionCard({
         </span>
         <span
           className={`text-2xl font-extrabold tabular-nums ${
-            count > 0 ? "text-brand-600 dark:text-brand-400" : "text-muted"
+            count > 0 ? "text-brand-400" : "text-muted"
           }`}
         >
           {count}

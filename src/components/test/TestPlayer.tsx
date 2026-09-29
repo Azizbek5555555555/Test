@@ -232,7 +232,7 @@ export function TestPlayer({
                 className={cn(
                   "px-3 py-1.5 rounded-lg font-bold tabular-nums text-sm border",
                   timeLow
-                    ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800"
+                    ? "bg-danger/10 text-danger border-danger/40"
                     : "bg-[var(--bg-subtle)] text-fg border-line",
                 )}
                 role="timer"
@@ -266,7 +266,7 @@ export function TestPlayer({
                   className={cn(
                     "shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border",
                     active
-                      ? "bg-brand-600 text-white border-brand-600"
+                      ? "bg-brand-400 text-ink-950 border-brand-400"
                       : locked || passed
                         ? "border-line text-muted/60 cursor-not-allowed"
                         : "border-line text-muted hover:text-fg hover:bg-[var(--bg-subtle)]",
@@ -286,8 +286,8 @@ export function TestPlayer({
       <div className="container-page py-6">
         {submitError ? (
           <div
-            className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900
-                       dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200"
+            className="mb-5 rounded-xl border p-4 text-sm
+                       border-danger/40 bg-danger/10 text-danger"
           >
             ⛔ {submitError}
           </div>
@@ -295,8 +295,8 @@ export function TestPlayer({
 
         {currentPart.instructions ? (
           <div
-            className="mb-5 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm leading-relaxed
-                       text-sky-900 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200"
+            className="mb-5 rounded-xl border p-4 text-sm leading-relaxed
+                        border-line bg-ink-800/60 text-fg"
           >
             ℹ️ {currentPart.instructions}
           </div>
@@ -460,12 +460,12 @@ export function TestPlayer({
                 </span>
               </div>
               {answeredCount < allQuestions.length ? (
-                <p className="text-xs text-amber-700 dark:text-amber-400 mt-2">
+                <p className="text-xs text-warning mt-2">
                   ⚠️ {allQuestions.length - answeredCount} ta savol javobsiz
                   qoldi.
                 </p>
               ) : (
-                <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-2">
+                <p className="text-xs text-success mt-2">
                   ✅ Barcha savollarga javob berildi.
                 </p>
               )}
@@ -513,8 +513,8 @@ function SaveIndicator({ state }: { state: SaveState }) {
   const map = {
     idle: { text: "Avtomatik saqlanadi", tone: "text-muted" },
     saving: { text: "Saqlanmoqda…", tone: "text-muted" },
-    saved: { text: "✓ Saqlandi", tone: "text-emerald-600 dark:text-emerald-400" },
-    error: { text: "⚠ Saqlanmadi", tone: "text-amber-600 dark:text-amber-400" },
+    saved: { text: "✓ Saqlandi", tone: "text-success" },
+    error: { text: "⚠ Saqlanmadi", tone: "text-warning" },
   } as const;
   const item = map[state];
   return <span className={item.tone}>{item.text}</span>;
@@ -569,7 +569,7 @@ function QuestionPalette({
               className={cn(
                 "aspect-square rounded-lg grid place-items-center text-xs font-bold border transition-colors",
                 answered
-                  ? "bg-brand-600 text-white border-brand-600"
+                  ? "bg-brand-400 text-ink-950 border-brand-400"
                   : "border-line text-muted hover:border-brand-400 hover:text-fg",
               )}
             >
@@ -581,7 +581,7 @@ function QuestionPalette({
 
       <div className="flex items-center gap-4 mt-3 text-[11px] text-muted">
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-brand-600" aria-hidden />
+          <span className="w-3 h-3 rounded bg-brand-400" aria-hidden />
           Javob berilgan
         </span>
         <span className="inline-flex items-center gap-1.5">

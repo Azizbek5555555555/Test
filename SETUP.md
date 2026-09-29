@@ -617,6 +617,9 @@ Supabase → SQL Editor → `supabase/migrations/0007_payments.sql` → **Run**.
 | `CLICK_MERCHANT_ID` | Click merchant ID |
 | `CLICK_SECRET_KEY` | Click secret key |
 | `CLICK_MERCHANT_USER_ID` | Click merchant user ID |
+| `PAYME_IKPU_CODE` | *(Payme fiskal chek talab qilsa)* MXIK kodi, 17 xona |
+| `PAYME_PACKAGE_CODE` | *(fiskal chek)* o'lchov birligi kodi |
+| `PAYME_VAT_PERCENT` | *(fiskal chek)* QQS foizi, QQS to'lovchi bo'lmasa `0` |
 
 Kalit kiritilmagan tizim saytda ko'rinmaydi. Kiritilgach Premium sahifasida
 "Payme orqali to'lash" / "Click orqali to'lash" tugmalari chiqadi.

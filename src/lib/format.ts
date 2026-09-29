@@ -63,6 +63,21 @@ export function formatDateTime(iso: string | null | undefined): string {
   return `${formatDate(iso)} · ${time}`;
 }
 
+/** Nisbiy vaqt: "5 daqiqa oldin", "2 soat oldin", "kecha", "3 kun oldin" */
+export function timeAgo(iso: string | null | undefined, now: number = Date.now()): string {
+  if (!iso) return "";
+  const diff = Math.max(0, now - new Date(iso).getTime());
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "hozirgina";
+  if (min < 60) return `${min} daqiqa oldin`;
+  const hours = Math.floor(min / 60);
+  if (hours < 24) return `${hours} soat oldin`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "kecha";
+  if (days < 7) return `${days} kun oldin`;
+  return formatDate(iso);
+}
+
 /** Ballga qarab CEFR darajasini hisoblaydi (server bilan bir xil mantiq) */
 export function cefrFromScore(
   score: number | null | undefined,

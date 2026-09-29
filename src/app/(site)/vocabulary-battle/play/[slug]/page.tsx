@@ -40,19 +40,21 @@ export default async function PlayPage({
   }
 
   return (
-    <div className="container-page py-10">
-      <Link
-        href="/vocabulary-battle"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg mb-6"
-      >
-        ← Vocabulary Battle
-      </Link>
+    <div className="bg-gradient-to-b from-[#221d2e] to-ink-950">
+      <div className="container-page py-10 sm:py-14">
+        <Link
+          href="/vocabulary-battle"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg mb-6"
+        >
+          ← Vocabulary Battle
+        </Link>
 
-      <VocabGame
-        packId={pack.id}
-        packTitle={pack.title}
-        packEmoji={pack.emoji ?? "📘"}
-      />
+        <VocabGame
+          packId={pack.id}
+          packTitle={pack.title}
+          packEmoji={pack.emoji ?? "📘"}
+        />
+      </div>
     </div>
   );
 }

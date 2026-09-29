@@ -112,8 +112,8 @@ export function ArticleQuiz({
                 "card p-5 border",
                 result
                   ? result.correct
-                    ? "border-emerald-300 dark:border-emerald-800"
-                    : "border-rose-300 dark:border-rose-800"
+                    ? "border-success/40"
+                    : "border-danger/40"
                   : "border-line",
               )}
             >
@@ -123,9 +123,9 @@ export function ArticleQuiz({
                     "shrink-0 w-7 h-7 rounded-lg grid place-items-center text-sm font-bold",
                     result
                       ? result.correct
-                        ? "bg-emerald-600 text-white"
-                        : "bg-rose-600 text-white"
-                      : "bg-brand-600 text-white",
+                        ? "bg-success text-white"
+                        : "bg-danger text-white"
+                      : "bg-brand-400 text-ink-950",
                   )}
                   aria-hidden
                 >
@@ -162,7 +162,7 @@ export function ArticleQuiz({
                               className={cn(
                                 "px-3.5 py-2 rounded-xl text-sm font-semibold border-2 transition-all text-left",
                                 selected
-                                  ? "border-brand-600 bg-brand-600 text-white"
+                                  ? "border-brand-400 bg-brand-400 text-ink-950"
                                   : "border-line text-muted hover:border-brand-400 hover:text-fg",
                                 results && "cursor-default",
                               )}
@@ -176,7 +176,7 @@ export function ArticleQuiz({
                   </div>
 
                   {result && !result.correct ? (
-                    <p className="text-sm mt-3 font-semibold text-emerald-700 dark:text-emerald-400">
+                    <p className="text-sm mt-3 font-semibold text-success">
                       To&apos;g&apos;ri javob: {formatCorrect(result.answer)}
                     </p>
                   ) : null}

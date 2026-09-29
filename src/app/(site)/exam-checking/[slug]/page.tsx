@@ -9,11 +9,13 @@ import {
   getTestSetBySlug,
 } from "@/lib/queries";
 import { startAttemptAction } from "@/lib/actions/attempts";
-import { EXAM_SECTION_ORDER, SECTION_ICON, SECTION_LABEL } from "@/lib/constants";
-import { formatDuration } from "@/lib/format";
-import { PageHeader, Alert } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { Check } from "react-feather";
+import { EXAM_SECTION_ORDER } from "@/lib/constants";
+import type { SkillSection } from "@/lib/types";
+import { Alert } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { PageHero } from "@/components/marketing/PageHero";
+import { ExamGateHeader, ExamRules, ExamSequence } from "@/components/exam/ExamGate";
 
 export async function generateMetadata({
   params,
@@ -56,154 +58,98 @@ export default async function ExamIntroPage({
   const counts = await countQuestionsByTestSet([exam.id]);
   const openAttempt = await getOpenAttempt(exam.id, profile.id);
 
-  // Bo'limlarni imtihon tartibiga keltiramiz
-  const ordered = EXAM_SECTION_ORDER.map((section) =>
-    parts.find((p) => p.section === section),
-  ).filter((p): p is NonNullable<typeof p> => Boolean(p));
-
-  const rest = parts.filter((p) => !ordered.includes(p));
-  const sequence = [...ordered, ...rest];
+  // Bo'limlar imtihon tartibida va ularning vaqti
+  const sections = EXAM_SECTION_ORDER.filter((section) => parts.some((p) => p.section === section));
+  const minutes: Partial<Record<SkillSection, number>> = {};
+  for (const part of parts) {
+    minutes[part.section] = (minutes[part.section] ?? 0) + (part.duration_minutes ?? 0);
+  }
 
   return (
-    <div className="container-page py-10">
-      <Link
-        href="/exam-checking"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg mb-6"
-      >
-        ← Exam Full Checking
-      </Link>
+    <div>
+      <PageHero eyebrow="Imtihon simulyatori" title={exam.title} className="pb-10">
+        {exam.description ?? "Real Multilevel kompyuter imtihoni simulyatsiyasi."}{" "}
+        <Link href="/exam-checking" className="text-brand-400 hover:text-brand-300">
+          ← Exam Full Checking
+        </Link>
+      </PageHero>
 
-      <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start">
-        <div>
-          <PageHeader
-            eyebrow="Premium · Real exam simulation"
-            title={exam.title}
-            description={exam.description ?? undefined}
-          >
-            <div className="flex flex-wrap gap-2">
-              <Badge tone="premium">⭐ PREMIUM</Badge>
-              <Badge tone="info">⏱ {formatDuration(exam.duration_minutes)}</Badge>
-              <Badge tone="neutral">❓ {counts[exam.id] ?? 0} ta savol</Badge>
-              {exam.level ? <Badge tone="neutral">{exam.level}</Badge> : null}
-            </div>
-          </PageHeader>
-
-          <h2 className="font-extrabold text-lg mb-4">Imtihon tartibi</h2>
-
-          <ol className="space-y-3">
-            {sequence.map((part, i) => (
-              <li key={part.id} className="card p-4">
-                <div className="flex items-center gap-3">
-                  <span
-                    className="shrink-0 w-9 h-9 rounded-xl bg-brand-600 text-white
-                               grid place-items-center font-bold text-sm"
-                    aria-hidden
-                  >
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold">
-                      {SECTION_ICON[part.section]}{" "}
-                      {SECTION_LABEL[part.section]}
-                    </p>
-                    <p className="text-xs text-muted mt-0.5">
-                      {part.title} · ⏱ {formatDuration(part.duration_minutes)}
-                    </p>
-                  </div>
-                  {i < sequence.length - 1 ? (
-                    <span className="text-muted shrink-0" aria-hidden>
-                      ↓
-                    </span>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ol>
-
-          <div className="mt-8 space-y-4">
-            <Alert tone="warning" title="Imtihon qoidalari">
-              <ul className="space-y-1.5 mt-1">
-                <li>• Bo&apos;limlar ketma-ket ochiladi — orqaga qaytib bo&apos;lmaydi.</li>
-                <li>• Listening audiosi faqat <strong>bir marta</strong> ijro etiladi.</li>
-                <li>• Vaqt tugaganda imtihon avtomatik yakunlanadi.</li>
-                <li>• Sahifani yopsangiz ham javoblaringiz saqlanadi.</li>
-              </ul>
-            </Alert>
-
-            <Alert tone="info" title="Natija qanday chiqadi?">
-              Listening va Reading darhol avtomatik baholanadi. Writing va
-              Speaking javoblaringizni o&apos;qituvchi tekshirib, izoh bilan ball
-              qo&apos;yadi. Shundan keyin yakuniy <strong>Overall</strong> ball va{" "}
-              <strong>CEFR daraja</strong> profilingizda paydo bo&apos;ladi.
-            </Alert>
-          </div>
-        </div>
-
-        {/* ---------------------------------------------- Yon panel */}
-        <aside className="lg:sticky lg:top-24 h-fit space-y-4">
-          <div className="card p-5">
-            <h3 className="font-extrabold text-lg">
-              {openAttempt ? "Tugallanmagan imtihon" : "Imtihonni boshlash"}
-            </h3>
-            <p className="text-sm text-muted mt-2 leading-relaxed">
-              {openAttempt
+      <section className="border-y border-line bg-ink-900/40">
+        <div className="container-page py-12">
+          <ExamGateHeader
+            title={openAttempt ? "Tugallanmagan imtihon" : "Imtihonga tayyormisiz?"}
+            description={
+              openAttempt
                 ? "Siz bu imtihonni boshlagansiz. Qoldirgan joyingizdan davom eting."
-                : "Tayyor bo'lsangiz boshlang. Tinch joy va ishonchli internet tavsiya etiladi."}
-            </p>
+                : `Imtihon ${sections.length || 4} bo'limdan iborat, jami ${counts[exam.id] ?? 0} ta savol. Tinch joy va ishonchli internet tavsiya etiladi.`
+            }
+            totalMinutes={exam.duration_minutes}
+          />
 
-            {startError ? (
-              <div className="mt-4">
-                <Alert tone="danger">{startError}</Alert>
-              </div>
-            ) : null}
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <ExamSequence minutes={minutes} sections={sections.length ? sections : undefined} />
+            <ExamRules />
+          </div>
 
+          {startError ? (
+            <div className="mt-6 max-w-xl">
+              <Alert tone="danger">{startError}</Alert>
+            </div>
+          ) : null}
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
             {parts.length === 0 ? (
-              <p className="mt-4 text-sm font-semibold text-muted">
-                ⏳ Bu imtihon hali tayyor emas. Tez orada qo&apos;shiladi.
+              <p className="text-sm font-semibold text-muted">
+                Bu imtihon hali tayyor emas. Tez orada qo&apos;shiladi.
               </p>
             ) : (
-              <form action={startAttemptAction} className="mt-4">
+              <form action={startAttemptAction}>
                 <input type="hidden" name="test_set_id" value={exam.id} />
-                <Button type="submit" size="lg" fullWidth variant="premium">
-                  {openAttempt ? "Davom ettirish →" : "🎯 START EXAM"}
+                <Button type="submit" size="lg">
+                  {openAttempt ? "Davom ettirish" : "Imtihonni boshlash"}
                 </Button>
               </form>
             )}
-
             {openAttempt ? (
-              <p className="text-xs text-muted mt-3 text-center">
-                Yangi urinish boshlash uchun avvalgisini yakunlang.
-              </p>
+              <p className="text-xs text-muted">Yangi urinish boshlash uchun avvalgisini yakunlang.</p>
             ) : null}
           </div>
+        </div>
+      </section>
 
-          <div className="card p-5">
-            <h3 className="font-bold text-sm mb-3">Tayyorgarlik ro&apos;yxati</h3>
-            <ul className="space-y-2 text-sm text-muted">
-              <li>🎧 Naushnik ulangan va ishlayapti</li>
-              <li>🎙️ Mikrofonga ruxsat berilgan (Speaking uchun)</li>
-              <li>🔋 Qurilma quvvati yetarli</li>
-              <li>📶 Internet barqaror</li>
-              <li>🤫 Atrofda shovqin yo&apos;q</li>
-            </ul>
-          </div>
-
-          <div className="card p-5">
-            <p className="text-sm text-muted leading-relaxed">
-              Avval bepul mashq qilmoqchimisiz?
-            </p>
-            <ButtonLink
-              href="/full-mock"
-              variant="secondary"
-              size="sm"
-              fullWidth
-              className="mt-3"
-            >
-              Full Mock testlar
-            </ButtonLink>
-          </div>
-        </aside>
-      </div>
+      <section className="container-page grid gap-6 py-14 md:grid-cols-2">
+        <div className="card-glass rounded-2xl p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-400">
+            Tayyorgarlik ro&apos;yxati
+          </p>
+          <ul className="mt-4 space-y-2.5 text-sm text-muted">
+            {[
+              "Naushnik ulangan va ishlayapti",
+              "Mikrofonga ruxsat berilgan (Speaking uchun)",
+              "Qurilma quvvati yetarli, internet barqaror",
+              "Atrofda shovqin yo'q",
+            ].map((t) => (
+              <li key={t} className="flex items-center gap-2.5">
+                <Check size={15} className="shrink-0 text-success" aria-hidden /> {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="card-glass rounded-2xl p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-400">
+            Natija qanday chiqadi?
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-muted">
+            Listening va Reading darhol avtomatik baholanadi. Writing va Speaking javoblaringizni
+            o&apos;qituvchi tekshirib, izoh bilan ball qo&apos;yadi. Shundan keyin yakuniy{" "}
+            <strong className="text-fg">Overall</strong> ball va{" "}
+            <strong className="text-fg">CEFR daraja</strong> profilingizda paydo bo&apos;ladi.
+          </p>
+          <ButtonLink href="/full-mock" variant="secondary" size="sm" className="mt-5">
+            Avval bepul mashq qilish
+          </ButtonLink>
+        </div>
+      </section>
     </div>
   );
 }

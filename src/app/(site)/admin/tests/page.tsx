@@ -104,9 +104,9 @@ export default async function AdminTestsPage() {
                         <input type="hidden" name="id" value={testSet.id} />
                         <ConfirmSubmitButton
                           message="Bu testni butunlay o'chirasizmi? Ichidagi barcha bo'limlar, savollar va o'quvchilarning shu testdagi natijalari ham o'chadi. Bu amalni qaytarib bo'lmaydi."
-                          className="rounded-lg border border-rose-200 dark:border-rose-800
-                                     px-3 py-1.5 text-sm font-semibold text-rose-600 dark:text-rose-400
-                                     hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                          className="rounded-lg border border-danger/40
+                                     px-3 py-1.5 text-sm font-semibold text-danger
+                                      hover:bg-danger/10 transition-colors"
                           title="O'chirish"
                         >
                           🗑

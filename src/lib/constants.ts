@@ -1,4 +1,4 @@
-import type { SkillSection } from "./types";
+import type { QuestionKind, SkillSection } from "./types";
 
 export const SITE_NAME = "LevelX English";
 /** Brendning asosiy shiori */
@@ -113,12 +113,13 @@ export type LeaderboardPeriod = (typeof LEADERBOARD_PERIODS)[number]["id"];
    ------------------------------------------------------------------------- */
 export const CEFR_ORDER = ["A1", "A2", "B1", "B2", "C1"];
 
+/** Figma: daraja belgilari — to'q matn, yorqin fon */
 export const CEFR_COLOR: Record<string, string> = {
-  A1: "bg-slate-500",
-  A2: "bg-sky-500",
-  B1: "bg-emerald-500",
-  B2: "bg-brand-500",
-  C1: "bg-gold-500",
+  A1: "bg-ink-300",
+  A2: "bg-warning",
+  B1: "bg-success",
+  B2: "bg-brand-400",
+  C1: "bg-gold-400",
 };
 
 /* -------------------------------------------------------------------------
@@ -138,3 +139,13 @@ export const MAIN_NAV = [
   { href: "/exam-checking", label: "Exam Checking" },
   ...(COURSES_ENABLED ? [{ href: "/courses", label: "Kurslar" }] : []),
 ];
+
+/** Savol turlari nomi (maqola va mashq sahifalarida) */
+export const KIND_LABEL: Partial<Record<QuestionKind, string>> = {
+  true_false_ng: "True / False / Not Given",
+  mcq: "Multiple Choice",
+  multi_select: "Bir nechta javobli savol",
+  gap_fill: "Gap Filling",
+  matching: "Matching",
+  short_answer: "Qisqa javob",
+};

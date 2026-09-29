@@ -14,32 +14,33 @@ export type ButtonVariant =
 
 export type ButtonSize = "sm" | "md" | "lg";
 
+// Figma: tugmalar "pill" (999px), Inter 600
 const BASE =
-  "inline-flex items-center justify-center gap-2 font-semibold rounded-xl " +
-  "transition-all duration-150 select-none whitespace-nowrap " +
-  "disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
+  "inline-flex items-center justify-center gap-2 font-semibold rounded-full " +
+  "transition-all duration-200 select-none whitespace-nowrap " +
+  "disabled:opacity-40 disabled:pointer-events-none active:scale-[0.98]";
 
 const VARIANTS: Record<ButtonVariant, string> = {
+  // accent/base fon + ink matn; hover → accent/hover
   primary:
-    "bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md",
+    "bg-brand-400 text-ink-950 hover:bg-brand-300 hover:shadow-[0_8px_24px_-8px_rgba(227,167,155,0.55)]",
+  // 1.5px accent chegara; hover → to'liq accent
   secondary:
-    "bg-[var(--bg-subtle)] text-fg hover:bg-[var(--border)] border border-line",
-  ghost: "text-fg hover:bg-[var(--bg-subtle)]",
+    "border-[1.5px] border-brand-400 text-fg hover:bg-brand-400 hover:text-ink-950",
+  ghost: "text-muted hover:text-fg hover:bg-ink-800",
   outline:
-    "border-2 border-brand-600 text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/40",
+    "border-[1.5px] border-brand-400 text-brand-400 hover:bg-brand-400 hover:text-ink-950",
   premium:
-    "bg-gradient-to-r from-gold-400 to-gold-500 text-gold-950 hover:from-gold-300 " +
-    "hover:to-gold-400 shadow-sm hover:shadow-md",
-  danger: "bg-rose-600 text-white hover:bg-rose-700",
-  // Rangli (ko'k) fon ustida: oq tugma va shaffof tugma
-  light: "bg-white text-brand-800 hover:bg-brand-50 shadow-sm hover:shadow-md",
-  glass: "bg-white/10 text-white border border-white/30 hover:bg-white/20",
+    "bg-gold-400 text-ink-950 hover:bg-gold-300 hover:shadow-[0_8px_24px_-8px_rgba(217,179,130,0.55)]",
+  danger: "bg-danger text-ink-950 hover:brightness-110",
+  light: "bg-ink-50 text-ink-950 hover:bg-white",
+  glass: "bg-white/5 text-fg border border-white/10 hover:bg-white/10 backdrop-blur-md",
 };
 
 const SIZES: Record<ButtonSize, string> = {
-  sm: "text-sm px-3 py-1.5",
-  md: "text-sm px-4 py-2.5",
-  lg: "text-base px-6 py-3.5",
+  sm: "text-[13px] px-5 py-2.5",
+  md: "text-sm px-[26px] py-3.5",
+  lg: "text-[15px] px-8 py-4",
 };
 
 interface CommonProps {

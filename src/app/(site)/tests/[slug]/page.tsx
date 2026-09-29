@@ -9,7 +9,9 @@ import {
   getTestSetBySlug,
 } from "@/lib/queries";
 import { startAttemptAction } from "@/lib/actions/attempts";
-import { SECTION_ICON, SECTION_LABEL } from "@/lib/constants";
+import { SECTION_LABEL } from "@/lib/constants";
+import { Clock, Edit3, Headphones, Lock, Save } from "react-feather";
+import { SectionIcon } from "@/components/ui/icons";
 import { formatDuration } from "@/lib/format";
 import { Alert, PageHeader } from "@/components/ui/Card";
 import { AccessBadge, Badge } from "@/components/ui/Badge";
@@ -108,8 +110,8 @@ export default async function TestOverviewPage({
               {testSet.level ? (
                 <Badge tone="neutral">{testSet.level}</Badge>
               ) : null}
-              <Badge tone="info">⏱ {formatDuration(testSet.duration_minutes)}</Badge>
-              <Badge tone="neutral">❓ {totalQuestions} ta savol</Badge>
+              <Badge tone="info">{formatDuration(testSet.duration_minutes)}</Badge>
+              <Badge tone="neutral">{totalQuestions} ta savol</Badge>
             </div>
           </PageHeader>
 
@@ -127,19 +129,15 @@ export default async function TestOverviewPage({
               {parts.map((part, i) => (
                 <li key={part.id} className="card p-4">
                   <div className="flex items-start gap-3">
-                    <span
-                      className="shrink-0 w-9 h-9 rounded-xl bg-[var(--bg-subtle)] border border-line
-                                 grid place-items-center text-base"
-                      aria-hidden
-                    >
-                      {SECTION_ICON[part.section]}
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-line bg-ink-800 text-brand-400">
+                      <SectionIcon section={part.section} size={16} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-xs font-bold text-muted tabular-nums">
                           {i + 1}.
                         </span>
-                        <h3 className="font-bold">{part.title}</h3>
+                        <h3 className="font-display text-lg text-fg">{part.title}</h3>
                         <Badge tone="neutral">
                           {SECTION_LABEL[part.section]}
                         </Badge>
@@ -150,11 +148,16 @@ export default async function TestOverviewPage({
                         </p>
                       ) : null}
                       <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted">
-                        <span>⏱ {formatDuration(part.duration_minutes)}</span>
-                        <span>
-                          ❓ {questionsByPart.get(part.id) ?? 0} ta savol
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock size={12} className="text-brand-400" aria-hidden />
+                          {formatDuration(part.duration_minutes)}
                         </span>
-                        {part.audio_url ? <span>🎧 Audio bor</span> : null}
+                        <span>{questionsByPart.get(part.id) ?? 0} ta savol</span>
+                        {part.audio_url ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Headphones size={12} className="text-brand-400" aria-hidden /> Audio bor
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -169,9 +172,9 @@ export default async function TestOverviewPage({
           <div className="card p-5">
             {locked ? (
               <>
-                <p className="text-4xl mb-3" aria-hidden>
-                  🔒
-                </p>
+                <span className="mb-3 grid size-12 place-items-center rounded-xl border border-line bg-ink-800 text-gold-400">
+                  <Lock size={20} aria-hidden />
+                </span>
                 <h3 className="font-extrabold text-lg">
                   Bu test faqat Premium uchun
                 </h3>
@@ -186,7 +189,7 @@ export default async function TestOverviewPage({
                   fullWidth
                   className="mt-4"
                 >
-                  ⭐ Premiumga o&apos;tish
+                  Premiumga o&apos;tish
                 </ButtonLink>
               </>
             ) : !profile ? (
@@ -229,7 +232,7 @@ export default async function TestOverviewPage({
                   <form action={startAttemptAction} className="mt-4">
                     <input type="hidden" name="test_set_id" value={testSet.id} />
                     <Button type="submit" size="lg" fullWidth>
-                      {openAttempt ? "Davom ettirish →" : "🚀 Testni boshlash"}
+                      {openAttempt ? "Davom ettirish →" : "Testni boshlash"}
                     </Button>
                   </form>
                 )}
@@ -241,19 +244,19 @@ export default async function TestOverviewPage({
             <h3 className="font-bold text-sm mb-3">Qoidalar</h3>
             <ul className="space-y-2 text-sm text-muted">
               <li className="flex gap-2">
-                <span aria-hidden>⏱</span>
+                <Clock size={15} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
                 <span>Vaqt tugaganda test avtomatik yakunlanadi.</span>
               </li>
               <li className="flex gap-2">
-                <span aria-hidden>💾</span>
+                <Save size={15} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
                 <span>Javoblar har o&apos;zgarishda o&apos;zi saqlanadi.</span>
               </li>
               <li className="flex gap-2">
-                <span aria-hidden>🎧</span>
+                <Headphones size={15} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
                 <span>Listening audiosi bir marta ijro etiladi.</span>
               </li>
               <li className="flex gap-2">
-                <span aria-hidden>✍️</span>
+                <Edit3 size={15} className="mt-0.5 shrink-0 text-brand-400" aria-hidden />
                 <span>
                   Writing va Speaking javoblarini o&apos;qituvchi tekshiradi.
                 </span>

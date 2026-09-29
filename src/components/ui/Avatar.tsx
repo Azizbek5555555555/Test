@@ -3,7 +3,7 @@ import { cn, initials } from "@/lib/format";
 
 const SIZES = {
   sm: "w-8 h-8 text-xs",
-  md: "w-10 h-10 text-sm",
+  md: "w-9 h-9 text-sm",
   lg: "w-16 h-16 text-lg",
   xl: "w-24 h-24 text-2xl",
 };
@@ -25,7 +25,7 @@ export function Avatar({
     "inline-flex items-center justify-center rounded-full shrink-0 overflow-hidden",
     "font-bold select-none",
     SIZES[size],
-    ring && "ring-2 ring-gold-400 ring-offset-2 ring-offset-[var(--bg)]",
+    ring && "ring-[1.5px] ring-gold-400 ring-offset-2 ring-offset-[var(--bg)]",
     className,
   );
 
@@ -43,7 +43,7 @@ export function Avatar({
 
   return (
     <span
-      className={cn(base, "bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-200")}
+      className={cn(base, "bg-brand-400 text-ink-950 font-display font-semibold")}
       aria-hidden
     >
       {initials(name)}

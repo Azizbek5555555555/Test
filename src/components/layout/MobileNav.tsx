@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { Star, User, X } from "react-feather";
 import { MAIN_NAV } from "@/lib/constants";
 import { cn } from "@/lib/format";
 
@@ -27,7 +29,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="lg:hidden w-9 h-9 inline-flex items-center justify-center rounded-lg
+        className="xl:hidden w-9 h-9 inline-flex items-center justify-center rounded-lg
                    text-muted hover:text-fg hover:bg-[var(--bg-subtle)]"
         aria-label="Menyuni ochish"
       >
@@ -41,17 +43,19 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
         </svg>
       </button>
 
-      {open ? (
-        <div className="fixed inset-0 z-[60] lg:hidden">
+      {/* Header'dagi backdrop-blur "fixed" elementlarni o'ziga bog'lab qo'yadi —
+          shuning uchun panel to'g'ridan-to'g'ri <body> ichiga chiziladi */}
+      {open && typeof document !== "undefined" ? createPortal(
+        <div className="fixed inset-0 z-[60] xl:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-ink-950/50 backdrop-blur-sm"
             onClick={() => setOpen(false)}
             aria-label="Menyuni yopish"
           />
-          <div className="absolute right-0 top-0 bottom-0 w-[82%] max-w-xs bg-surface border-l border-line p-5 overflow-y-auto animate-fade-up">
+          <div className="absolute right-0 top-0 bottom-0 w-[82%] max-w-xs bg-ink-950 border-l border-line p-5 overflow-y-auto animate-slide-in">
             <div className="flex items-center justify-between mb-6">
-              <span className="font-extrabold text-lg">Menyu</span>
+              <span className="font-display font-semibold text-2xl">Menyu</span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -59,7 +63,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                            text-muted hover:text-fg hover:bg-[var(--bg-subtle)]"
                 aria-label="Yopish"
               >
-                ✕
+                <X size={18} aria-hidden />
               </button>
             </div>
 
@@ -74,7 +78,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                     className={cn(
                       "block px-3 py-2.5 rounded-lg font-semibold transition-colors",
                       active
-                        ? "bg-brand-50 text-brand-700 dark:bg-brand-950/60 dark:text-brand-300"
+                        ? "bg-ink-800 text-brand-400"
                         : "hover:bg-[var(--bg-subtle)]",
                     )}
                   >
@@ -106,29 +110,34 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                     href="/profile"
                     className="block px-3 py-2.5 rounded-lg font-semibold hover:bg-[var(--bg-subtle)]"
                   >
-                    👤 Mening profilim
+                    <span className="inline-flex items-center gap-2">
+                      <User size={16} aria-hidden /> Mening profilim
+                    </span>
                   </Link>
                   <Link
                     onClick={close}
                     href="/premium"
-                    className="block px-3 py-2.5 rounded-lg font-semibold text-gold-700 dark:text-gold-400
-                               hover:bg-gold-50 dark:hover:bg-gold-950/40"
+                    className="block px-3 py-2.5 rounded-lg font-semibold text-gold-400
+                                hover:bg-gold-950/40"
                   >
-                    ⭐ Premium
+                    <span className="inline-flex items-center gap-2">
+                      <Star size={16} aria-hidden /> Premium
+                    </span>
                   </Link>
                 </>
               ) : (
                 <Link
                   onClick={close}
                   href="/login"
-                  className="block px-3 py-2.5 rounded-lg font-semibold bg-brand-600 text-white text-center"
+                  className="block px-3 py-3 rounded-full font-semibold bg-brand-400 text-ink-950 text-center"
                 >
                   Kirish / Ro&apos;yxatdan o&apos;tish
                 </Link>
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </>
   );

@@ -130,7 +130,7 @@ export default async function AdminArticleDetailPage({
                     />
                     <ConfirmSubmitButton
                       message="Bu savolni o'chirasizmi?"
-                      className="text-sm font-semibold text-rose-600 dark:text-rose-400 hover:underline"
+                      className="text-sm font-semibold text-danger hover:underline"
                     >
                       🗑 Bu savolni o&apos;chirish
                     </ConfirmSubmitButton>

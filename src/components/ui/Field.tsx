@@ -1,10 +1,12 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/format";
 
+// Figma: "Input fields" — 1px ink/border, 8px radius, 14px ichki bo'shliq;
+// fokusda 1.5px accent chegara
 const CONTROL =
-  "w-full rounded-xl border border-line bg-surface px-4 py-2.5 text-sm text-fg " +
-  "placeholder:text-muted/70 transition-colors " +
-  "focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/25 " +
+  "w-full rounded-lg border border-line bg-ink-900 px-3.5 py-3 text-sm text-fg " +
+  "placeholder:text-faint transition-colors " +
+  "focus:border-brand-400 focus:outline-none focus:ring-[0.5px] focus:ring-brand-400 " +
   "disabled:opacity-60 disabled:cursor-not-allowed";
 
 export function Label({
@@ -20,9 +22,9 @@ export function Label({
 }) {
   return (
     <label htmlFor={htmlFor} className="block mb-1.5">
-      <span className="text-sm font-semibold">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
         {children}
-        {required ? <span className="text-rose-500 ml-0.5">*</span> : null}
+        {required ? <span className="text-brand-400 ml-0.5">*</span> : null}
       </span>
       {hint ? (
         <span className="block text-xs text-muted font-normal mt-0.5">
@@ -73,7 +75,7 @@ export function Field({
       </Label>
       {children}
       {error ? (
-        <p className="text-xs text-rose-600 dark:text-rose-400 mt-1.5 font-medium">
+        <p className="text-xs text-danger mt-1.5 font-medium">
           {error}
         </p>
       ) : null}

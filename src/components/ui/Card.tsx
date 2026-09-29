@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { AlertCircle, AlertTriangle, CheckCircle, Info } from "react-feather";
 import { cn } from "@/lib/format";
 
 export function Card({
@@ -22,9 +23,7 @@ export function CardLink({
   return (
     <Link
       className={cn(
-        "card p-5 block transition-all duration-200",
-        "hover:shadow-[var(--shadow-lift)] hover:-translate-y-0.5",
-        "focus-visible:-translate-y-0.5",
+        "card p-5 block lift",
         className,
       )}
       {...rest}
@@ -46,18 +45,19 @@ export function SectionHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+    <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600 dark:text-brand-400 mb-1.5">
+          <p className="eyebrow mb-3">
+            <span className="h-px w-6 bg-brand-400" aria-hidden />
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-balance-title">
+        <h2 className="display-title text-3xl sm:text-4xl lg:text-[44px] text-balance-title">
           {title}
         </h2>
         {description ? (
-          <p className="text-muted mt-2 max-w-2xl">{description}</p>
+          <p className="text-muted mt-3 max-w-2xl leading-relaxed">{description}</p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
@@ -77,17 +77,18 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="mb-8">
+    <header className="mb-10 animate-fade-up">
       {eyebrow ? (
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600 dark:text-brand-400 mb-2">
+        <p className="eyebrow mb-4">
+          <span className="h-px w-6 bg-brand-400" aria-hidden />
           {eyebrow}
         </p>
       ) : null}
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-balance-title">
+      <h1 className="display-title text-4xl sm:text-5xl lg:text-[56px] text-balance-title">
         {title}
       </h1>
       {description ? (
-        <p className="text-muted mt-3 max-w-3xl leading-relaxed">
+        <p className="text-muted mt-4 max-w-2xl text-base leading-relaxed">
           {description}
         </p>
       ) : null}
@@ -112,7 +113,7 @@ export function EmptyState({
       <div className="text-4xl mb-3" aria-hidden>
         {icon}
       </div>
-      <h3 className="font-bold text-lg">{title}</h3>
+      <h3 className="display-title text-2xl">{title}</h3>
       {description ? (
         <p className="text-muted mt-2 max-w-md mx-auto text-sm leading-relaxed">
           {description}
@@ -132,21 +133,24 @@ export function Alert({
   title?: string;
   children: ReactNode;
 }) {
+  // Figma: holat ranglari — to'q fonda yarim shaffof tus + rangli chegara
   const tones = {
-    info: "bg-sky-50 border-sky-200 text-sky-900 dark:bg-sky-950/40 dark:border-sky-800 dark:text-sky-200",
-    success:
-      "bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200",
-    warning:
-      "bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200",
-    danger:
-      "bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200",
+    info: "bg-ink-800/60 border-line text-fg",
+    success: "bg-success/10 border-success/40 text-fg",
+    warning: "bg-warning/10 border-warning/40 text-fg",
+    danger: "bg-danger/10 border-danger/45 text-fg",
   };
-  const icons = { info: "ℹ️", success: "✅", warning: "⚠️", danger: "⛔" };
+  const icons = {
+    info: <Info size={18} className="text-muted" />,
+    success: <CheckCircle size={18} className="text-success" />,
+    warning: <AlertTriangle size={18} className="text-warning" />,
+    danger: <AlertCircle size={18} className="text-danger" />,
+  };
 
   return (
     <div className={cn("rounded-xl border p-4 text-sm", tones[tone])}>
       <div className="flex gap-3">
-        <span aria-hidden className="shrink-0">
+        <span aria-hidden className="mt-px shrink-0">
           {icons[tone]}
         </span>
         <div className="min-w-0">
@@ -172,7 +176,7 @@ export function ProgressBar({
   const pct = Math.max(0, Math.min(100, max ? (value / max) * 100 : 0));
   const tones = {
     brand: "bg-brand-500",
-    success: "bg-emerald-500",
+    success: "bg-success",
     gold: "bg-gold-400",
   };
   return (
