@@ -19,6 +19,7 @@ const NAV = [
     : []),
   { href: "/admin/messages", label: "Xabarlar", icon: "✉️", adminOnly: false },
   { href: "/admin/users", label: "Foydalanuvchilar", icon: "👥", adminOnly: true },
+  { href: "/admin/payments", label: "To'lovlar", icon: "💳", adminOnly: true },
   { href: "/admin/premium", label: "Premium so'rovlar", icon: "⭐", adminOnly: true },
   { href: "/admin/settings", label: "Sayt sozlamalari", icon: "⚙️", adminOnly: true },
 ];

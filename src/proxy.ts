@@ -97,8 +97,9 @@ export const config = {
   matcher: [
     /*
      * Statik fayllardan tashqari hamma so'rovlar:
-     * _next/static, _next/image, favicon, rasm fayllari — o'tkazib yuboriladi
+     * _next/static, _next/image, favicon, rasm fayllari va to'lov
+     * tizimlarining serverdan-serverga so'rovlari (api/payments) — o'tkazib yuboriladi
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp3|wav|m4a)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/payments|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp3|wav|m4a)$).*)",
   ],
 };
