@@ -79,7 +79,7 @@ export function AudioPlayer({
             "w-12 h-12 rounded-full grid place-items-center text-lg shrink-0 transition-colors",
             blocked
               ? "bg-[var(--bg-subtle)] text-muted cursor-not-allowed"
-              : "bg-brand-600 text-white hover:bg-brand-700",
+              : "bg-brand-400 text-ink-950 hover:bg-brand-300",
           )}
         >
           {playing ? "⏸" : "▶"}

@@ -22,9 +22,7 @@ export function CardLink({
   return (
     <Link
       className={cn(
-        "card p-5 block transition-all duration-200",
-        "hover:shadow-[var(--shadow-lift)] hover:-translate-y-0.5",
-        "focus-visible:-translate-y-0.5",
+        "card p-5 block lift",
         className,
       )}
       {...rest}
@@ -46,18 +44,19 @@ export function SectionHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+    <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600 dark:text-brand-400 mb-1.5">
+          <p className="eyebrow mb-3">
+            <span className="h-px w-6 bg-brand-400" aria-hidden />
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-balance-title">
+        <h2 className="display-title text-3xl sm:text-4xl lg:text-[44px] text-balance-title">
           {title}
         </h2>
         {description ? (
-          <p className="text-muted mt-2 max-w-2xl">{description}</p>
+          <p className="text-muted mt-3 max-w-2xl leading-relaxed">{description}</p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
@@ -77,17 +76,18 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="mb-8">
+    <header className="mb-10 animate-fade-up">
       {eyebrow ? (
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600 dark:text-brand-400 mb-2">
+        <p className="eyebrow mb-4">
+          <span className="h-px w-6 bg-brand-400" aria-hidden />
           {eyebrow}
         </p>
       ) : null}
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-balance-title">
+      <h1 className="display-title text-4xl sm:text-5xl lg:text-[56px] text-balance-title">
         {title}
       </h1>
       {description ? (
-        <p className="text-muted mt-3 max-w-3xl leading-relaxed">
+        <p className="text-muted mt-4 max-w-2xl text-base leading-relaxed">
           {description}
         </p>
       ) : null}
@@ -112,7 +112,7 @@ export function EmptyState({
       <div className="text-4xl mb-3" aria-hidden>
         {icon}
       </div>
-      <h3 className="font-bold text-lg">{title}</h3>
+      <h3 className="display-title text-2xl">{title}</h3>
       {description ? (
         <p className="text-muted mt-2 max-w-md mx-auto text-sm leading-relaxed">
           {description}

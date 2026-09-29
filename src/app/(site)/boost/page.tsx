@@ -99,7 +99,7 @@ export default async function BoostPage() {
                 </span>
                 <span
                   className="inline-flex items-center gap-1.5 text-sm font-bold
-                             text-brand-600 dark:text-brand-400 group-hover:gap-2.5 transition-all"
+                             text-brand-400 group-hover:gap-2.5 transition-all"
                 >
                   START <span aria-hidden>→</span>
                 </span>

@@ -266,7 +266,7 @@ export function TestPlayer({
                   className={cn(
                     "shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border",
                     active
-                      ? "bg-brand-600 text-white border-brand-600"
+                      ? "bg-brand-400 text-ink-950 border-brand-400"
                       : locked || passed
                         ? "border-line text-muted/60 cursor-not-allowed"
                         : "border-line text-muted hover:text-fg hover:bg-[var(--bg-subtle)]",
@@ -569,7 +569,7 @@ function QuestionPalette({
               className={cn(
                 "aspect-square rounded-lg grid place-items-center text-xs font-bold border transition-colors",
                 answered
-                  ? "bg-brand-600 text-white border-brand-600"
+                  ? "bg-brand-400 text-ink-950 border-brand-400"
                   : "border-line text-muted hover:border-brand-400 hover:text-fg",
               )}
             >
@@ -581,7 +581,7 @@ function QuestionPalette({
 
       <div className="flex items-center gap-4 mt-3 text-[11px] text-muted">
         <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-brand-600" aria-hidden />
+          <span className="w-3 h-3 rounded bg-brand-400" aria-hidden />
           Javob berilgan
         </span>
         <span className="inline-flex items-center gap-1.5">

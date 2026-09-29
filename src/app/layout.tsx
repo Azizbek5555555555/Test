@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bodoni_Moda, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import "./globals.css";
 
@@ -9,12 +9,13 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-// Sarlavhalar uchun — brend qo'llanmasi tavsiya qilgan shrift
-const bodoni = Bodoni_Moda({
-  subsets: ["latin", "latin-ext"],
-  weight: ["500", "600", "700", "800"],
+// Sarlavhalar uchun — Figma dizayni (Cinematic Editorial)
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
-  variable: "--font-bodoni",
+  variable: "--font-cormorant",
 });
 
 export const metadata: Metadata = {
@@ -47,23 +48,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf7f6" },
-    { media: "(prefers-color-scheme: dark)", color: "#15162a" },
-  ],
+  themeColor: "#0b1220",
+  colorScheme: "dark",
 };
-
-/** Sahifa ochilishida mavzuni (light/dark) darhol qo'llaydi — "miltillash" bo'lmaydi */
-const THEME_SCRIPT = `
-(function(){
-  try {
-    var t = localStorage.getItem('ml-theme');
-    if (t === 'light' || t === 'dark') {
-      document.documentElement.setAttribute('data-theme', t);
-    }
-  } catch (e) {}
-})();
-`;
 
 export default function RootLayout({
   children,
@@ -71,13 +58,10 @@ export default function RootLayout({
   return (
     <html
       lang="uz"
-      className={`${inter.variable} ${bodoni.variable}`}
+      className={`dark ${inter.variable} ${cormorant.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
-      </head>
       <body className="min-h-dvh">{children}</body>
     </html>
   );

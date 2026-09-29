@@ -192,7 +192,7 @@ function ActionCard({
         </span>
         <span
           className={`text-2xl font-extrabold tabular-nums ${
-            count > 0 ? "text-brand-600 dark:text-brand-400" : "text-muted"
+            count > 0 ? "text-brand-400" : "text-muted"
           }`}
         >
           {count}

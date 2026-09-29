@@ -97,7 +97,7 @@ function MessageCard({
             {message.email ? (
               <a
                 href={`mailto:${message.email}`}
-                className="text-sm text-brand-600 dark:text-brand-400 hover:underline"
+                className="text-sm text-brand-400 hover:underline"
               >
                 ✉️ {message.email}
               </a>
@@ -105,7 +105,7 @@ function MessageCard({
             {message.phone ? (
               <a
                 href={`tel:${message.phone.replace(/\s/g, "")}`}
-                className="text-sm text-brand-600 dark:text-brand-400 hover:underline"
+                className="text-sm text-brand-400 hover:underline"
               >
                 📞 {message.phone}
               </a>

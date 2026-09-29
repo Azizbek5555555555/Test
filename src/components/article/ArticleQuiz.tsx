@@ -125,7 +125,7 @@ export function ArticleQuiz({
                       ? result.correct
                         ? "bg-emerald-600 text-white"
                         : "bg-rose-600 text-white"
-                      : "bg-brand-600 text-white",
+                      : "bg-brand-400 text-ink-950",
                   )}
                   aria-hidden
                 >
@@ -162,7 +162,7 @@ export function ArticleQuiz({
                               className={cn(
                                 "px-3.5 py-2 rounded-xl text-sm font-semibold border-2 transition-all text-left",
                                 selected
-                                  ? "border-brand-600 bg-brand-600 text-white"
+                                  ? "border-brand-400 bg-brand-400 text-ink-950"
                                   : "border-line text-muted hover:border-brand-400 hover:text-fg",
                                 results && "cursor-default",
                               )}

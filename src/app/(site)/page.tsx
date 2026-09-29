@@ -267,7 +267,7 @@ export default async function HomePage() {
                       <span className="font-semibold text-sm truncate flex-1">
                         {player.full_name}
                       </span>
-                      <span className="font-extrabold text-sm tabular-nums text-brand-600 dark:text-brand-400">
+                      <span className="font-extrabold text-sm tabular-nums text-brand-400">
                         {formatXp(player.xp)} XP
                       </span>
                     </li>
@@ -313,7 +313,7 @@ export default async function HomePage() {
         <div className="card p-0 overflow-hidden">
           <div className="grid lg:grid-cols-5">
             <div className="lg:col-span-3 p-6 sm:p-8">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600 dark:text-brand-400 mb-2">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-400 mb-2">
                 Biz haqimizda
               </p>
               <h2 className="text-3xl font-extrabold">

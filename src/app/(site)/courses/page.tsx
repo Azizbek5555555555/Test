@@ -78,7 +78,7 @@ export default async function CoursesPage() {
                 </dl>
 
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-line">
-                  <span className="font-extrabold text-brand-600 dark:text-brand-400">
+                  <span className="font-extrabold text-brand-400">
                     {course.price ?? "Narx kelishiladi"}
                   </span>
                   <span

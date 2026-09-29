@@ -221,7 +221,7 @@ export default async function PremiumPage({
               </p>
               <Link
                 href="/contact"
-                className="text-sm font-bold text-brand-600 dark:text-brand-400 hover:underline"
+                className="text-sm font-bold text-brand-400 hover:underline"
               >
                 Biz bilan bog&apos;lanish →
               </Link>

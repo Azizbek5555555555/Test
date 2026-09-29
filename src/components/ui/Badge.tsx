@@ -11,20 +11,15 @@ type Tone =
   | "premium"
   | "info";
 
+// Figma: "System badges" — to'la rangli pill, to'q (ink) matn, Inter Bold 11px
 const TONES: Record<Tone, string> = {
-  neutral:
-    "bg-[var(--bg-subtle)] text-muted border border-line",
-  brand: "bg-brand-50 text-brand-700 border border-brand-200 dark:bg-brand-950/50 dark:text-brand-300 dark:border-brand-800",
-  success:
-    "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800",
-  warning:
-    "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800",
-  danger:
-    "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800",
-  info: "bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800",
-  premium:
-    "bg-gradient-to-r from-gold-100 to-gold-200 text-gold-800 border border-gold-300 " +
-    "dark:from-gold-950/60 dark:to-gold-900/60 dark:text-gold-300 dark:border-gold-800",
+  neutral: "bg-ink-800 text-muted border border-line",
+  brand: "bg-brand-400 text-ink-950",
+  success: "bg-success text-ink-950",
+  warning: "bg-warning text-ink-950",
+  danger: "bg-danger text-ink-950",
+  info: "bg-ink-800 text-ink-200 border border-line",
+  premium: "bg-gold-400 text-ink-950",
 };
 
 export function Badge({
@@ -39,7 +34,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold leading-none tracking-[0.02em]",
         TONES[tone],
         className,
       )}
@@ -62,10 +57,19 @@ export function AccessBadge({
   if (!isPremium) {
     return <Badge tone="success">FREE</Badge>;
   }
-  if (unlocked) {
-    return <Badge tone="premium">⭐ PREMIUM</Badge>;
-  }
-  return <Badge tone="premium">🔒 PREMIUM</Badge>;
+  return (
+    <Badge tone="premium">
+      {unlocked ? (
+        <span aria-hidden>★</span>
+      ) : (
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="4" y="11" width="16" height="10" rx="2" stroke="currentColor" strokeWidth="2.5" />
+          <path d="M8 11V7a4 4 0 1 1 8 0v4" stroke="currentColor" strokeWidth="2.5" />
+        </svg>
+      )}
+      PREMIUM
+    </Badge>
+  );
 }
 
 export function CefrBadge({
@@ -77,14 +81,14 @@ export function CefrBadge({
 }) {
   if (!level) return null;
   const sizes = {
-    sm: "text-xs px-2 py-0.5",
-    md: "text-sm px-3 py-1",
-    lg: "text-2xl px-5 py-2",
+    sm: "text-[10px] px-2 py-0.5",
+    md: "text-xs px-3 py-1",
+    lg: "text-2xl px-5 py-2 font-display font-semibold",
   };
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-lg font-bold text-white tracking-wide",
+        "inline-flex items-center rounded-full font-bold text-ink-950 tracking-wide",
         CEFR_COLOR[level] ?? "bg-ink-500",
         sizes[size],
       )}

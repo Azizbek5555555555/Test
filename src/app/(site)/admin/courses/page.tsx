@@ -70,7 +70,7 @@ export default async function AdminCoursesPage() {
                   ) : null}
                   <Link
                     href={`/courses/${course.slug}`}
-                    className="text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+                    className="text-sm font-semibold text-brand-400 hover:underline"
                   >
                     👁 Saytda ko&apos;rish
                   </Link>

@@ -200,7 +200,7 @@ export function SpeakingRecorder({
                 disabled={disabled || status === "uploading"}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold",
-                  "bg-brand-600 text-white hover:bg-brand-700 transition-colors",
+                  "bg-brand-400 text-ink-950 hover:bg-brand-300 transition-colors",
                   "disabled:opacity-50 disabled:pointer-events-none",
                 )}
               >

@@ -12,6 +12,12 @@ export interface UserMenuData {
   isPremium: boolean;
   isStaff: boolean;
   totalXp: number;
+  /** Oxirgi CEFR darajasi (B1, B2 ...) */
+  level?: string | null;
+}
+
+function firstName(name: string | null): string {
+  return name?.trim().split(/\s+/)[0] || "Profil";
 }
 
 export function UserMenu({ user }: { user: UserMenuData }) {
@@ -53,20 +59,29 @@ export function UserMenu({ user }: { user: UserMenuData }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2 rounded-full p-0.5 hover:bg-[var(--bg-subtle)] transition-colors"
+        className="flex items-center gap-2.5 rounded-full py-0.5 pl-1 pr-0.5 group"
       >
+        <span className="hidden md:inline text-sm font-semibold text-fg group-hover:text-brand-300 transition-colors max-w-[9rem] truncate">
+          {firstName(user.fullName)}
+        </span>
+        {user.level ? (
+          <span className="hidden md:inline rounded-full bg-brand-400 px-2 py-0.5 text-[10px] font-bold text-ink-950">
+            {user.level}
+          </span>
+        ) : null}
         <Avatar
           name={user.fullName}
           src={user.avatarUrl}
           size="md"
           ring={user.isPremium}
+          className={user.isPremium ? undefined : "border-[1.5px] border-brand-400"}
         />
       </button>
 
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-64 card p-0 overflow-hidden z-50 animate-pop"
+          className="absolute right-0 mt-3 w-64 card p-0 overflow-hidden z-50 animate-pop shadow-lift"
         >
           <div className="p-4 border-b border-line bg-[var(--bg-subtle)]">
             <div className="flex items-center gap-3">
@@ -92,7 +107,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
                 <Link
                   href="/premium"
                   onClick={() => setOpen(false)}
-                  className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline"
+                  className="text-xs font-bold text-brand-400 hover:underline"
                 >
                   Premiumga o&apos;tish →
                 </Link>
@@ -136,7 +151,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
             <button
               type="submit"
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm
-                         text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40
+                         text-danger hover:bg-danger/10
                          transition-colors"
             >
               <span aria-hidden>🚪</span>

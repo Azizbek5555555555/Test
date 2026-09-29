@@ -306,7 +306,7 @@ export function VocabGame({
         <span className="text-sm font-bold tabular-nums text-muted">
           {index + 1} / {words.length}
         </span>
-        <span className="text-sm font-extrabold tabular-nums text-brand-600 dark:text-brand-400">
+        <span className="text-sm font-extrabold tabular-nums text-brand-400">
           {formatXp(localScore)} ball
         </span>
       </div>

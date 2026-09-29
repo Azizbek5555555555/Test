@@ -132,7 +132,7 @@ export default async function ProfilePage() {
           {finished.length > 0 ? (
             <Link
               href="/profile/results"
-              className="text-sm font-bold text-brand-600 dark:text-brand-400 hover:underline"
+              className="text-sm font-bold text-brand-400 hover:underline"
             >
               Barchasi →
             </Link>

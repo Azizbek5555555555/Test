@@ -97,7 +97,7 @@ export default async function LeaderboardPage({
                       <p className="font-bold text-sm mt-2.5 truncate">
                         {player.full_name}
                       </p>
-                      <p className="text-lg font-extrabold tabular-nums text-brand-600 dark:text-brand-400 mt-1">
+                      <p className="text-lg font-extrabold tabular-nums text-brand-400 mt-1">
                         {formatXp(player.xp)}
                       </p>
                       <p className="text-xs text-muted">
@@ -157,7 +157,7 @@ export default async function LeaderboardPage({
                             </span>
                           ) : null}
                           {isMe ? (
-                            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 shrink-0">
+                            <span className="text-xs font-bold text-brand-400 shrink-0">
                               (siz)
                             </span>
                           ) : null}

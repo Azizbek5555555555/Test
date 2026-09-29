@@ -36,12 +36,12 @@ export default async function LoginPage({
       <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center max-w-5xl mx-auto">
         {/* Chap tomon — tanishtiruv */}
         <div className="hidden lg:block">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-600 dark:text-brand-400 mb-3">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-400 mb-3">
             Learn · Practice · Take Exam · Improve
           </p>
           <h1 className="text-4xl font-extrabold leading-tight text-balance-title">
             Multilevel imtihoniga <br />
-            <span className="text-brand-600">tizimli</span> tayyorgarlik
+            <span className="text-brand-400">tizimli</span> tayyorgarlik
           </h1>
           <p className="text-muted mt-4 leading-relaxed">
             Bir marta ro&apos;yxatdan o&apos;ting — barcha testlar, natijalar va

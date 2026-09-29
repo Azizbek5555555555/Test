@@ -83,7 +83,7 @@ export default async function FullMockPage() {
                 <span aria-hidden>·</span>
                 <a
                   href="/premium"
-                  className="font-bold text-brand-600 dark:text-brand-400 hover:underline"
+                  className="font-bold text-brand-400 hover:underline"
                 >
                   Qolganlarini ochish →
                 </a>

@@ -2,43 +2,34 @@ import Image from "next/image";
 import { cn } from "@/lib/format";
 
 /**
- * Brend belgisi (logo). Logo to'q ko'k va rose-gold rangda — qorong'i fonda
- * ham ko'rinishi uchun har doim och rangli plitka ichida turadi
- * (brend qo'llanmasi: "full-color logo on light backgrounds").
+ * Brend belgisi (logo). Sayt qorong'i — shuning uchun qora fonli rasmiy logodan
+ * tayyorlangan shaffof variant ishlatiladi (public/brand/logo-mark-dark-*.png).
  */
 export function BrandMark({
-  size = 36,
+  size = 32,
   className,
 }: {
   size?: number;
   className?: string;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-grid place-items-center shrink-0 rounded-xl bg-[#faf7f6] ring-1 ring-black/5 shadow-sm",
-        className,
-      )}
-      style={{ width: size, height: size }}
+    <Image
+      src={size > 96 ? "/brand/logo-mark-dark-256.png" : "/brand/logo-mark-dark-128.png"}
+      alt=""
+      width={size}
+      height={size}
+      priority={size <= 48}
+      className={cn("shrink-0", className)}
       aria-hidden
-    >
-      <Image
-        src={size > 64 ? "/brand/logo-mark-256.png" : "/brand/logo-mark-128.png"}
-        alt=""
-        width={Math.round(size * 0.8)}
-        height={Math.round(size * 0.8)}
-        priority={size <= 48}
-      />
-    </span>
+    />
   );
 }
 
-/** "LevelX English" yozuvi */
+/** "LevelX English" yozuvi — Figma: Cormorant Garamond SemiBold */
 export function BrandWordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("font-display font-bold tracking-tight", className)}>
-      LevelX{" "}
-      <span className="text-brand-500 dark:text-brand-400">English</span>
+    <span className={cn("font-display font-semibold tracking-normal text-fg", className)}>
+      LevelX <span className="text-brand-400">English</span>
     </span>
   );
 }

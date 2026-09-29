@@ -95,7 +95,7 @@ export default async function ExamIntroPage({
               <li key={part.id} className="card p-4">
                 <div className="flex items-center gap-3">
                   <span
-                    className="shrink-0 w-9 h-9 rounded-xl bg-brand-600 text-white
+                    className="shrink-0 w-9 h-9 rounded-xl bg-brand-400 text-ink-950
                                grid place-items-center font-bold text-sm"
                     aria-hidden
                   >

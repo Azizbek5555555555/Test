@@ -248,7 +248,7 @@ export function LoginForm({
             </button>
             <button
               type="button"
-              className="text-brand-600 dark:text-brand-400 hover:underline font-semibold disabled:opacity-50"
+              className="text-brand-400 hover:underline font-semibold disabled:opacity-50"
               onClick={(e) => sendCode(e as unknown as FormEvent)}
               disabled={loading !== null}
             >

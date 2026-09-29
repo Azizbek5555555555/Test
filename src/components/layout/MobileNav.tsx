@@ -49,9 +49,9 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
             onClick={() => setOpen(false)}
             aria-label="Menyuni yopish"
           />
-          <div className="absolute right-0 top-0 bottom-0 w-[82%] max-w-xs bg-surface border-l border-line p-5 overflow-y-auto animate-fade-up">
+          <div className="absolute right-0 top-0 bottom-0 w-[82%] max-w-xs bg-ink-950 border-l border-line p-5 overflow-y-auto animate-slide-in">
             <div className="flex items-center justify-between mb-6">
-              <span className="font-extrabold text-lg">Menyu</span>
+              <span className="font-display font-semibold text-2xl">Menyu</span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -74,7 +74,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                     className={cn(
                       "block px-3 py-2.5 rounded-lg font-semibold transition-colors",
                       active
-                        ? "bg-brand-50 text-brand-700 dark:bg-brand-950/60 dark:text-brand-300"
+                        ? "bg-ink-800 text-brand-400"
                         : "hover:bg-[var(--bg-subtle)]",
                     )}
                   >
@@ -121,7 +121,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                 <Link
                   onClick={close}
                   href="/login"
-                  className="block px-3 py-2.5 rounded-lg font-semibold bg-brand-600 text-white text-center"
+                  className="block px-3 py-3 rounded-full font-semibold bg-brand-400 text-ink-950 text-center"
                 >
                   Kirish / Ro&apos;yxatdan o&apos;tish
                 </Link>

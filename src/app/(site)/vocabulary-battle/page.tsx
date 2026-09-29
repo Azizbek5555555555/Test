@@ -99,7 +99,7 @@ export default async function VocabularyBattlePage() {
                         {count} ta so&apos;z
                       </span>
                       <span
-                        className="ml-auto text-sm font-bold text-brand-600 dark:text-brand-400
+                        className="ml-auto text-sm font-bold text-brand-400
                                    group-hover:translate-x-0.5 transition-transform"
                       >
                         {locked ? "🔒" : "PLAY →"}
@@ -131,7 +131,7 @@ export default async function VocabularyBattlePage() {
               </li>
               <li className="flex items-center justify-between pt-2.5 border-t border-line">
                 <span className="text-muted">Bitta savoldan maksimum</span>
-                <span className="font-extrabold tabular-nums text-brand-600 dark:text-brand-400">
+                <span className="font-extrabold tabular-nums text-brand-400">
                   {GAME_BASE_POINTS + GAME_MAX_BONUS}
                 </span>
               </li>
@@ -143,7 +143,7 @@ export default async function VocabularyBattlePage() {
               <h2 className="font-bold text-sm">Haftalik TOP-5</h2>
               <Link
                 href="/leaderboard"
-                className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline"
+                className="text-xs font-bold text-brand-400 hover:underline"
               >
                 Barchasi →
               </Link>
@@ -169,7 +169,7 @@ export default async function VocabularyBattlePage() {
                     <span className="text-sm font-semibold truncate flex-1">
                       {player.full_name}
                     </span>
-                    <span className="text-sm font-bold tabular-nums text-brand-600 dark:text-brand-400">
+                    <span className="text-sm font-bold tabular-nums text-brand-400">
                       {formatXp(player.xp)}
                     </span>
                   </li>

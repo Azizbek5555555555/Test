@@ -108,7 +108,7 @@ export default async function ArticlePage({
                 {vocabulary.map((entry, i) => (
                   <li key={`${entry.word}-${i}`} className="py-2.5">
                     <p className="font-bold text-sm">{entry.word}</p>
-                    <p className="text-sm text-brand-600 dark:text-brand-400 font-semibold">
+                    <p className="text-sm text-brand-400 font-semibold">
                       {entry.meaning}
                     </p>
                     {entry.example ? (
