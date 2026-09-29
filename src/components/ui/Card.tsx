@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { AlertCircle, AlertTriangle, CheckCircle, Info } from "react-feather";
 import { cn } from "@/lib/format";
 
 export function Card({
@@ -132,21 +133,24 @@ export function Alert({
   title?: string;
   children: ReactNode;
 }) {
+  // Figma: holat ranglari — to'q fonda yarim shaffof tus + rangli chegara
   const tones = {
-    info: "bg-sky-50 border-sky-200 text-sky-900 dark:bg-sky-950/40 dark:border-sky-800 dark:text-sky-200",
-    success:
-      "bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200",
-    warning:
-      "bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200",
-    danger:
-      "bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200",
+    info: "bg-ink-800/60 border-line text-fg",
+    success: "bg-success/10 border-success/40 text-fg",
+    warning: "bg-warning/10 border-warning/40 text-fg",
+    danger: "bg-danger/10 border-danger/45 text-fg",
   };
-  const icons = { info: "ℹ️", success: "✅", warning: "⚠️", danger: "⛔" };
+  const icons = {
+    info: <Info size={18} className="text-muted" />,
+    success: <CheckCircle size={18} className="text-success" />,
+    warning: <AlertTriangle size={18} className="text-warning" />,
+    danger: <AlertCircle size={18} className="text-danger" />,
+  };
 
   return (
     <div className={cn("rounded-xl border p-4 text-sm", tones[tone])}>
       <div className="flex gap-3">
-        <span aria-hidden className="shrink-0">
+        <span aria-hidden className="mt-px shrink-0">
           {icons[tone]}
         </span>
         <div className="min-w-0">

@@ -1,421 +1,329 @@
+import Image from "next/image";
 import Link from "next/link";
-import { getProfile, profileHasPremium } from "@/lib/auth";
-import { getContactSettings } from "@/lib/settings";
-import { getLeaderboard } from "@/lib/queries";
-import { COURSES_ENABLED, EXAM_YEARS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
-import { formatXp } from "@/lib/format";
+import { ArrowRight } from "react-feather";
+import { getProfile } from "@/lib/auth";
+import { getCourses } from "@/lib/queries";
+import { getLearnerSnapshot, getSiteStats, greeting } from "@/lib/home";
+import { COURSES_ENABLED, SITE_TAGLINE } from "@/lib/constants";
 import { ButtonLink } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Avatar } from "@/components/ui/Avatar";
-import { SectionHeading } from "@/components/ui/Card";
-import { HomeSectionCard } from "@/components/home/HomeSectionCard";
+import { Reveal } from "@/components/motion/Reveal";
+import {
+  CoursesStrip,
+  FeatureGrid,
+  PullQuote,
+  Roadmap,
+  SearchBar,
+  SectionTitle,
+  SkillModules,
+  StatsRibbon,
+  featureItems,
+} from "@/components/home/Sections";
 
-/** Hujjatning 16-bo'limi: LEARN → PRACTICE → TAKE EXAM → SEE RESULT → IMPROVE */
-const JOURNEY = [
-  { label: "LEARN", detail: "General English · Articles · Vocabulary", icon: "📚" },
-  { label: "PRACTICE", detail: "Reading · Listening · Writing · Speaking", icon: "✏️" },
-  { label: "TAKE EXAM", detail: "Full Mock · Exam Full Checking", icon: "🎯" },
-  { label: "SEE RESULT", detail: "Ballar · CEFR daraja · Tahlil", icon: "📊" },
-  { label: "IMPROVE", detail: "Zaif tomonlar ustida ishlash", icon: "🚀" },
-];
-
+/**
+ * Bosh sahifa — Figma: 01-homepage-before-login va 03-homepage-after-login.
+ */
 export default async function HomePage() {
-  const [profile, contact, topPlayers] = await Promise.all([
-    getProfile(),
-    getContactSettings(),
-    getLeaderboard("weekly", 3),
-  ]);
+  const profile = await getProfile();
+  return profile ? <LearnerHome name={profile.full_name} /> : <GuestHome />;
+}
 
-  const isPremium = profileHasPremium(profile);
-  const firstName = profile?.full_name?.split(/\s+/)[0];
+/* ============================================================================
+   MEHMON (kirmagan foydalanuvchi)
+   ============================================================================ */
+async function GuestHome() {
+  const [stats, courses] = await Promise.all([
+    getSiteStats(),
+    COURSES_ENABLED ? getCourses() : Promise.resolve([]),
+  ]);
 
   return (
     <>
-      {/* ==================================================== HERO */}
-      <section className="relative overflow-hidden border-b border-line">
+      {/* ------------------------------------------------------------ HERO */}
+      <section className="relative isolate overflow-hidden">
         <div
-          className="absolute inset-0 bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700"
+          className="absolute inset-0 -z-20 bg-gradient-to-b from-[#212d44] via-[#121b2c] via-55% to-ink-950"
           aria-hidden
         />
         <div
-          className="absolute -right-24 -top-24 w-[28rem] h-[28rem] rounded-full bg-brand-500/25 blur-3xl"
+          className="absolute inset-y-0 right-0 -z-10 w-full lg:w-[62%] opacity-30 [mask-image:linear-gradient(to_right,transparent,black_35%)]"
           aria-hidden
-        />
-        <div
-          className="absolute inset-0 opacity-[0.15]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, white 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-          aria-hidden
-        />
+        >
+          <Image
+            src="/design/summit-hut.jpg"
+            alt=""
+            fill
+            priority
+            sizes="(min-width: 1024px) 58vw, 100vw"
+            className="object-cover object-center animate-ken-burns"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-transparent" />
+        </div>
 
-        <div className="container-page relative py-16 sm:py-24">
+        <div className="container-page flex min-h-[calc(100svh-84px)] max-h-[900px] flex-col justify-center py-20">
           <div className="max-w-3xl">
-            <p className="text-brand-200 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] mb-4">
-              {SITE_NAME} · {SITE_TAGLINE}
+            <p className="eyebrow animate-fade-up">
+              <span className="h-px w-6 bg-brand-400" aria-hidden />
+              Multilevel · CEFR B1–C1
             </p>
-
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.08] text-balance-title">
-              {firstName ? (
-                <>
-                  Xush kelibsiz, {firstName}!
-                  <br />
-                  <span className="text-brand-200">Bugun qayerdan</span>{" "}
-                  boshlaymiz?
-                </>
-              ) : (
-                <>
-                  Multilevel imtihoniga
-                  <br />
-                  <span className="text-brand-200">tayyorgarlikning</span>{" "}
-                  to&apos;liq tizimi
-                </>
-              )}
+            <h1
+              className="display-title mt-6 text-5xl sm:text-6xl lg:text-[72px] font-semibold leading-[1.05] tracking-[-0.01em] text-balance-title animate-fade-up"
+              style={{ animationDelay: "80ms" }}
+            >
+              Cho&apos;qqingiz shu yerdan boshlanadi
             </h1>
-
-            <p className="text-brand-100 text-base sm:text-lg mt-5 leading-relaxed max-w-2xl">
-              Full Mock testlar, o&apos;tgan yillarda tushgan savollar, General
-              English materiallari, Vocabulary Battle va real imtihon
-              simulyatsiyasi — barchasi bitta platformada.
+            <p
+              className="mt-6 font-display italic text-2xl text-brand-400 animate-fade-up"
+              style={{ animationDelay: "160ms" }}
+            >
+              “{SITE_TAGLINE}”
             </p>
-
-            <div className="flex flex-wrap gap-3 mt-8">
-              <ButtonLink
-                href="/full-mock"
-                size="lg"
-                variant="light"
-              >
-                🚀 Bepul mock testni boshlash
+            <p
+              className="mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-muted animate-fade-up"
+              style={{ animationDelay: "240ms" }}
+            >
+              Multilevel imtihoniga real formatda tayyorlaning: to&apos;liq mock testlar,
+              oxirgi tushgan savollar, General English materiallari va Writing/Speaking
+              bo&apos;yicha o&apos;qituvchi tekshiruvi — barchasi bitta platformada.
+            </p>
+            <div
+              className="mt-10 flex flex-wrap items-center gap-4 animate-fade-up"
+              style={{ animationDelay: "320ms" }}
+            >
+              <ButtonLink href="/login" size="lg">
+                Bepul boshlash
               </ButtonLink>
-              {isPremium ? (
-                <ButtonLink href="/exam-checking" size="lg" variant="premium">
-                  ⭐ Exam Full Checking
-                </ButtonLink>
-              ) : (
-                <ButtonLink
-                  href="/premium"
-                  size="lg"
-                  variant="glass"
-                >
-                  Premium imkoniyatlari
-                </ButtonLink>
-              )}
+              <ButtonLink href="/full-mock" variant="secondary" size="lg">
+                Full Mock testlar
+              </ButtonLink>
             </div>
-
-            {!profile ? (
-              <p className="text-brand-200 text-sm mt-5">
-                Natijalaringiz saqlanishi uchun{" "}
-                <Link href="/login" className="text-white font-bold underline">
-                  ro&apos;yxatdan o&apos;ting
-                </Link>{" "}
-                — 1 daqiqa vaqt oladi.
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </section>
-
-      {/* ==================================================== JOURNEY */}
-      <section className="border-b border-line bg-surface">
-        <div className="container-page py-8">
-          <ol className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {JOURNEY.map((step, i) => (
-              <li
-                key={step.label}
-                className="relative rounded-xl border border-line bg-[var(--bg-subtle)] p-4"
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span aria-hidden className="text-lg">
-                    {step.icon}
-                  </span>
-                  <span className="font-extrabold text-sm tracking-tight">
-                    {step.label}
-                  </span>
-                </div>
-                <p className="text-xs text-muted leading-relaxed">
-                  {step.detail}
-                </p>
-                {i < JOURNEY.length - 1 ? (
+            <div
+              className="mt-14 flex items-center gap-4 animate-fade-up"
+              style={{ animationDelay: "400ms" }}
+            >
+              <div className="flex" aria-hidden>
+                {["L", "R", "W", "S"].map((letter, i) => (
                   <span
-                    className="hidden lg:block absolute -right-2.5 top-1/2 -translate-y-1/2
-                               text-muted text-lg z-10"
-                    aria-hidden
+                    key={letter}
+                    className="-mr-3 grid size-8 place-items-center rounded-full border-2 border-line bg-ink-800 font-display text-sm font-semibold text-brand-400"
+                    style={{ zIndex: 4 - i }}
                   >
-                    →
+                    {letter}
                   </span>
-                ) : null}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ==================================================== ASOSIY BO'LIMLAR */}
-      <section className="container-page py-14">
-        <SectionHeading
-          eyebrow="Asosiy bo'limlar"
-          title="Qayerdan boshlamoqchisiz?"
-          description="Platformaning har bir bo'limi imtihonning aniq bir qismiga qaratilgan."
-        />
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          <HomeSectionCard
-            index={1}
-            emoji="📝"
-            title="FULL MOCK"
-            subtitle="To'liq mock testlar — imtihonning barcha to'rt bo'limi."
-            items={["Reading", "Listening", "Writing", "Speaking"]}
-            href="/full-mock"
-            cta="START"
-            accent="from-brand-400 to-brand-600"
-          />
-
-          <HomeSectionCard
-            index={2}
-            emoji="🗂️"
-            title="OXIRGI TUSHGAN SAVOLLAR"
-            subtitle="Real imtihonlarda tushgan va eslab qolingan savollar."
-            items={EXAM_YEARS}
-            href="/latest-questions"
-            cta="EXPLORE"
-            accent="from-brand-500 to-brand-700"
-          />
-
-          <HomeSectionCard
-            index={3}
-            emoji="📚"
-            title="BOOST YOUR GENERAL ENGLISH"
-            subtitle="Faqat imtihon emas — umumiy ingliz tilini kuchaytirish."
-            items={["Articles", "Listening Practice", "Vocabulary"]}
-            href="/boost"
-            cta="START LEARNING"
-            accent="from-brand-700 to-brand-900"
-          />
-
-          <HomeSectionCard
-            index={4}
-            emoji="🎮"
-            title="VOCABULARY BATTLE"
-            subtitle="Kahoot uslubidagi o'yin: tez javob bering, ko'proq ball to'plang."
-            items={["Play", "Earn points", "Compete", "Weekly Ranking"]}
-            href="/vocabulary-battle"
-            cta="PLAY NOW"
-            accent="from-brand-600 to-brand-800"
-          />
-
-          <HomeSectionCard
-            index={5}
-            emoji="🎯"
-            title="EXAM FULL CHECKING"
-            subtitle="Real Multilevel kompyuter imtihoni simulyatsiyasi va to'liq natija."
-            items={["Real simulation", "CEFR natija", "O'qituvchi tahlili"]}
-            href="/exam-checking"
-            cta="START EXAM"
-            accent="from-gold-400 to-gold-600"
-            badge={<Badge tone="premium">🔒 PREMIUM</Badge>}
-          />
-
-          {COURSES_ENABLED ? (
-          <HomeSectionCard
-            index={6}
-            emoji="🏫"
-            title="OFFLINE COURSES"
-            subtitle="Multilevel tayyorlov kurslarimizga qo'shiling."
-            items={["B1 Course", "B2 Course", "Intensive"]}
-            href="/courses"
-            cta="LEARN MORE"
-            accent="from-ink-500 to-ink-700"
-          />
-          ) : null}
-        </div>
-      </section>
-
-      {/* ==================================================== LEADERBOARD */}
-      <section className="container-page pb-14">
-        <div className="card p-0 overflow-hidden">
-          <div className="grid lg:grid-cols-5">
-            <div className="lg:col-span-3 p-6 sm:p-8">
-              <SectionHeading
-                eyebrow="Vocabulary Leaderboard"
-                title="Haftalik reyting"
-                description="Har hafta yangi start. So'zlarni tez va to'g'ri bilganlar yuqoriga chiqadi."
-              />
-
-              {topPlayers.length > 0 ? (
-                <ol className="space-y-2.5">
-                  {topPlayers.map((player, i) => (
-                    <li
-                      key={player.user_id}
-                      className="flex items-center gap-3 rounded-xl border border-line
-                                 bg-[var(--bg-subtle)] p-3"
-                    >
-                      <span
-                        className="w-8 h-8 rounded-lg grid place-items-center font-extrabold text-sm shrink-0
-                                   bg-surface border border-line"
-                        aria-hidden
-                      >
-                        {["🥇", "🥈", "🥉"][i] ?? player.rank}
-                      </span>
-                      <Avatar
-                        name={player.full_name}
-                        src={player.avatar_url}
-                        size="sm"
-                        ring={player.is_premium}
-                      />
-                      <span className="font-semibold text-sm truncate flex-1">
-                        {player.full_name}
-                      </span>
-                      <span className="font-extrabold text-sm tabular-nums text-brand-400">
-                        {formatXp(player.xp)} XP
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="text-sm text-muted">
-                  Bu hafta hali hech kim o&apos;ynamadi — birinchi bo&apos;lish
-                  imkoniyati sizda!
-                </p>
-              )}
-
-              <div className="flex flex-wrap gap-3 mt-6">
-                <ButtonLink href="/vocabulary-battle">🎮 O&apos;ynash</ButtonLink>
-                <ButtonLink href="/leaderboard" variant="secondary">
-                  To&apos;liq reyting
-                </ButtonLink>
+                ))}
               </div>
-            </div>
-
-            <div
-              className="lg:col-span-2 bg-gradient-to-br from-brand-500 via-brand-700 to-brand-900 p-6 sm:p-8
-                         flex flex-col justify-center text-white"
-            >
-              <p className="text-4xl mb-3" aria-hidden>
-                🏆
-              </p>
-              <h3 className="font-extrabold text-2xl">
-                Daily · Weekly · Monthly · All Time
-              </h3>
-              <p className="text-white/85 text-sm mt-3 leading-relaxed">
-                To&apos;g&apos;ri javob uchun 300 ball, tez javob uchun 200
-                ballgacha qo&apos;shimcha bonus. Har bir o&apos;yin XP
-                to&apos;plamingizni oshiradi.
+              <p className="pl-3 text-xs text-faint">
+                <span className="font-semibold text-fg">4 ko&apos;nikma</span> — Listening,
+                Reading, Writing va Speaking bitta tizimda.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ==================================================== BIZ HAQIMIZDA */}
-      <section className="container-page pb-14" id="about">
-        <div className="card p-0 overflow-hidden">
-          <div className="grid lg:grid-cols-5">
-            <div className="lg:col-span-3 p-6 sm:p-8">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-400 mb-2">
-                Biz haqimizda
-              </p>
-              <h2 className="text-3xl font-extrabold">
-                {SITE_NAME}
-              </h2>
-              <div className="space-y-3 mt-4 text-muted leading-relaxed">
-                <p>
-                  LevelX English — ingliz tilini o&apos;rganishni yanada
-                  tizimli, amaliy va natijaga yo&apos;naltirilgan qilish
-                  maqsadida yaratilgan ta&apos;lim brendi. Bizning asosiy
-                  maqsadimiz o&apos;quvchiga shunchaki ingliz tilini
-                  o&apos;rgatish emas, balki uning mavjud imkoniyatlaridan
-                  yuqoriga chiqishiga yordam berishdir.
-                </p>
-                <p>
-                  Platformada Reading, Listening, Writing va Speaking
-                  ko&apos;nikmalari bir tizim asosida rivojlanadi: to&apos;liq
-                  mock testlar, so&apos;nggi imtihon savollari, General English
-                  materiallari, maqolalar, listening practice va vocabulary.
-                </p>
-                <p>
-                  Biz uchun sifatli ta&apos;lim — bu ko&apos;proq material
-                  berish emas, balki kerakli materialni to&apos;g&apos;ri
-                  tartibda, tushunarli shaklda va aniq maqsad bilan taqdim
-                  etishdir.
-                </p>
-              </div>
-            </div>
+      <StatsRibbon
+        items={[
+          { value: String(stats.fullMocks || "—"), label: "Full Mock test" },
+          { value: String(stats.listeningSets || "—"), label: "Listening mashqi" },
+          { value: String(stats.articles || "—"), label: "Maqola" },
+          { value: "100%", label: "Real imtihon formati" },
+        ]}
+      />
 
-            <div
-              className="lg:col-span-2 bg-gradient-to-br from-brand-800 to-brand-950 p-6 sm:p-8
-                         flex flex-col justify-center gap-4 text-white"
-            >
-              <div>
-                <p className="font-display text-5xl font-bold text-brand-300">4</p>
-                <p className="text-sm text-white/80 mt-1">
-                  ko&apos;nikma — Reading, Listening, Writing, Speaking
-                </p>
-              </div>
-              <div className="h-px bg-white/15" />
-              <div>
-                <p className="font-display text-5xl font-bold text-brand-300">1</p>
-                <p className="text-sm text-white/80 mt-1">
-                  maqsad — <span className="font-semibold text-white">{SITE_TAGLINE}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* ------------------------------------------------------- VOSITALAR */}
+      <section className="container-page py-20">
+        <SectionTitle eyebrow="Platforma imkoniyatlari" title="Cho'qqiga chiqish uchun vositalar" />
+        <FeatureGrid items={featureItems({ coursesEnabled: COURSES_ENABLED, icons: "stars" })} />
       </section>
 
-      {/* ==================================================== CONTACT */}
-      <section className="container-page pb-16">
-        <div className="card p-6 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-6">
+      <PullQuote>Davom eting. Siz yorqinroq kelajakni qurayapsiz.</PullQuote>
+
+      <Roadmap />
+
+      {/* --------------------------------------------------------- HAQIMIZDA */}
+      <AboutSection />
+
+      {COURSES_ENABLED ? <CoursesStrip courses={courses} /> : null}
+    </>
+  );
+}
+
+function AboutSection() {
+  return (
+    <section className="container-page py-20" id="about">
+      <Reveal className="card-glass grid overflow-hidden lg:grid-cols-[1fr_1.1fr]">
+        <div className="relative min-h-[280px] lg:min-h-full">
+          <Image
+            src="/design/ambient-peak.jpg"
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            className="object-cover opacity-40"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950/80 via-ink-950/20 to-transparent lg:bg-gradient-to-r" />
+          <div className="absolute bottom-8 left-8 right-8">
+            <p className="font-display italic text-2xl sm:text-[28px] leading-snug text-brand-300">
+              “Har bir qadam cho&apos;qqi sari puxta chizilgan.”
+            </p>
+          </div>
+        </div>
+        <div className="p-8 sm:p-12">
+          <p className="eyebrow">
+            <span className="h-px w-5 bg-brand-400" aria-hidden />
+            Biz haqimizda
+          </p>
+          <h2 className="display-title mt-4 text-4xl sm:text-[44px]">LevelX English</h2>
+          <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted">
+            <p>
+              LevelX English — ingliz tilini o&apos;rganishni yanada tizimli, amaliy va
+              natijaga yo&apos;naltirilgan qilish maqsadida yaratilgan ta&apos;lim brendi.
+              Maqsadimiz — o&apos;quvchiga o&apos;z imkoniyatlaridan yuqoriga chiqishga
+              yordam berish.
+            </p>
+            <p>
+              Reading, Listening, Writing va Speaking ko&apos;nikmalari bir tizim asosida
+              rivojlanadi: to&apos;liq mock testlar, so&apos;nggi imtihon savollari,
+              maqolalar, listening practice va vocabulary.
+            </p>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-6 border-t border-line pt-8">
             <div>
-              <h2 className="text-2xl font-extrabold">CONTACT US</h2>
-              <p className="text-muted mt-2 text-sm leading-relaxed max-w-lg">
-                Savollaringiz bormi? Testlar, Premium yoki natijalar bo&apos;yicha
-                biz bilan bog&apos;laning.
-              </p>
-              {contact.address ? (
-                <p className="text-sm text-muted mt-3">{contact.address}</p>
-              ) : null}
+              <p className="font-display text-5xl font-semibold text-brand-400">4</p>
+              <p className="mt-1 text-sm text-muted">ko&apos;nikma — bitta tizimda</p>
             </div>
+            <div>
+              <p className="font-display text-5xl font-semibold text-gold-400">1</p>
+              <p className="mt-1 text-sm text-muted">maqsad — {SITE_TAGLINE}</p>
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
 
-            <div className="flex flex-wrap gap-2.5">
-              <a
-                href={contact.telegram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-line
-                           bg-[var(--bg-subtle)] px-4 py-2.5 text-sm font-semibold
-                           hover:border-brand-400 transition-colors"
-              >
-                ✈️ Telegram
-              </a>
-              <a
-                href={contact.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-line
-                           bg-[var(--bg-subtle)] px-4 py-2.5 text-sm font-semibold
-                           hover:border-brand-400 transition-colors"
-              >
-                📸 Instagram
-              </a>
-              <a
-                href={`tel:${contact.phone.replace(/\s/g, "")}`}
-                className="inline-flex items-center gap-2 rounded-xl border border-line
-                           bg-[var(--bg-subtle)] px-4 py-2.5 text-sm font-semibold
-                           hover:border-brand-400 transition-colors"
-              >
-                📞 {contact.phone}
-              </a>
-              <ButtonLink href="/contact" variant="secondary">
-                Barcha kontaktlar
+/* ============================================================================
+   KIRGAN O'QUVCHI
+   ============================================================================ */
+async function LearnerHome({ name }: { name: string | null }) {
+  const { continueCard, streakDays } = await getLearnerSnapshot();
+  const firstName = name?.trim().split(/\s+/)[0];
+
+  return (
+    <>
+      {/* ------------------------------------------------------------ HERO */}
+      <section className="relative isolate overflow-hidden">
+        <div
+          className="absolute right-0 top-0 -z-10 h-full w-full lg:h-[520px] lg:w-[62%] opacity-30 [mask-image:linear-gradient(to_right,transparent,black_30%)]"
+          aria-hidden
+        >
+          <Image
+            src="/design/ambient-peak.jpg"
+            alt=""
+            fill
+            priority
+            sizes="(min-width: 1024px) 62vw, 100vw"
+            className="object-cover animate-ken-burns"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-transparent" />
+        </div>
+
+        <div className="container-page pt-16 lg:pt-20 pb-10">
+          <p className="text-lg font-medium text-muted animate-fade-up">
+            {greeting()}
+            {firstName ? `, ${firstName}` : ""} 👋
+          </p>
+          <h1
+            className="display-title mt-6 max-w-[800px] text-5xl sm:text-6xl lg:text-[72px] font-semibold leading-[1.1] tracking-[-0.015em] text-balance-title animate-fade-up"
+            style={{ animationDelay: "80ms" }}
+          >
+            Davom eting. Siz yorqinroq kelajakni qurayapsiz.
+          </h1>
+
+          <div
+            className="mt-11 flex flex-col gap-6 lg:flex-row animate-fade-up"
+            style={{ animationDelay: "180ms" }}
+          >
+            <div className="card-glass flex flex-1 flex-col gap-6 rounded-2xl p-6 sm:flex-row sm:items-center">
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold-400">
+                  {continueCard
+                    ? `Jarayonda · ${continueCard.percent}% bajarildi`
+                    : "Boshlashga tayyormisiz?"}
+                </p>
+                <p className="display-title truncate text-2xl">
+                  {continueCard ? continueCard.title : "Birinchi Full Mock testingizni ishlang"}
+                </p>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+                  <div
+                    className="h-full rounded-full bg-brand-400 transition-[width] duration-1000"
+                    style={{ width: `${continueCard?.percent ?? 0}%` }}
+                  />
+                </div>
+              </div>
+              <ButtonLink href={continueCard?.href ?? "/full-mock"} className="shrink-0 px-7">
+                {continueCard ? "Davom ettirish" : "Boshlash"}
               </ButtonLink>
             </div>
+
+            <div className="card-glass flex shrink-0 flex-col items-center justify-center gap-3 rounded-2xl p-6 lg:w-[280px]">
+              <FlameIcon className="size-11 text-gold-400" />
+              <p className="display-title text-[32px] font-semibold leading-none">
+                {streakDays} kun
+              </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.04em] text-faint">
+                {streakDays > 0 ? "Ketma-ket faollik" : "Bugun boshlang"}
+              </p>
+            </div>
           </div>
         </div>
+      </section>
+
+      <SearchBar />
+      <SkillModules />
+
+      <section className="container-page pt-5 pb-10">
+        <Reveal>
+          <p className="eyebrow mb-6">
+            <span className="h-px w-5 bg-brand-400" aria-hidden />
+            Imtihon vositalari
+          </p>
+        </Reveal>
+        <FeatureGrid
+          glass={false}
+          items={featureItems({ coursesEnabled: COURSES_ENABLED, icons: "specific" })}
+        />
+      </section>
+
+      <PullQuote>
+        Cho&apos;qqi jim qadamlar bilan zabt etiladi. Qancha qolganiga emas — qancha
+        ko&apos;tarilganingizga qarang.
+      </PullQuote>
+
+      <section className="container-page pb-10">
+        <Reveal className="card-glass flex flex-col items-start justify-between gap-6 rounded-2xl p-8 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="display-title text-3xl">Natijalaringiz bir joyda</h2>
+            <p className="mt-2 text-sm text-muted">
+              Ballar, CEFR darajasi, o&apos;qituvchi izohlari va o&apos;sish dinamikasi.
+            </p>
+          </div>
+          <Link
+            href="/profile"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-400 hover:text-brand-300"
+          >
+            Shaxsiy kabinet <ArrowRight size={16} />
+          </Link>
+        </Reveal>
       </section>
     </>
+  );
+}
+
+/** Figma: "flame" (streak) belgisi */
+function FlameIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+    </svg>
   );
 }
