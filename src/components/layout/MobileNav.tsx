@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { Star, User, X } from "react-feather";
 import { MAIN_NAV } from "@/lib/constants";
 import { cn } from "@/lib/format";
 
@@ -27,7 +29,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="lg:hidden w-9 h-9 inline-flex items-center justify-center rounded-lg
+        className="xl:hidden w-9 h-9 inline-flex items-center justify-center rounded-lg
                    text-muted hover:text-fg hover:bg-[var(--bg-subtle)]"
         aria-label="Menyuni ochish"
       >
@@ -41,8 +43,10 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
         </svg>
       </button>
 
-      {open ? (
-        <div className="fixed inset-0 z-[60] lg:hidden">
+      {/* Header'dagi backdrop-blur "fixed" elementlarni o'ziga bog'lab qo'yadi —
+          shuning uchun panel to'g'ridan-to'g'ri <body> ichiga chiziladi */}
+      {open && typeof document !== "undefined" ? createPortal(
+        <div className="fixed inset-0 z-[60] xl:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-ink-950/50 backdrop-blur-sm"
@@ -59,7 +63,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                            text-muted hover:text-fg hover:bg-[var(--bg-subtle)]"
                 aria-label="Yopish"
               >
-                ✕
+                <X size={18} aria-hidden />
               </button>
             </div>
 
@@ -106,7 +110,9 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                     href="/profile"
                     className="block px-3 py-2.5 rounded-lg font-semibold hover:bg-[var(--bg-subtle)]"
                   >
-                    👤 Mening profilim
+                    <span className="inline-flex items-center gap-2">
+                      <User size={16} aria-hidden /> Mening profilim
+                    </span>
                   </Link>
                   <Link
                     onClick={close}
@@ -114,7 +120,9 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                     className="block px-3 py-2.5 rounded-lg font-semibold text-gold-400
                                 hover:bg-gold-950/40"
                   >
-                    ⭐ Premium
+                    <span className="inline-flex items-center gap-2">
+                      <Star size={16} aria-hidden /> Premium
+                    </span>
                   </Link>
                 </>
               ) : (
@@ -128,7 +136,8 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </>
   );
