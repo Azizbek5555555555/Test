@@ -50,23 +50,23 @@ export function PremiumRequestForm({
               type="button"
               onClick={() => setSelected(item.id)}
               className={cn(
-                "relative rounded-2xl border-2 p-4 text-left transition-all",
+                "relative rounded-xl border-[1.5px] p-4 text-left transition-all",
                 active
-                  ? "border-gold-500 bg-gold-50 dark:bg-gold-950/30"
-                  : "border-line hover:border-gold-300",
+                  ? "border-gold-400 bg-gold-400/10"
+                  : "border-line bg-ink-900 hover:border-gold-400/50",
               )}
             >
               {item.popular ? (
                 <span
-                  className="absolute -top-2.5 left-4 rounded-full bg-gold-500 px-2 py-0.5
-                             text-[10px] font-extrabold text-gold-950 uppercase tracking-wide"
+                  className="absolute -top-2.5 left-4 rounded-full bg-gold-400 px-2 py-0.5
+                             text-[10px] font-bold uppercase tracking-wide text-ink-950"
                 >
                   Ommabop
                 </span>
               ) : null}
 
-              <p className="font-extrabold text-lg">{item.title}</p>
-              <p className="text-xl font-extrabold tabular-nums mt-1">
+              <p className="font-display text-xl text-fg">{item.title}</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums text-gold-400">
                 {formatSum(item.amount)}
               </p>
               {item.note ? (
@@ -75,10 +75,10 @@ export function PremiumRequestForm({
 
               <span
                 className={cn(
-                  "absolute top-4 right-4 w-5 h-5 rounded-full border-2 grid place-items-center",
+                  "absolute top-4 right-4 grid h-5 w-5 place-items-center rounded-full border-2",
                   active
-                    ? "border-gold-500 bg-gold-500 text-white text-xs"
-                    : "border-ink-300 dark:border-ink-600",
+                    ? "border-gold-400 bg-gold-400 text-xs text-ink-950"
+                    : "border-ink-600",
                 )}
                 aria-hidden
               >
