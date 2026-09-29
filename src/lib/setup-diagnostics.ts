@@ -289,6 +289,69 @@ export async function runSetupDiagnostics(): Promise<SetupCheck[]> {
     }
   }
 
+  /* ----------- 5d. Jonli tekshiruv: 0007 (Payme / Click) qo'llanganmi */
+  if (urlOk && anonRaw && (anon.kind === "publishable" || anon.kind === "jwt-anon")) {
+    const title = "Onlayn to'lov jadvallari (0007_payments.sql)";
+    try {
+      const client = createClient(rawUrl!, anonRaw.trim(), {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      // Mehmon uchun yopiq bo'lishi kerak; PGRST202 — fayl hali ishga tushirilmagan
+      const { error } = await client.rpc("create_payment_order", {
+        p_plan: "monthly",
+        p_provider: "payme",
+      });
+      const missing = error?.code === "PGRST202";
+      checks.push(
+        missing
+          ? {
+              title,
+              status: "fail",
+              detail: `[${error?.code}] ${error?.message}`,
+              fix: "Supabase → SQL Editor'da supabase/migrations/0007_payments.sql faylini ishga tushiring. Busiz Payme va Click ishlamaydi.",
+            }
+          : { title, status: "ok", detail: "Qo'llangan." },
+      );
+    } catch (error) {
+      checks.push({
+        title,
+        status: "fail",
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  /* ----------- 5e. Payme / Click kalitlari (ixtiyoriy) */
+  {
+    const payme = Boolean(process.env.PAYME_MERCHANT_ID?.trim() && process.env.PAYME_KEY?.trim());
+    const click = Boolean(
+      process.env.CLICK_SERVICE_ID?.trim() &&
+        process.env.CLICK_MERCHANT_ID?.trim() &&
+        process.env.CLICK_SECRET_KEY?.trim(),
+    );
+    const testMode = /^(1|true|on|yes)$/i.test(process.env.PAYME_TEST_MODE?.trim() ?? "");
+    checks.push(
+      payme || click
+        ? {
+            title: "Onlayn to'lov kalitlari",
+            status: payme && testMode ? "warn" : "ok",
+            detail: [
+              payme ? `Payme ulangan${testMode ? " (TEST rejimi — haqiqiy pul yechilmaydi)" : ""}` : "Payme ulanmagan",
+              click ? "Click ulangan" : "Click ulanmagan",
+            ].join(" · "),
+            fix: payme && testMode
+              ? "Payme sinovlari tugagach Railway → Variables'da PAYME_TEST_MODE ni o'chiring va PAYME_KEY ga haqiqiy (production) kalitni yozing."
+              : undefined,
+          }
+        : {
+            title: "Onlayn to'lov kalitlari",
+            status: "warn",
+            detail: "Payme va Click hali ulanmagan — Premium faqat karta o'tkazmasi + admin tasdig'i orqali.",
+            fix: "Kalitlar olingach Railway → Variables'ga kiriting (SETUP.md → Onlayn to'lov).",
+          },
+    );
+  }
+
   /* ----------------------------- 6. Jonli tekshiruv: admin kaliti ishlaydimi */
   const serviceRaw = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (urlOk && serviceRaw && (service.kind === "secret" || service.kind === "jwt-service")) {

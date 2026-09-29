@@ -9,6 +9,8 @@ import { PageHeader, Alert } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { PremiumRequestForm } from "@/components/forms/PremiumRequestForm";
+import { OnlinePayment } from "@/components/forms/OnlinePayment";
+import { getEnabledProviders } from "@/lib/payments/config";
 
 export const metadata: Metadata = {
   title: "Premium",
@@ -52,6 +54,8 @@ export default async function PremiumPage({
   ]);
 
   const isPremium = profileHasPremium(profile);
+  const providers = getEnabledProviders();
+  const online = providers.length > 0;
   const hasPending = profile ? await hasPendingRequest(profile.id) : false;
 
   return (
@@ -147,11 +151,24 @@ export default async function PremiumPage({
           <div className="card p-6">
             <h2 className="font-extrabold text-xl mb-1">Tarifni tanlang</h2>
             <p className="text-sm text-muted mb-5">
-              So&apos;rov yuborganingizdan keyin to&apos;lovni amalga oshirasiz
-              va admin Premiumni faollashtiradi.
+              {online
+                ? "Tarifni tanlang va Payme yoki Click orqali to'lang — Premium darhol yoqiladi."
+                : "So'rov yuborganingizdan keyin to'lovni amalga oshirasiz va admin Premiumni faollashtiradi."}
             </p>
 
-            {!profile ? (
+            {profile && online ? (
+              <>
+                <OnlinePayment plans={plans} providers={providers} />
+                <details className="mt-6 rounded-xl border border-line p-4">
+                  <summary className="cursor-pointer select-none text-sm font-semibold">
+                    Boshqa usul: kartaga o&apos;tkazma va chek yuborish
+                  </summary>
+                  <div className="mt-4">
+                    <PremiumRequestForm plans={plans} hasPending={hasPending} />
+                  </div>
+                </details>
+              </>
+            ) : !profile ? (
               <div className="space-y-4">
                 <Alert tone="info">
                   Premium so&apos;rovi yuborish uchun avval tizimga kiring.

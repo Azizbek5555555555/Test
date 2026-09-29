@@ -585,6 +585,49 @@ Admin panel → **Premium so'rovlar** → **✅ Tasdiqlash**
 Admin panel → **Foydalanuvchilar** → kerakli odamni toping →
 muddatni tanlang → **Premium berish**
 
+**C) Onlayn to'lov (Payme / Click) — avtomatik:**
+o'quvchi tarifni tanlaydi → Payme yoki Click'da Uzcard/Humo bilan to'laydi →
+Premium **o'zi yoqiladi**. Barcha to'lovlar: Admin panel → **💳 To'lovlar**.
+
+---
+
+## 12-QADAM · Onlayn to'lov: Payme va Click
+
+### 12.1. Bazani tayyorlash (bir marta)
+Supabase → SQL Editor → `supabase/migrations/0007_payments.sql` → **Run**.
+
+### 12.2. Payme Business kabinetida
+- **Endpoint URL:** `https://<sayt-domeni>/api/payments/payme`
+- **Hisob (account) maydoni:** `order_id` — nomi aynan shunday bo'lsin
+  (turi: raqam, "Номер заказа" / "Buyurtma raqami")
+- Kabinetdan oling: **Kassa ID** (merchant ID), **test kaliti**, **haqiqiy kalit**
+
+### 12.3. Click Merchant kabinetida (Service sozlamalari)
+- **Prepare URL:** `https://<sayt-domeni>/api/payments/click/prepare`
+- **Complete URL:** `https://<sayt-domeni>/api/payments/click/complete`
+- Kabinetdan oling: **Service ID**, **Merchant ID**, **Secret key**, **Merchant user ID**
+
+### 12.4. Railway → Variables
+| O'zgaruvchi | Qiymat |
+|---|---|
+| `PAYME_MERCHANT_ID` | Payme kassa ID |
+| `PAYME_KEY` | Payme kaliti (sinovda — test kaliti) |
+| `PAYME_TEST_MODE` | sinovda `on`, haqiqiy to'lovlarda **o'chiring** |
+| `CLICK_SERVICE_ID` | Click service ID |
+| `CLICK_MERCHANT_ID` | Click merchant ID |
+| `CLICK_SECRET_KEY` | Click secret key |
+| `CLICK_MERCHANT_USER_ID` | Click merchant user ID |
+
+Kalit kiritilmagan tizim saytda ko'rinmaydi. Kiritilgach Premium sahifasida
+"Payme orqali to'lash" / "Click orqali to'lash" tugmalari chiqadi.
+
+### 12.5. Tekshirish
+1. `/setup-check` → "Onlayn to'lov jadvallari" va "kalitlari" ✅
+2. Payme: kabinetdagi **sandbox (test)** bo'limida barcha sinovlarni o'tkazing,
+   so'ng `PAYME_TEST_MODE` ni o'chirib, haqiqiy kalitni yozing.
+3. Kichik summali tarif bilan bitta haqiqiy to'lov qiling →
+   Admin → **💳 To'lovlar** da "To'langan", foydalanuvchida ⭐ PREMIUM.
+
 ---
 
 ## ❓ Muammolar va yechimlar

@@ -157,6 +157,40 @@ export async function listPremiumRequests(): Promise<PremiumRequestWithUser[]> {
   }
 }
 
+/* ----------------------------------------------------------- PAYMENTS */
+
+export interface PaymentOrderRow {
+  id: string;
+  order_number: number;
+  plan_title: string | null;
+  months: number;
+  amount: number;
+  provider: "payme" | "click";
+  status: "pending" | "paid" | "cancelled";
+  created_at: string;
+  paid_at: string | null;
+  cancelled_at: string | null;
+  profiles: { full_name: string | null; email: string | null } | null;
+}
+
+/** Onlayn to'lovlar (Payme / Click) — oxirgi 200 ta */
+export async function listPaymentOrders(): Promise<PaymentOrderRow[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = await createServerSupabase();
+    const { data } = await supabase
+      .from("payment_orders")
+      .select(
+        "id, order_number, plan_title, months, amount, provider, status, created_at, paid_at, cancelled_at, profiles(full_name, email)",
+      )
+      .order("created_at", { ascending: false })
+      .limit(200);
+    return (data ?? []) as unknown as PaymentOrderRow[];
+  } catch {
+    return [];
+  }
+}
+
 /* ----------------------------------------------------------- APPLICATIONS */
 
 export interface ApplicationWithCourse extends CourseApplication {
