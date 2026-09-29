@@ -128,6 +128,7 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
+  font-variant-numeric: lining-nums;
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -196,6 +197,7 @@ input[type="number"]::-webkit-inner-spin-button {
 /* Katta sarlavhalar (Cormorant Garamond) */
 @utility display-title {
   font-family: var(--font-display);
+  font-variant-numeric: lining-nums;
   font-weight: 500;
   line-height: 1.08;
   letter-spacing: 0;
@@ -362,6 +364,22 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
+/* Progress ring: yoy 0 dan qiymatgacha to'ladi */
+@keyframes ml-ring {
+  from {
+    stroke-dashoffset: var(--ring-full);
+  }
+}
+
+.animate-ring {
+  animation: ml-ring 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* Reveal ichidagi halqa — faqat ekranga kirganda to'la boshlaydi */
+.reveal:not(.is-visible) .animate-ring {
+  animation-play-state: paused;
+}
+
 .animate-ken-burns {
   animation: ml-ken-burns 14s ease-out both;
 }
@@ -404,6 +422,7 @@ input[type="number"]::-webkit-inner-spin-button {
   }
   .animate-float,
   .animate-ken-burns,
+  .animate-ring,
   .animate-fade-up,
   .animate-slide-in,
   .animate-pop {
