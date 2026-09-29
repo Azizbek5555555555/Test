@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/Button";
  * qo'shimcha kutubxona kerak emas.
  */
 export function PrintButton({
-  label = "📄 PDF sifatida saqlash",
+  label = "PDF yuklab olish",
+  fullWidth,
 }: {
   label?: string;
+  fullWidth?: boolean;
 }) {
   return (
-    <Button variant="secondary" onClick={() => window.print()}>
+    <Button variant="secondary" fullWidth={fullWidth} onClick={() => window.print()}>
       {label}
     </Button>
   );

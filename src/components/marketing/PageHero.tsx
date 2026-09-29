@@ -7,15 +7,18 @@ export function PageHero({
   children,
   aside,
   className = "pb-14 sm:pb-16",
+  bare,
 }: {
   eyebrow: string;
   title: ReactNode;
   children?: ReactNode;
   aside?: ReactNode;
   className?: string;
+  /** Fon gradientisiz (sahifaning o'z foni ko'rinadi) */
+  bare?: boolean;
 }) {
   return (
-    <section className="bg-gradient-to-b from-[#16213a] to-ink-950">
+    <section className={bare ? undefined : "bg-gradient-to-b from-[#16213a] to-ink-950"}>
       <div className={`container-page flex flex-col gap-8 pt-14 sm:pt-20 md:flex-row md:items-end md:justify-between ${className}`}>
         <div className="max-w-2xl animate-fade-up">
           <p className="eyebrow">

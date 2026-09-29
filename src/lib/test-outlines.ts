@@ -11,6 +11,8 @@ export interface TestOutline {
   sections: SkillSection[];
   /** Savollar soni (moslashtirish savolining har bir qatori alohida) */
   questions: number;
+  /** Bo'limlar bo'yicha vaqt (daqiqa) */
+  minutes: Partial<Record<SkillSection, number>>;
 }
 
 /**
@@ -45,15 +47,24 @@ export async function getTestOutlines(
 
     const { data: parts } = await supabase
       .from("test_parts")
-      .select("id, test_set_id, section")
+      .select("id, test_set_id, section, duration_minutes")
       .in("test_set_id", ids);
-    const partRows = (parts ?? []) as { id: string; test_set_id: string; section: SkillSection }[];
+    const partRows = (parts ?? []) as {
+      id: string;
+      test_set_id: string;
+      section: SkillSection;
+      duration_minutes: number | null;
+    }[];
 
     const result: Record<string, TestOutline> = {};
-    for (const id of ids) result[id] = { sections: [], questions: 0 };
+    for (const id of ids) result[id] = { sections: [], questions: 0, minutes: {} };
     const sectionSets: Record<string, Set<SkillSection>> = {};
     for (const p of partRows) {
       (sectionSets[p.test_set_id] ??= new Set()).add(p.section);
+      if (p.duration_minutes) {
+        const m = result[p.test_set_id].minutes;
+        m[p.section] = (m[p.section] ?? 0) + p.duration_minutes;
+      }
     }
     for (const [id, set] of Object.entries(sectionSets)) {
       result[id].sections = SECTIONS.filter((s) => set.has(s));
