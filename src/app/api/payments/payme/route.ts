@@ -109,11 +109,55 @@ export async function POST(request: Request) {
       console.error("[payme]", method, error?.message);
       return rpcError(id, -32400, "Tizim xatosi", "Системная ошибка", "System error");
     }
-    return reply(id, data as Record<string, unknown>);
+    const payload = data as { result?: Record<string, unknown> };
+
+    // Fiskal chek ma'lumoti (MXIK kodi kiritilgan bo'lsa) — Payme OFD chekini shu bilan yaratadi
+    if (method === "CheckPerformTransaction" && payload.result?.allow === true) {
+      const detail = await receiptDetail(params as Record<string, unknown>);
+      if (detail) payload.result.detail = detail;
+    }
+
+    return reply(id, payload as Record<string, unknown>);
   } catch (error) {
     console.error("[payme]", method, error);
     return rpcError(id, -32400, "Tizim xatosi", "Системная ошибка", "System error");
   }
+}
+
+/**
+ * Payme fiskal cheki uchun "detail" (ixtiyoriy).
+ * PAYME_IKPU_CODE (MXIK, 17 xona) va PAYME_PACKAGE_CODE kiritilganda qo'shiladi.
+ */
+async function receiptDetail(params: Record<string, unknown>) {
+  const code = process.env.PAYME_IKPU_CODE?.trim();
+  const packageCode = process.env.PAYME_PACKAGE_CODE?.trim();
+  if (!code || !packageCode) return null;
+
+  const orderNumber = String((params.account as Record<string, unknown>)?.order_id ?? "");
+  if (!/^\d{1,18}$/.test(orderNumber)) return null;
+
+  const { data } = await createAdminSupabase()
+    .from("payment_orders")
+    .select("amount, plan_title, months")
+    .eq("order_number", orderNumber)
+    .maybeSingle();
+  const order = data as { amount: number; plan_title: string | null; months: number } | null;
+  if (!order) return null;
+
+  const vat = Number(process.env.PAYME_VAT_PERCENT ?? 0);
+  return {
+    receipt_type: 0,
+    items: [
+      {
+        title: `LevelX English Premium — ${order.plan_title ?? `${order.months} oylik`}`,
+        price: order.amount * 100,
+        count: 1,
+        code,
+        package_code: packageCode,
+        vat_percent: Number.isFinite(vat) ? vat : 0,
+      },
+    ],
+  };
 }
 
 export async function GET() {
