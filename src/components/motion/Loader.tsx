@@ -48,16 +48,17 @@ export function Loader({ size = 132, label = "Yuklanmoqda", className = "" }: { 
 }
 
 /**
- * Saytga kirishda (sessiyada bir marta) to'liq ekranli yuklanish oynasi.
+ * Sahifa har safar to'liq yuklanganda (saytga kirish, brauzerda "Yangilash"/F5,
+ * yangi tabda ochish) to'liq ekranli yuklanish oynasi. Sayt ichidagi havolalar
+ * orqali o'tishda sahifa qayta yuklanmaydi — u yerda sahifa loaderi (loading.tsx) ishlaydi.
  * Belgi React tomonidan chiziladi, lekin odatda yashirin; kichik inline skript
- * birinchi kirishda <html> ga "lx-splashing" klassini qo'shadi (DOM o'zgarmaydi —
+ * har bir yuklanishda <html> ga "lx-splashing" klassini qo'shadi (DOM o'zgarmaydi —
  * gidratsiya xatosi bo'lmaydi). Sahifa to'liq yuklangach (window "load") silliq
  * yo'qoladi; ko'pi bilan 3.5 soniya. JS o'chiq yoki "harakatni kamaytirish"
  * yoqilgan bo'lsa ko'rsatilmaydi.
  */
 export function Splash() {
   const code = `(function(){try{
-if(sessionStorage.getItem("lx-splash"))return;sessionStorage.setItem("lx-splash","1");
 if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
 var h=document.documentElement,t0=Date.now(),done=false;h.classList.add("lx-splashing");
 function hide(){if(done)return;done=true;setTimeout(function(){h.classList.add("lx-splash-done");setTimeout(function(){h.classList.remove("lx-splashing","lx-splash-done")},700)},Math.max(0,650-(Date.now()-t0)))}

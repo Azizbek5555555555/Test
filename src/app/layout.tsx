@@ -73,7 +73,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh">
-        {/* saytga kirishda yuklanish ekrani (sessiyada bir marta) */}
+        {/* har bir to'liq yuklanishda (kirish, refresh) yuklanish ekrani */}
         <Splash />
         {children}
         <CursorFollower />
