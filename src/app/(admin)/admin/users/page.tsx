@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getProfile, isAdmin, profileHasPremium } from "@/lib/auth";
 import { listProfiles } from "@/lib/admin-queries";
@@ -107,6 +108,12 @@ export default async function AdminUsersPage({
                         : ""}
                       {user.phone ? ` · ${user.phone}` : ""}
                     </p>
+                    <Link
+                      href={`/admin/results?q=${encodeURIComponent(user.email ?? user.full_name ?? "")}`}
+                      className="mt-2 inline-flex text-xs font-semibold text-brand-400 hover:text-brand-300"
+                    >
+                      Natijalarini ko&apos;rish →
+                    </Link>
                   </div>
 
                   <div className="flex flex-wrap gap-5">

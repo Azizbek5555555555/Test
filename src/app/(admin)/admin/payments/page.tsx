@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import { getProfile, isAdmin } from "@/lib/auth";
 import { listPaymentOrders } from "@/lib/admin-queries";
 import { getEnabledProviders } from "@/lib/payments/config";
-import { formatDateTime, formatSum } from "@/lib/format";
+import Link from "next/link";
+import { cn, formatDateTime, formatSum } from "@/lib/format";
+import { getPaymentStatsFor, parseRange, RANGES } from "@/lib/admin-stats";
+import { Delta, Donut, METHOD_COLOR } from "@/components/admin/charts";
 import { Badge } from "@/components/ui/Badge";
 import { Alert, EmptyState } from "@/components/ui/Card";
 
@@ -20,14 +23,17 @@ const STATUS_META = {
 
 const PROVIDER_LABEL = { payme: "Payme", click: "Click" } as const;
 
-export default async function AdminPaymentsPage() {
+export default async function AdminPaymentsPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   const me = await getProfile();
   if (!isAdmin(me)) redirect("/admin");
 
-  const [orders, providers] = await Promise.all([
+  const rangeKey = parseRange((await searchParams).range);
+  const [orders, providers, stats] = await Promise.all([
     listPaymentOrders(),
     Promise.resolve(getEnabledProviders()),
+    getPaymentStatsFor(rangeKey),
   ]);
+  const topMethod = stats ? [...stats.methods].sort((a, b) => b.count - a.count || b.amount - a.amount)[0] : null;
 
   const monthStart = new Date();
   monthStart.setDate(1);
@@ -57,6 +63,69 @@ export default async function AdminPaymentsPage() {
           Ulangan: {providers.map((p) => PROVIDER_LABEL[p]).join(", ")}
         </Alert>
       )}
+
+      {/* ------------------------------------------------ To'lov usullari statistikasi */}
+      {stats ? (
+        <section className="ag">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="ag-title">Qaysi usul bilan ko&apos;p to&apos;lanmoqda?</p>
+              <p className="ag-sub">Payme, Click va karta o&apos;tkazmasi (tasdiqlangan Premium so&apos;rovlar)</p>
+            </div>
+            <nav className="flex flex-wrap gap-1.5" aria-label="Davr">
+              {RANGES.map((r) => (
+                <Link
+                  key={r.key}
+                  href={r.key === "30" ? "/admin/payments" : `/admin/payments?range=${r.key}`}
+                  scroll={false}
+                  className={cn("ag-pillbtn", r.key === rangeKey && "is-active")}
+                >
+                  {r.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+          <div className="mt-5 grid items-center gap-6 md:grid-cols-[auto_1fr]">
+            <Donut size={190} segments={stats.methods.map((m) => ({ label: m.label, value: m.amount, color: METHOD_COLOR[m.key] }))}>
+              <span className="px-6 text-[16px] font-light leading-tight tabular-nums">{formatSum(stats.amount)}</span>
+              <span className="text-[11px] text-faint">{stats.count} ta to&apos;lov</span>
+            </Donut>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-[0.1em] text-faint">
+                    <th className="py-2 font-semibold">Usul</th>
+                    <th className="py-2 text-right font-semibold">Soni</th>
+                    <th className="py-2 text-right font-semibold">Summa</th>
+                    <th className="py-2 text-right font-semibold">Ulushi</th>
+                    <th className="py-2 text-right font-semibold">O&apos;rtacha chek</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.methods.map((m) => (
+                    <tr key={m.key} className="border-t border-white/5">
+                      <td className="py-3">
+                        <span className="inline-flex items-center gap-2">
+                          <i className="h-2.5 w-2.5 rounded-full" style={{ background: METHOD_COLOR[m.key] }} />
+                          {m.label}
+                          {topMethod && topMethod.key === m.key && m.count > 0 ? <span className="ad-chip ad-chip-up">eng ko&apos;p</span> : null}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right tabular-nums">{m.count}</td>
+                      <td className="py-3 text-right tabular-nums">{formatSum(m.amount)}</td>
+                      <td className="py-3 text-right tabular-nums">{stats.amount > 0 ? Math.round((m.amount / stats.amount) * 100) : 0}%</td>
+                      <td className="py-3 text-right tabular-nums">{m.count > 0 ? formatSum(Math.round(m.amount / m.count)) : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-3 flex items-center gap-2 text-[12px] text-faint">
+                O&apos;tgan shunday davrga nisbatan: <Delta value={stats.amount} prev={stats.prevAmount} />
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid sm:grid-cols-3 gap-3">
         <div className="card p-4">

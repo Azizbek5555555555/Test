@@ -93,9 +93,9 @@ export function cefrFromScore(
 
 /** Ismdan bosh harflarni oladi: "Aziz Karimov" → "AK" */
 export function initials(name: string | null | undefined): string {
-  if (!name) return "MP";
+  if (!name) return "LX";
   const parts = name.trim().split(/\s+/).slice(0, 2);
-  return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "MP";
+  return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "LX";
 }
 
 /** Matndagi so'zlar sonini sanaydi (Writing uchun) */
