@@ -6,11 +6,15 @@ import { formatDate, formatDateTime, formatSum } from "@/lib/format";
 import { Alert } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { AutoRefresh } from "@/components/forms/AutoRefresh";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "To'lov holati",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("To'lov holati", "Payment status"),
+    robots: { index: false, follow: false },
+  };
+}
 
 interface Order {
   id: string;
@@ -38,6 +42,7 @@ export default async function CheckoutStatusPage({
 }) {
   const { orderId } = await params;
   const profile = await requireProfile(`/premium/checkout/${orderId}`);
+  const t = await getT();
 
   if (!/^[0-9a-f-]{36}$/i.test(orderId)) notFound();
 
@@ -62,50 +67,61 @@ export default async function CheckoutStatusPage({
 
         <h1 className="text-2xl font-extrabold">
           {order.status === "paid"
-            ? "Premium faollashdi!"
+            ? t("Premium faollashdi!", "Premium is active!")
             : order.status === "cancelled"
-              ? "To'lov amalga oshmadi"
-              : "To'lov tasdiqlanmoqda…"}
+              ? t("To'lov amalga oshmadi", "Payment failed")
+              : t("To'lov tasdiqlanmoqda…", "Confirming payment…")}
         </h1>
 
         <p className="text-sm text-muted mt-2 leading-relaxed">
           {order.status === "paid"
             ? profile.premium_until
-              ? `Premium ${formatDate(profile.premium_until)} gacha amal qiladi. Rahmat!`
-              : "Barcha Premium imkoniyatlar siz uchun ochiq. Rahmat!"
+              ? t(
+                  `Premium ${formatDate(profile.premium_until)} gacha amal qiladi. Rahmat!`,
+                  `Premium is valid until ${formatDate(profile.premium_until, "en")}. Thank you!`,
+                )
+              : t("Barcha Premium imkoniyatlar siz uchun ochiq. Rahmat!", "All Premium features are open to you. Thank you!")
             : order.status === "cancelled"
-              ? "To'lov bekor qilindi yoki o'tmadi. Kartangizdan pul yechilgan bo'lsa, u avtomatik qaytariladi."
-              : `${PROVIDER_LABEL[order.provider]} to'lovni tasdiqlashini kutyapmiz. Bu odatda bir necha soniya davom etadi — sahifa o'zi yangilanadi.`}
+              ? t(
+                  "To'lov bekor qilindi yoki o'tmadi. Kartangizdan pul yechilgan bo'lsa, u avtomatik qaytariladi.",
+                  "The payment was cancelled or did not go through. If money was taken from your card, it will be refunded automatically.",
+                )
+              : t(
+                  `${PROVIDER_LABEL[order.provider]} to'lovni tasdiqlashini kutyapmiz. Bu odatda bir necha soniya davom etadi — sahifa o'zi yangilanadi.`,
+                  `Waiting for ${PROVIDER_LABEL[order.provider]} to confirm the payment. This usually takes a few seconds — the page refreshes on its own.`,
+                )}
         </p>
 
         <dl className="mt-6 rounded-xl bg-[var(--bg-subtle)] border border-line p-4 text-sm text-left space-y-2">
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Buyurtma</dt>
+            <dt className="text-muted">{t("Buyurtma", "Order")}</dt>
             <dd className="font-semibold tabular-nums">№ {order.order_number}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Tarif</dt>
-            <dd className="font-semibold">{order.plan_title ?? `${order.months} oylik`}</dd>
+            <dt className="text-muted">{t("Tarif", "Plan")}</dt>
+            <dd className="font-semibold">{order.plan_title ?? t(`${order.months} oylik`, `${order.months}-month`)}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Summa</dt>
-            <dd className="font-semibold tabular-nums">{formatSum(order.amount)}</dd>
+            <dt className="text-muted">{t("Summa", "Amount")}</dt>
+            <dd className="font-semibold tabular-nums">{formatSum(order.amount, t.locale)}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">To&apos;lov tizimi</dt>
+            <dt className="text-muted">{t("To'lov tizimi", "Payment system")}</dt>
             <dd className="font-semibold">{PROVIDER_LABEL[order.provider]}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Sana</dt>
-            <dd className="font-semibold">{formatDateTime(order.paid_at ?? order.created_at)}</dd>
+            <dt className="text-muted">{t("Sana", "Date")}</dt>
+            <dd className="font-semibold">{formatDateTime(order.paid_at ?? order.created_at, t.locale)}</dd>
           </div>
         </dl>
 
         {order.status === "pending" ? (
           <div className="mt-5 text-left">
             <Alert tone="info">
-              To&apos;lov sahifasida to&apos;lovni yakunlamagan bo&apos;lsangiz,
-              Premium sahifasiga qaytib, qaytadan urinib ko&apos;ring.
+              {t(
+                "To'lov sahifasida to'lovni yakunlamagan bo'lsangiz, Premium sahifasiga qaytib, qaytadan urinib ko'ring.",
+                "If you did not complete the payment on the payment page, go back to the Premium page and try again.",
+              )}
             </Alert>
           </div>
         ) : null}
@@ -117,12 +133,12 @@ export default async function CheckoutStatusPage({
                 🎯 Exam Full Checking
               </ButtonLink>
               <ButtonLink href="/full-mock" variant="secondary">
-                Full Mock testlar
+                {t("Full Mock testlar", "Full Mock tests")}
               </ButtonLink>
             </>
           ) : (
             <ButtonLink href="/premium" variant={order.status === "cancelled" ? "primary" : "secondary"}>
-              {order.status === "cancelled" ? "Qayta urinib ko'rish" : "Premium sahifasiga qaytish"}
+              {order.status === "cancelled" ? t("Qayta urinib ko'rish", "Try again") : t("Premium sahifasiga qaytish", "Back to Premium")}
             </ButtonLink>
           )}
         </div>

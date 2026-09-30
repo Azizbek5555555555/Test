@@ -4,12 +4,19 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth";
 import { LoginForm } from "./LoginForm";
 import { BrandMark, BrandWordmark } from "@/components/layout/BrandLogo";
+import { LangSwitch } from "@/components/layout/LangSwitch";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Kirish",
-  description:
-    "LevelX English platformasiga Google orqali kiring va tayyorgarlikni boshlang.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("Kirish", "Log in"),
+    description: t(
+      "LevelX English platformasiga Google orqali kiring va tayyorgarlikni boshlang.",
+      "Log in to LevelX English with Google and start preparing.",
+    ),
+  };
+}
 
 export default async function LoginPage({
   searchParams,
@@ -21,7 +28,7 @@ export default async function LoginPage({
   const next =
     rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
 
-  const user = await getUser();
+  const [user, t] = await Promise.all([getUser(), getT()]);
   if (user) redirect(next);
 
   return (
@@ -34,7 +41,7 @@ export default async function LoginPage({
         />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-ink-950/80 to-transparent" />
 
-        <Link href="/" className="flex w-fit items-center gap-3" aria-label="LevelX English — bosh sahifa">
+        <Link href="/" className="flex w-fit items-center gap-3" aria-label={t("LevelX English — bosh sahifa", "LevelX English — home")}>
           <BrandMark size={32} />
           <BrandWordmark className="text-2xl" />
         </Link>
@@ -45,12 +52,12 @@ export default async function LoginPage({
             The summit concept
           </p>
           <h1 className="display-title mt-4 text-[36px] leading-[1.1] sm:mt-5 sm:text-[48px] lg:text-[56px] animate-fade-up">
-            Cho&apos;qqiga yo&apos;l
+            {t("Cho'qqiga yo'l", "The path to the summit")}
             <br />
-            shu yerdan boshlanadi
+            {t("shu yerdan boshlanadi", "starts right here")}
           </h1>
           <p className="mt-4 font-display text-xl italic sm:mt-6 text-brand-400 sm:text-2xl animate-fade-up">
-            “Har kungi kichik qadamlar — katta natijalar”
+            “{t("Har kungi kichik qadamlar — katta natijalar", "Small steps every day — big results")}”
           </p>
         </div>
 
@@ -66,13 +73,18 @@ export default async function LoginPage({
             ))}
           </div>
           <p className="text-[13px] text-muted">
-            O&apos;quvchilar bilan birga <span className="font-semibold text-fg">B1, B2 va C1</span> cho&apos;qqilariga ko&apos;tariling.
+            {t("O'quvchilar bilan birga", "Climb with other learners to the")}{" "}
+            <span className="font-semibold text-fg">B1, B2 {t("va", "and")} C1</span>{" "}
+            {t("cho'qqilariga ko'tariling.", "summits.")}
           </p>
         </div>
       </aside>
 
       {/* ------------------------------------------------ O'ng panel: forma */}
-      <section className="flex flex-1 items-start justify-center border-line bg-ink-950 px-6 py-12 sm:px-10 lg:items-center lg:border-l lg:py-[60px]">
+      <section className="relative flex flex-1 items-start justify-center border-line bg-ink-950 px-6 pb-12 pt-20 sm:px-10 lg:items-center lg:border-l lg:py-[60px]">
+        <div className="absolute right-6 top-6 sm:right-10">
+          <LangSwitch />
+        </div>
         <div className="w-full max-w-[400px] animate-fade-up">
           <LoginForm
             next={next}

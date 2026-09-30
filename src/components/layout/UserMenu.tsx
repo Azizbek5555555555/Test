@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
@@ -16,12 +17,13 @@ export interface UserMenuData {
   level?: string | null;
 }
 
-function firstName(name: string | null): string {
-  return name?.trim().split(/\s+/)[0] || "Profil";
+function firstName(name: string | null, fallback: string): string {
+  return name?.trim().split(/\s+/)[0] || fallback;
 }
 
 export function UserMenu({ user }: { user: UserMenuData }) {
   const [open, setOpen] = useState(false);
+  const t = useT();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,8 +49,8 @@ export function UserMenu({ user }: { user: UserMenuData }) {
   }, [open]);
 
   const items = [
-    { href: "/profile", label: "Mening profilim", icon: "👤" },
-    { href: "/profile/results", label: "Natijalarim", icon: "📊" },
+    { href: "/profile", label: t("Mening profilim", "My profile"), icon: "👤" },
+    { href: "/profile/results", label: t("Natijalarim", "My results"), icon: "📊" },
     { href: "/premium", label: "Premium", icon: "⭐" },
   ];
 
@@ -62,7 +64,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
         className="flex items-center gap-2.5 rounded-full py-0.5 pl-1 pr-0.5 group"
       >
         <span className="hidden md:inline text-sm font-semibold text-fg group-hover:text-brand-300 transition-colors max-w-[9rem] truncate">
-          {firstName(user.fullName)}
+          {firstName(user.fullName, t("Profil", "Profile"))}
         </span>
         {user.level ? (
           <span className="hidden md:inline rounded-full bg-brand-400 px-2 py-0.5 text-[10px] font-bold text-ink-950">
@@ -93,7 +95,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
               />
               <div className="min-w-0">
                 <p className="font-bold text-sm truncate">
-                  {user.fullName ?? "Foydalanuvchi"}
+                  {user.fullName ?? t("Foydalanuvchi", "User")}
                 </p>
                 <p className="text-xs text-muted truncate">{user.email}</p>
               </div>
@@ -109,7 +111,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
                   onClick={() => setOpen(false)}
                   className="text-xs font-bold text-brand-400 hover:underline"
                 >
-                  Premiumga o&apos;tish →
+                  {t("Premiumga o'tish →", "Go Premium →")}
                 </Link>
               )}
               <span className="text-xs text-muted ml-auto tabular-nums">
@@ -142,7 +144,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
                            hover:bg-[var(--bg-subtle)] transition-colors"
               >
                 <span aria-hidden>🛠️</span>
-                Admin panel
+                {t("Admin panel", "Admin panel")}
               </Link>
             ) : null}
           </nav>
@@ -155,7 +157,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
                          transition-colors"
             >
               <span aria-hidden>🚪</span>
-              Chiqish
+              {t("Chiqish", "Log out")}
             </button>
           </form>
         </div>

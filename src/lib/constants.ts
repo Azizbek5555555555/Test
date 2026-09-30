@@ -1,4 +1,5 @@
 import type { QuestionKind, SkillSection } from "./types";
+import type { Bi } from "@/i18n";
 
 export const SITE_NAME = "LevelX English";
 /** Brendning asosiy shiori */
@@ -6,6 +7,9 @@ export const SITE_TAGLINE = "Push Past Your Limits";
 export const SITE_DESCRIPTION =
   "LevelX English — ingliz tilini tizimli o'rganish, real imtihon formatida mashq qilish " +
   "va natijangizni yangi bosqichga olib chiqish uchun yaratilgan zamonaviy ta'lim platformasi.";
+export const SITE_DESCRIPTION_EN =
+  "LevelX English is a modern learning platform to study English systematically, practise in the " +
+  "real exam format and take your results to the next level.";
 
 /* -------------------------------------------------------------------------
    Ko'nikmalar (sections)
@@ -132,20 +136,20 @@ export const CEFR_COLOR: Record<string, string> = {
 export const COURSES_ENABLED = true;
 
 export const MAIN_NAV = [
-  { href: "/full-mock", label: "Full Mock" },
-  { href: "/latest-questions", label: "Oxirgi savollar" },
-  { href: "/boost", label: "General English" },
-  { href: "/vocabulary-battle", label: "Vocabulary" },
-  { href: "/exam-checking", label: "Exam Checking" },
-  ...(COURSES_ENABLED ? [{ href: "/courses", label: "Kurslar" }] : []),
+  { href: "/full-mock", label: { uz: "Full Mock", en: "Full Mock" } },
+  { href: "/latest-questions", label: { uz: "Oxirgi savollar", en: "Latest questions" } },
+  { href: "/boost", label: { uz: "General English", en: "General English" } },
+  { href: "/vocabulary-battle", label: { uz: "Vocabulary", en: "Vocabulary" } },
+  { href: "/exam-checking", label: { uz: "Exam Checking", en: "Exam Checking" } },
+  ...(COURSES_ENABLED ? [{ href: "/courses", label: { uz: "Kurslar", en: "Courses" } }] : []),
 ];
 
 /** Savol turlari nomi (maqola va mashq sahifalarida) */
-export const KIND_LABEL: Partial<Record<QuestionKind, string>> = {
-  true_false_ng: "True / False / Not Given",
-  mcq: "Multiple Choice",
-  multi_select: "Bir nechta javobli savol",
-  gap_fill: "Gap Filling",
-  matching: "Matching",
-  short_answer: "Qisqa javob",
+export const KIND_LABEL: Partial<Record<QuestionKind, Bi>> = {
+  true_false_ng: { uz: "True / False / Not Given", en: "True / False / Not Given" },
+  mcq: { uz: "Multiple Choice", en: "Multiple Choice" },
+  multi_select: { uz: "Bir nechta javobli savol", en: "Multiple answers" },
+  gap_fill: { uz: "Gap Filling", en: "Gap Filling" },
+  matching: { uz: "Matching", en: "Matching" },
+  short_answer: { uz: "Qisqa javob", en: "Short answer" },
 };

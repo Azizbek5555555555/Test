@@ -7,11 +7,12 @@ import { PageHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { ProfileSettingsForm } from "@/components/profile/ProfileSettingsForm";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Sozlamalar",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Sozlamalar", "Settings"), robots: { index: false, follow: false } };
+}
 
 export default async function SettingsPage() {
   const profile = await getProfile();
@@ -19,6 +20,7 @@ export default async function SettingsPage() {
     redirect(`/login?next=${encodeURIComponent("/profile/settings")}`);
 
   const isPremium = profileHasPremium(profile);
+  const t = await getT();
 
   return (
     <div className="container-page py-10">
@@ -26,17 +28,17 @@ export default async function SettingsPage() {
         href="/profile"
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg mb-6"
       >
-        ← Profil
+        ← {t("Profil", "Profile")}
       </Link>
 
       <PageHeader
-        title="Sozlamalar"
-        description="Ismingiz reytingda va natijalar hujjatida ko'rinadi."
+        title={t("Sozlamalar", "Settings")}
+        description={t("Ismingiz reytingda va natijalar hujjatida ko'rinadi.", "Your name appears on the leaderboard and on your result sheets.")}
       />
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start max-w-4xl">
         <div className="card p-6">
-          <h2 className="font-extrabold text-lg mb-5">Shaxsiy ma&apos;lumotlar</h2>
+          <h2 className="font-extrabold text-lg mb-5">{t("Shaxsiy ma'lumotlar", "Personal details")}</h2>
           <ProfileSettingsForm
             defaultName={profile.full_name ?? ""}
             defaultPhone={profile.phone ?? ""}
@@ -45,7 +47,7 @@ export default async function SettingsPage() {
 
         <aside className="space-y-4">
           <div className="card p-5">
-            <h3 className="font-bold text-sm mb-3">Hisob</h3>
+            <h3 className="font-bold text-sm mb-3">{t("Hisob", "Account")}</h3>
             <dl className="space-y-2.5 text-sm">
               <div>
                 <dt className="text-muted text-xs">Email</dt>
@@ -63,16 +65,16 @@ export default async function SettingsPage() {
               </div>
               {isPremium && profile.premium_until ? (
                 <div>
-                  <dt className="text-muted text-xs">Premium muddati</dt>
+                  <dt className="text-muted text-xs">{t("Premium muddati", "Premium until")}</dt>
                   <dd className="font-semibold">
-                    {formatDate(profile.premium_until)}
+                    {formatDate(profile.premium_until, t.locale)}
                   </dd>
                 </div>
               ) : null}
               <div>
-                <dt className="text-muted text-xs">Ro&apos;yxatdan o&apos;tgan</dt>
+                <dt className="text-muted text-xs">{t("Ro'yxatdan o'tgan", "Joined")}</dt>
                 <dd className="font-semibold">
-                  {formatDate(profile.created_at)}
+                  {formatDate(profile.created_at, t.locale)}
                 </dd>
               </div>
             </dl>
@@ -85,15 +87,15 @@ export default async function SettingsPage() {
                 fullWidth
                 className="mt-4"
               >
-                ⭐ Premiumga o&apos;tish
+                ⭐ {t("Premiumga o'tish", "Go Premium")}
               </ButtonLink>
             ) : null}
           </div>
 
           <div className="card p-5">
-            <h3 className="font-bold text-sm mb-2">Hisobdan chiqish</h3>
+            <h3 className="font-bold text-sm mb-2">{t("Hisobdan chiqish", "Log out")}</h3>
             <p className="text-xs text-muted leading-relaxed mb-3">
-              Qurilmangizdan chiqasiz. Natijalaringiz saqlanib qoladi.
+              {t("Qurilmangizdan chiqasiz. Natijalaringiz saqlanib qoladi.", "You will be logged out on this device. Your results stay saved.")}
             </p>
             <form action="/auth/signout" method="post">
               <button
@@ -103,7 +105,7 @@ export default async function SettingsPage() {
                             text-danger hover:bg-danger/10
                            transition-colors"
               >
-                🚪 Chiqish
+                🚪 {t("Chiqish", "Log out")}
               </button>
             </form>
           </div>

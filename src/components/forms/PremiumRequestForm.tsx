@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useActionState, useState } from "react";
 import { requestPremiumAction, type ActionResult } from "@/lib/actions/forms";
 import type { PremiumPlan } from "@/lib/types";
@@ -15,6 +16,7 @@ export function PremiumRequestForm({
   plans: PremiumPlan[];
   hasPending: boolean;
 }) {
+  const t = useT();
   const [selected, setSelected] = useState(
     plans.find((p) => p.popular)?.id ?? plans[0]?.id ?? "",
   );
@@ -27,10 +29,11 @@ export function PremiumRequestForm({
 
   if (hasPending && !state) {
     return (
-      <Alert tone="info" title="So'rovingiz ko'rib chiqilmoqda">
-        Siz allaqachon Premium so&apos;rovi yuborgansiz. To&apos;lovni amalga
-        oshirib, chekni Telegram orqali yuboring — admin tasdiqlagach Premium
-        darhol faollashadi.
+      <Alert tone="info" title={t("So'rovingiz ko'rib chiqilmoqda", "Your request is being reviewed")}>
+        {t(
+          "Siz allaqachon Premium so'rovi yuborgansiz. To'lovni amalga oshirib, chekni Telegram orqali yuboring — admin tasdiqlagach Premium darhol faollashadi.",
+          "You have already sent a Premium request. Make the payment and send the receipt via Telegram — Premium activates as soon as an admin approves it.",
+        )}
       </Alert>
     );
   }
@@ -61,13 +64,15 @@ export function PremiumRequestForm({
                   className="absolute -top-2.5 left-4 rounded-full bg-gold-400 px-2 py-0.5
                              text-[10px] font-bold uppercase tracking-wide text-ink-950"
                 >
-                  Ommabop
+                  {t("Ommabop", "Popular")}
                 </span>
               ) : null}
 
-              <p className="font-display text-xl text-fg">{item.title}</p>
+              <p className="font-display text-xl text-fg">
+                {t(item.title, `${item.months} ${item.months === 1 ? "month" : "months"}`)}
+              </p>
               <p className="mt-1 text-lg font-semibold tabular-nums text-gold-400">
-                {formatSum(item.amount)}
+                {formatSum(item.amount, t.locale)}
               </p>
               {item.note ? (
                 <p className="text-xs text-muted mt-1.5">{item.note}</p>
@@ -93,12 +98,15 @@ export function PremiumRequestForm({
 
       <div>
         <label htmlFor="premium-note" className="block text-sm font-semibold mb-1.5">
-          Izoh <span className="text-muted font-normal">(ixtiyoriy)</span>
+          {t("Izoh", "Note")} <span className="text-muted font-normal">({t("ixtiyoriy", "optional")})</span>
         </label>
         <Textarea
           id="premium-note"
           name="note"
-          placeholder="Masalan: to'lovni Payme orqali qildim, chekni Telegramga yubordim."
+          placeholder={t(
+            "Masalan: to'lovni Payme orqali qildim, chekni Telegramga yubordim.",
+            "E.g. I paid via Payme and sent the receipt on Telegram.",
+          )}
           className="min-h-20"
           maxLength={500}
         />
@@ -112,10 +120,13 @@ export function PremiumRequestForm({
         disabled={pending || state?.ok}
       >
         {pending
-          ? "Yuborilmoqda…"
+          ? t("Yuborilmoqda…", "Sending…")
           : state?.ok
-            ? "✅ So'rov yuborildi"
-            : `⭐ ${plan?.title ?? ""} Premium so'rovini yuborish`}
+            ? t("✅ So'rov yuborildi", "✅ Request sent")
+            : t(
+                `⭐ ${plan?.title ?? ""} Premium so'rovini yuborish`,
+                `⭐ Send ${plan ? `${plan.months}-month` : ""} Premium request`,
+              )}
       </Button>
     </form>
   );

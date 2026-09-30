@@ -3,14 +3,23 @@ import Link from "next/link";
 import { getContactSettings } from "@/lib/settings";
 import { SITE_NAME } from "@/lib/constants";
 import { LegalPage, LegalSection } from "@/components/layout/LegalPage";
+import { getT } from "@/i18n/server";
+import type { ContactSettings } from "@/lib/types";
 
-export const metadata: Metadata = {
-  title: "Maxfiylik siyosati",
-  description: `${SITE_NAME} foydalanuvchi ma'lumotlarini qanday yig'adi, saqlaydi va himoya qiladi.`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("Maxfiylik siyosati", "Privacy Policy"),
+    description: t(
+      `${SITE_NAME} foydalanuvchi ma'lumotlarini qanday yig'adi, saqlaydi va himoya qiladi.`,
+      `How ${SITE_NAME} collects, stores and protects user data.`,
+    ),
+  };
+}
 
 export default async function PrivacyPage() {
-  const contact = await getContactSettings();
+  const [contact, t] = await Promise.all([getContactSettings(), getT()]);
+  if (t.locale === "en") return <PrivacyEn contact={contact} />;
 
   return (
     <LegalPage
@@ -83,7 +92,7 @@ export default async function PrivacyPage() {
       <LegalSection title="5. Cookie (kuki) fayllari">
         <p>
           Faqat tizimga kirganingizni eslab qolish uchun zarur cookie fayllar va
-          tanlagan mavzuingiz (yorug&apos;/qorong&apos;i) saqlanadi. Kuzatuv
+          tanlagan tilingiz (UZ/EN) saqlanadi. Kuzatuv
           yoki reklama cookie&apos;lari ishlatilmaydi.
         </p>
       </LegalSection>
@@ -122,6 +131,120 @@ export default async function PrivacyPage() {
           <li>
             <Link href="/contact" className="text-brand-400 underline">
               Biz bilan bog&apos;lanish sahifasi
+            </Link>
+          </li>
+        </ul>
+      </LegalSection>
+    </LegalPage>
+  );
+}
+
+/** Inglizcha versiya (til tugmasi EN bo'lganda) */
+function PrivacyEn({ contact }: { contact: ContactSettings }) {
+  return (
+    <LegalPage
+      title="Privacy Policy"
+      description={`What data ${SITE_NAME} collects, why it is used and how it is protected.`}
+      updated="26 September 2026"
+    >
+      <LegalSection title="1. What data we collect">
+        <ul>
+          <li>
+            <strong>When you sign in with Google:</strong> your name, email address and profile
+            picture. We never see your Google password.
+          </li>
+          <li>
+            <strong>When you sign in with email:</strong> your email address and the name you enter.
+          </li>
+          <li>
+            <strong>Using the platform:</strong> your test answers, results, Writing texts, Speaking
+            audio recordings and Vocabulary game scores.
+          </li>
+          <li>
+            <strong>Forms:</strong> the name, phone number and message you write in a Premium request
+            or the contact form.
+          </li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection title="2. Why we use the data">
+        <ul>
+          <li>To sign you in and save your results</li>
+          <li>To mark tests and determine your CEFR level</li>
+          <li>So that a teacher can review your Writing and Speaking answers</li>
+          <li>To show the Leaderboard</li>
+          <li>To reply to your requests and applications</li>
+        </ul>
+        <p>
+          We do <strong>not sell</strong> your data and do <strong>not share</strong> it with third
+          parties for advertising.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="3. What others can see">
+        <ul>
+          <li>
+            The <strong>Leaderboard</strong> shows only your name, picture and score.
+          </li>
+          <li>
+            Your test results, answers and audio recordings are visible only to you and the
+            platform&apos;s teachers.
+          </li>
+          <li>Your email and phone number are not visible to other users.</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection title="4. Where the data is stored">
+        <p>
+          Data is stored with <strong>Supabase</strong> (database and files) over an encrypted
+          connection. Each user can see only their own data — this is enforced at the database
+          level. Google OAuth is used for sign-in.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="5. Cookies">
+        <p>
+          We only store the cookies needed to keep you signed in and to remember your chosen language
+          (UZ/EN). No tracking or advertising cookies are used.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="6. Your rights">
+        <ul>
+          <li>
+            You can change your name at any time on the{" "}
+            <Link href="/profile" className="text-brand-400 underline">
+              Profile
+            </Link>{" "}
+            page.
+          </li>
+          <li>
+            You can ask us to delete your account and all your data — write to the address below and
+            it will be deleted within 7 days.
+          </li>
+          <li>
+            You can revoke access from your Google account at any time via{" "}
+            <a
+              href="https://myaccount.google.com/permissions"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-400 underline"
+            >
+              myaccount.google.com/permissions
+            </a>
+            .
+          </li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection title="7. Contact">
+        <p>For privacy questions:</p>
+        <ul>
+          {contact.email ? <li>Email: {contact.email}</li> : null}
+          {contact.phone ? <li>Phone: {contact.phone}</li> : null}
+          <li>
+            <Link href="/contact" className="text-brand-400 underline">
+              Contact page
             </Link>
           </li>
         </ul>

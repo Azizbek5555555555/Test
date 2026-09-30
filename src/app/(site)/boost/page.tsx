@@ -17,12 +17,18 @@ import { ChipLink, ChipRow } from "@/components/ui/ChipLink";
 import { ArticleCard } from "@/components/boost/ArticleCard";
 import { Waveform } from "@/components/boost/Waveform";
 import { Reveal } from "@/components/motion/Reveal";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Boost Your General English",
-  description:
-    "Maqolalar, Listening Practice va Vocabulary — imtihondan tashqari umumiy ingliz tilingizni kuchaytiring.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: "Boost Your General English",
+    description: t(
+      "Maqolalar, Listening Practice va Vocabulary — imtihondan tashqari umumiy ingliz tilingizni kuchaytiring.",
+      "Articles, Listening Practice and Vocabulary — strengthen your general English beyond the exam.",
+    ),
+  };
+}
 
 /** HTML matndan birinchi paragraflarni oddiy matn sifatida oladi */
 function leadParagraphs(html: string, count: number): string[] {
@@ -51,11 +57,12 @@ function pickDaily(articles: ArticleListItem[]): ArticleListItem | undefined {
 }
 
 export default async function BoostPage() {
-  const [profile, articles, listening, packs] = await Promise.all([
+  const [profile, articles, listening, packs, t] = await Promise.all([
     getProfile(),
     listArticles(),
     getTestSets({ category: "general_english", section: "listening" }),
     getVocabPacks(),
+    getT(),
   ]);
   const unlocked = profileHasPremium(profile);
 
@@ -70,43 +77,54 @@ export default async function BoostPage() {
   const lesson = listening.find((s) => !s.is_premium) ?? listening[0];
   const lessonOutline = lesson ? (await getTestOutlines([lesson.id]))[lesson.id] : undefined;
 
-  const topics = ARTICLE_TOPICS.filter((t) => articles.some((a) => a.topic === t.slug));
+  const topics = ARTICLE_TOPICS.filter((tp) => articles.some((a) => a.topic === tp.slug));
 
   const categories = [
     {
       href: "/boost/articles",
       icon: BookOpen,
-      title: "Maqolalar",
-      text: "Dunyo mavzularidagi maqolalar orqali o'qib tushunishni chuqurlashtiring: yangi so'zlar va Reading savollari bilan.",
-      count: `${articles.length} ta maqola`,
+      title: t("Maqolalar", "Articles"),
+      text: t(
+        "Dunyo mavzularidagi maqolalar orqali o'qib tushunishni chuqurlashtiring: yangi so'zlar va Reading savollari bilan.",
+        "Deepen your reading comprehension with articles on world topics — with new words and Reading questions.",
+      ),
+      count: t(`${articles.length} ta maqola`, `${articles.length} articles`),
     },
     {
       href: "/boost/listening",
       icon: Headphones,
       title: "Listening Practice",
-      text: "Tabiiy talaffuzga quloq o'rgating. Audio, skript va gap filling, matching, multiple choice savollari.",
-      count: `${listening.length} ta mashg'ulot`,
+      text: t(
+        "Tabiiy talaffuzga quloq o'rgating. Audio, skript va gap filling, matching, multiple choice savollari.",
+        "Train your ear to natural speech. Audio, transcripts and gap filling, matching and multiple choice questions.",
+      ),
+      count: t(`${listening.length} ta mashg'ulot`, `${listening.length} lessons`),
     },
     {
       href: "/vocabulary-battle",
       icon: Award,
       title: "Vocabulary Arena",
-      text: "Idiomalar, akademik so'zlar va darajani oshiruvchi lug'atni o'yin orqali mustahkamlang.",
-      count: `${packs.length} ta to'plam`,
+      text: t(
+        "Idiomalar, akademik so'zlar va darajani oshiruvchi lug'atni o'yin orqali mustahkamlang.",
+        "Master idioms, academic words and level-raising vocabulary through a game.",
+      ),
+      count: t(`${packs.length} ta to'plam`, `${packs.length} packs`),
     },
   ];
 
   return (
     <div>
       <PageHero
-        eyebrow="CEFR mashq to'plami"
+        eyebrow={t("CEFR mashq to'plami", "CEFR practice set")}
         title="Boost Your General English"
         highlight="General English"
         hand="A little better every day"
         words={["vocabulary", "fluent", "listening", "reading"]}
       >
-        Har kungi ko&apos;nikmalarni rivojlantiring — yanada ishonchli bo&apos;ling. Kontekst,
-        tushunish va ifodani tizimli egallang.
+        {t(
+          "Har kungi ko'nikmalarni rivojlantiring — yanada ishonchli bo'ling. Kontekst, tushunish va ifodani tizimli egallang.",
+          "Build your everyday skills and grow more confident. Master context, comprehension and expression step by step.",
+        )}
       </PageHero>
 
       {/* ------------------------------------------------ Yo'nalishlar */}
@@ -121,7 +139,7 @@ export default async function BoostPage() {
               <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">{c.text}</p>
               <div className="mt-5 flex items-center justify-between text-[13px]">
                 <span className="font-semibold text-brand-400 transition-transform group-hover:translate-x-1">
-                  Ko&apos;rish →
+                  {t("Ko'rish", "View")} →
                 </span>
                 <span className="text-muted">{c.count}</span>
               </div>
@@ -134,14 +152,14 @@ export default async function BoostPage() {
       {articles.length > 0 ? (
         <section className="container-page mt-20">
           <Reveal>
-            <h2 className="display-title text-[36px] sm:text-[40px]">Maqolalar o&apos;qish zali</h2>
+            <h2 className="display-title text-[36px] sm:text-[40px]">{t("Maqolalar o'qish zali", "Article reading room")}</h2>
             <ChipRow className="mt-5">
               <ChipLink href="/boost/articles" active>
-                Barchasi
+                {t("Barchasi", "All")}
               </ChipLink>
-              {topics.map((t) => (
-                <ChipLink key={t.slug} href={`/boost/articles?topic=${t.slug}`} active={false}>
-                  {t.label}
+              {topics.map((tp) => (
+                <ChipLink key={tp.slug} href={`/boost/articles?topic=${tp.slug}`} active={false}>
+                  {tp.label}
                 </ChipLink>
               ))}
             </ChipRow>
@@ -156,7 +174,7 @@ export default async function BoostPage() {
           {articles.length > 6 ? (
             <p className="mt-8 text-center">
               <Link href="/boost/articles" className="text-sm font-semibold text-brand-400 hover:text-brand-300">
-                Barcha {articles.length} ta maqola →
+                {t(`Barcha ${articles.length} ta maqola`, `All ${articles.length} articles`)} →
               </Link>
             </p>
           ) : null}
@@ -166,7 +184,7 @@ export default async function BoostPage() {
       {/* ------------------------------------------------ Iqtibos */}
       <Reveal className="container-page mt-24 text-center">
         <p className="mx-auto max-w-3xl font-display text-2xl italic leading-snug text-brand-400 sm:text-[32px]">
-          “Ishonch har bir suhbat bilan o&apos;sadi. Tilning tik yonbag&apos;irlaridan qo&apos;rqmang.”
+          “{t("Ishonch har bir suhbat bilan o'sadi. Tilning tik yonbag'irlaridan qo'rqmang.", "Confidence grows with every conversation. Don't fear the steep slopes of a language.")}”
         </p>
         <span aria-hidden className="mx-auto mt-6 block h-px w-20 bg-brand-400/60" />
       </Reveal>
@@ -176,7 +194,7 @@ export default async function BoostPage() {
         <section className="container-page mt-20 grid items-start gap-8 lg:grid-cols-[1fr_440px]">
           <Reveal className="card rounded-2xl p-7 sm:p-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-400">
-              Kun matni · {topicMeta(daily.topic).label}
+              {t("Kun matni", "Text of the day")} · {topicMeta(daily.topic).label}
             </p>
             <h2 className="display-title mt-2 text-[30px] leading-tight sm:text-[36px]">{daily.title}</h2>
             <span aria-hidden className="mt-4 block h-px bg-line" />
@@ -189,14 +207,14 @@ export default async function BoostPage() {
               href={`/boost/articles/${daily.slug}`}
               className="mt-6 inline-flex text-sm font-semibold text-brand-400 hover:text-brand-300"
             >
-              To&apos;liq o&apos;qish va savollarni ishlash →
+              {t("To'liq o'qish va savollarni ishlash", "Read in full and answer the questions")} →
             </Link>
           </Reveal>
 
           <Reveal delay={100} className="space-y-6">
             {dailyVocab.length > 0 ? (
               <div className="rounded-2xl border border-line bg-ink-800 p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-400">Yangi so&apos;zlar</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-400">{t("Yangi so'zlar", "New words")}</p>
                 <ul className="mt-4 space-y-3">
                   {dailyVocab.slice(0, 4).map((w) => (
                     <li key={w.word}>
@@ -209,15 +227,15 @@ export default async function BoostPage() {
             ) : null}
             {taskCounts.size > 0 ? (
               <div className="rounded-2xl border border-line bg-ink-800 p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-400">Mashq topshiriqlari</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-400">{t("Mashq topshiriqlari", "Practice tasks")}</p>
                 <ul className="mt-4 space-y-3">
                   {Array.from(taskCounts.entries()).map(([kind, n]) => (
                     <li
                       key={kind}
                       className="flex items-center justify-between rounded-lg border border-line bg-ink-900 px-3 py-2.5 text-sm"
                     >
-                      <span className="text-fg">{KIND_LABEL[kind] ?? kind}</span>
-                      <span className="text-xs text-muted">{n} ta savol</span>
+                      <span className="text-fg">{KIND_LABEL[kind] ? t(KIND_LABEL[kind]) : kind}</span>
+                      <span className="text-xs text-muted">{n} {t("ta savol", "questions")}</span>
                     </li>
                   ))}
                 </ul>
@@ -232,9 +250,9 @@ export default async function BoostPage() {
         <section className="container-page mt-24">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-400">
-              CEFR Listening mashqi
+              {t("CEFR Listening mashqi", "CEFR Listening practice")}
             </p>
-            <h2 className="display-title mt-2 text-[34px] sm:text-[36px]">Faol tinglab tushunish</h2>
+            <h2 className="display-title mt-2 text-[34px] sm:text-[36px]">{t("Faol tinglab tushunish", "Active listening comprehension")}</h2>
           </Reveal>
           <Reveal delay={80}>
             <Link
@@ -249,19 +267,19 @@ export default async function BoostPage() {
                   <div className="min-w-0">
                     <p className="truncate text-[15px] font-semibold text-fg">{lesson.title}</p>
                     <p className="text-xs text-muted">
-                      {lesson.level ? `Daraja: CEFR ${lesson.level}` : "Listening Practice"}
-                      {lessonOutline?.questions ? ` · ${lessonOutline.questions} ta savol` : ""}
+                      {lesson.level ? `${t("Daraja", "Level")}: CEFR ${lesson.level}` : "Listening Practice"}
+                      {lessonOutline?.questions ? ` · ${lessonOutline.questions} ${t("ta savol", "questions")}` : ""}
                     </p>
                   </div>
                 </div>
                 <span className="rounded-full border-[1.5px] border-brand-400 px-4 py-1.5 text-[13px] font-semibold text-fg transition-colors group-hover:bg-brand-400 group-hover:text-ink-950">
-                  Mashqni boshlash
+                  {t("Mashqni boshlash", "Start practice")}
                 </span>
               </div>
               <Waveform className="mt-6" />
               <div className="mt-3 flex justify-between text-xs tabular-nums text-muted">
-                <span>Audio · Skript · Savollar</span>
-                <span>{listening.length} ta mashg&apos;ulot</span>
+                <span>{t("Audio · Skript · Savollar", "Audio · Transcript · Questions")}</span>
+                <span>{t(`${listening.length} ta mashg'ulot`, `${listening.length} lessons`)}</span>
               </div>
             </Link>
           </Reveal>

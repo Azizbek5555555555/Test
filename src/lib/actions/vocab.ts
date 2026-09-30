@@ -1,5 +1,7 @@
 "use server";
 
+import { getT } from "@/i18n/server";
+
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getUser } from "@/lib/auth";
@@ -20,11 +22,12 @@ export interface RoundResult {
 export async function startVocabRoundAction(
   packId: string,
 ): Promise<RoundResult> {
+  const t = await getT();
   const user = await getUser();
   if (!user) {
     return {
       ok: false,
-      message: "Faqat ro'yxatdan o'tgan foydalanuvchilar o'ynay oladi.",
+      message: t("Faqat ro'yxatdan o'tgan foydalanuvchilar o'ynay oladi.", "Only registered users can play."),
     };
   }
 
@@ -43,12 +46,12 @@ export async function startVocabRoundAction(
     } | null;
     const words = round?.words ?? [];
     if (!round?.round_id || words.length === 0) {
-      return { ok: false, message: "Bu to'plamda hali so'zlar yo'q." };
+      return { ok: false, message: t("Bu to'plamda hali so'zlar yo'q.", "This pack has no words yet.") };
     }
 
     return { ok: true, roundId: round.round_id, words };
   } catch {
-    return { ok: false, message: "So'zlarni yuklab bo'lmadi." };
+    return { ok: false, message: t("So'zlarni yuklab bo'lmadi.", "Could not load the words.") };
   }
 }
 
@@ -74,8 +77,9 @@ export async function submitVocabSessionAction(
   roundId: string,
   answers: GameAnswer[],
 ): Promise<SubmitGameResult> {
+  const t = await getT();
   const user = await getUser();
-  if (!user) return { ok: false, message: "Sessiya tugagan. Qayta kiring." };
+  if (!user) return { ok: false, message: t("Sessiya tugagan. Qayta kiring.", "Your session has expired. Please log in again.") };
 
   try {
     const supabase = await createServerSupabase();
@@ -88,7 +92,7 @@ export async function submitVocabSessionAction(
     if (error) return { ok: false, message: error.message };
 
     const session = data as VocabSession | null;
-    if (!session) return { ok: false, message: "Natija saqlanmadi." };
+    if (!session) return { ok: false, message: t("Natija saqlanmadi.", "The result was not saved.") };
 
     // Haftalik o'rinni olamiz (hujjatdagi "Your Rank: #14")
     const { data: rankRows } = await supabase.rpc("get_my_rank", {
@@ -101,6 +105,6 @@ export async function submitVocabSessionAction(
 
     return { ok: true, session, rank };
   } catch {
-    return { ok: false, message: "Natijani saqlashda xatolik yuz berdi." };
+    return { ok: false, message: t("Natijani saqlashda xatolik yuz berdi.", "Something went wrong while saving the result.") };
   }
 }

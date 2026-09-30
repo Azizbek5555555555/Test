@@ -5,11 +5,12 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { PageHeader, EmptyState } from "@/components/ui/Card";
 import { AccessBadge } from "@/components/ui/Badge";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Qidiruv",
-  robots: { index: false, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Qidiruv", "Search"), robots: { index: false, follow: true } };
+}
 
 interface TestHit {
   slug: string;
@@ -70,12 +71,12 @@ export default async function SearchPage({
 }) {
   const { q = "" } = await searchParams;
   const query = q.trim();
-  const { tests, articles } = await searchAll(query);
+  const [{ tests, articles }, t] = await Promise.all([searchAll(query), getT()]);
   const total = tests.length + articles.length;
 
   return (
     <div className="container-page py-14">
-      <PageHeader eyebrow="Qidiruv" title={query ? `“${query}”` : "Nimani qidiramiz?"} />
+      <PageHeader eyebrow={t("Qidiruv", "Search")} title={query ? `“${query}”` : t("Nimani qidiramiz?", "What are you looking for?")} />
 
       <form
         action="/search"
@@ -87,23 +88,26 @@ export default async function SearchPage({
           type="search"
           name="q"
           defaultValue={query}
-          placeholder="Mock testlar, maqolalar yoki mavzularni qidiring…"
+          placeholder={t("Mock testlar, maqolalar yoki mavzularni qidiring…", "Search mock tests, articles or topics…")}
           className="min-w-0 flex-1 bg-transparent text-[15px] placeholder:text-faint focus:outline-none"
-          aria-label="Qidirish"
+          aria-label={t("Qidirish", "Search")}
         />
       </form>
 
       {query && total === 0 ? (
         <EmptyState
           icon="🔍"
-          title="Hech narsa topilmadi"
-          description="Boshqa so'z bilan qidirib ko'ring: masalan “Full Mock”, “Listening” yoki maqola mavzusi."
+          title={t("Hech narsa topilmadi", "Nothing found")}
+          description={t(
+            "Boshqa so'z bilan qidirib ko'ring: masalan “Full Mock”, “Listening” yoki maqola mavzusi.",
+            "Try another word, e.g. “Full Mock”, “Listening” or an article topic.",
+          )}
         />
       ) : null}
 
       {tests.length > 0 ? (
         <section className="mb-12">
-          <h2 className="display-title mb-5 text-3xl">Testlar</h2>
+          <h2 className="display-title mb-5 text-3xl">{t("Testlar", "Tests")}</h2>
           <div className="grid gap-4 md:grid-cols-2">
             {tests.map((hit) => (
               <Link key={hit.slug} href={testHref(hit)} className="card group flex items-start gap-4 p-5 lift">
@@ -126,7 +130,7 @@ export default async function SearchPage({
 
       {articles.length > 0 ? (
         <section>
-          <h2 className="display-title mb-5 text-3xl">Maqolalar</h2>
+          <h2 className="display-title mb-5 text-3xl">{t("Maqolalar", "Articles")}</h2>
           <div className="grid gap-4 md:grid-cols-2">
             {articles.map((hit) => (
               <Link key={hit.slug} href={`/boost/articles/${hit.slug}`} className="card group p-5 lift">

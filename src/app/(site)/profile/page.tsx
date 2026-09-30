@@ -14,11 +14,13 @@ import { Badge } from "@/components/ui/Badge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { FlameIcon } from "@/components/ui/icons";
 import { Reveal } from "@/components/motion/Reveal";
+import { getT } from "@/i18n/server";
+import type { Bi } from "@/i18n";
 
-export const metadata: Metadata = {
-  title: "Mening profilim",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Mening profilim", "My profile"), robots: { index: false, follow: false } };
+}
 
 /** Figma: har bir ko'nikma halqasining rangi */
 const SKILL_COLOR: Record<SkillSection, string> = {
@@ -35,11 +37,11 @@ const SKILL_TEXT: Record<SkillSection, string> = {
   speaking: "text-warning",
 };
 
-const ACTIVITY_META: Record<ActivityItem["status"], { dot: string; label: string }> = {
-  in_progress: { dot: "bg-gold-400", label: "davom etmoqda" },
-  submitted: { dot: "bg-warning", label: "tekshiruvda" },
-  graded: { dot: "bg-success", label: "baholandi" },
-  abandoned: { dot: "bg-ink-500", label: "bekor qilingan" },
+const ACTIVITY_META: Record<ActivityItem["status"], { dot: string; label: Bi }> = {
+  in_progress: { dot: "bg-gold-400", label: { uz: "davom etmoqda", en: "in progress" } },
+  submitted: { dot: "bg-warning", label: { uz: "tekshiruvda", en: "in review" } },
+  graded: { dot: "bg-success", label: { uz: "baholandi", en: "graded" } },
+  abandoned: { dot: "bg-ink-500", label: { uz: "bekor qilingan", en: "cancelled" } },
 };
 
 function SectionEyebrow({ children }: { children: string }) {
@@ -55,14 +57,15 @@ export default async function ProfilePage() {
   const profile = await getProfile();
   if (!profile) redirect(`/login?next=${encodeURIComponent("/profile")}`);
 
-  const [stats, rank, data] = await Promise.all([
+  const [stats, rank, data, t] = await Promise.all([
     getMyStats(),
     getMyRank("weekly"),
     getDashboardData(),
+    getT(),
   ]);
 
   const isPremium = profileHasPremium(profile);
-  const firstName = profile.full_name?.trim().split(/\s+/)[0] ?? "o'quvchi";
+  const firstName = profile.full_name?.trim().split(/\s+/)[0] ?? t("o'quvchi", "learner");
   const level = stats?.last_level ?? null;
 
   // Eng kuchli va eng zaif bo'lim — maslahat matni uchun
@@ -75,15 +78,15 @@ export default async function ProfilePage() {
   const statCards = [
     {
       value: stats?.tests_taken ?? data.taken,
-      label: "Topshirilgan testlar",
-      hint: "Barcha bo'limlar bo'yicha",
+      label: t("Topshirilgan testlar", "Tests taken"),
+      hint: t("Barcha bo'limlar bo'yicha", "Across all sections"),
     },
-    { value: data.graded, label: "Baholangan", hint: "Natijasi tayyor testlar" },
-    { value: data.inProgress, label: "Tugallanmagan", hint: "Davom ettirish mumkin" },
+    { value: data.graded, label: t("Baholangan", "Graded"), hint: t("Natijasi tayyor testlar", "Tests with results ready") },
+    { value: data.inProgress, label: t("Tugallanmagan", "Unfinished"), hint: t("Davom ettirish mumkin", "Can be continued") },
     {
       value: formatXp(stats?.total_xp ?? profile.total_xp),
       label: "Vocabulary XP",
-      hint: rank ? `Haftalik reytingda #${rank.rank}` : "Vocabulary Battle ochkolari",
+      hint: rank ? t(`Haftalik reytingda #${rank.rank}`, `#${rank.rank} on the weekly leaderboard`) : t("Vocabulary Battle ochkolari", "Vocabulary Battle points"),
     },
   ];
 
@@ -95,25 +98,27 @@ export default async function ProfilePage() {
           <div className="min-w-0 animate-fade-up">
             <p className="eyebrow">
               <span className="h-px w-6 bg-brand-400" aria-hidden />
-              Shaxsiy kabinet
+              {t("Shaxsiy kabinet", "My dashboard")}
             </p>
             <h1 className="display-title mt-4 text-[40px] sm:text-[52px]">
-              Xush kelibsiz, {firstName}
+              {t("Xush kelibsiz", "Welcome")}, {firstName}
             </h1>
             <p className="mt-4 font-display text-lg italic text-brand-400 sm:text-xl">
-              “Muvaffaqiyat — har kuni takrorlanadigan kichik harakatlar yig&apos;indisi.”
+              “{t("Muvaffaqiyat — har kuni takrorlanadigan kichik harakatlar yig'indisi.", "Success is the sum of small efforts repeated every day.")}”
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-ink-800/70 px-3.5 py-2 text-[13px] text-muted">
-                Joriy daraja:
+                {t("Joriy daraja", "Current level")}:
                 <strong className="font-semibold text-gold-400">
-                  {level ? `${level} o'quvchi` : "aniqlanmagan"}
+                  {level ? t(`${level} o'quvchi`, `${level} learner`) : t("aniqlanmagan", "not set yet")}
                 </strong>
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-ink-800/70 px-3.5 py-2 text-[13px] text-muted">
                 <FlameIcon className="size-4 text-gold-400" />
                 Streak:
-                <strong className="font-semibold text-gold-400">{data.streakDays} kun</strong>
+                <strong className="font-semibold text-gold-400">
+                  {data.streakDays} {t("kun", data.streakDays === 1 ? "day" : "days")}
+                </strong>
               </span>
             </div>
           </div>
@@ -125,7 +130,7 @@ export default async function ProfilePage() {
                   {data.overall != null ? `${data.overall}%` : "—"}
                 </p>
                 <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
-                  Umumiy natija
+                  {t("Umumiy natija", "Overall result")}
                 </p>
               </div>
             </ProgressRing>
@@ -146,7 +151,7 @@ export default async function ProfilePage() {
         {/* ------------------------------------------------ Ko'nikmalar + faollik */}
         <section className="mt-14 grid gap-10 lg:grid-cols-[1.45fr_1fr] lg:gap-8">
           <Reveal>
-            <SectionEyebrow>CEFR ko&apos;nikmalar darajasi</SectionEyebrow>
+            <SectionEyebrow>{t("CEFR ko'nikmalar darajasi", "CEFR skill levels")}</SectionEyebrow>
             <div className="card rounded-2xl p-6 sm:p-8">
               <div className="grid grid-cols-2 gap-y-8 sm:grid-cols-4">
                 {SECTIONS.map((section) => {
@@ -166,7 +171,7 @@ export default async function ProfilePage() {
               <div className="mt-8 border-t border-line pt-6 text-sm leading-relaxed text-muted">
                 {strongest ? (
                   <>
-                    Eng kuchli bo&apos;limingiz —{" "}
+                    {t("Eng kuchli bo'limingiz —", "Your strongest section is")}{" "}
                     <strong className={`font-semibold ${SKILL_TEXT[strongest]}`}>
                       {SECTION_LABEL[strongest]}
                     </strong>
@@ -174,20 +179,22 @@ export default async function ProfilePage() {
                     {weakest ? (
                       <>
                         {" "}
-                        CEFR darajangizni oshirish uchun{" "}
+                        {t("CEFR darajangizni oshirish uchun", "To raise your CEFR level, practise")}{" "}
                         <strong className={`font-semibold ${SKILL_TEXT[weakest]}`}>
                           {SECTION_LABEL[weakest]}
                         </strong>{" "}
-                        bo&apos;limini ko&apos;proq mashq qiling.
+                        {t("bo'limini ko'proq mashq qiling.", "more.")}
                       </>
                     ) : null}
                   </>
                 ) : (
                   <>
-                    Birinchi mock testni ishlang — har bir bo&apos;lim bo&apos;yicha
-                    natijangiz shu yerda ko&apos;rinadi.{" "}
+                    {t(
+                      "Birinchi mock testni ishlang — har bir bo'lim bo'yicha natijangiz shu yerda ko'rinadi.",
+                      "Take your first mock test — your result for each section will appear here.",
+                    )}{" "}
                     <Link href="/full-mock" className="font-semibold text-brand-400 hover:underline">
-                      Full Mock testlar →
+                      {t("Full Mock testlar", "Full Mock tests")} →
                     </Link>
                   </>
                 )}
@@ -196,11 +203,11 @@ export default async function ProfilePage() {
           </Reveal>
 
           <Reveal delay={100}>
-            <SectionEyebrow>So&apos;nggi faollik</SectionEyebrow>
+            <SectionEyebrow>{t("So'nggi faollik", "Recent activity")}</SectionEyebrow>
             <div className="card rounded-2xl p-4 sm:p-6">
               {data.recent.length === 0 ? (
                 <p className="px-2 py-6 text-center text-sm text-muted">
-                  Hali faollik yo&apos;q. Birinchi testni boshlang!
+                  {t("Hali faollik yo'q. Birinchi testni boshlang!", "No activity yet. Start your first test!")}
                 </p>
               ) : (
                 <ul className="space-y-3">
@@ -216,7 +223,7 @@ export default async function ProfilePage() {
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-sm text-fg">{item.title}</span>
                             <span className="mt-0.5 block text-xs text-muted">
-                              {meta.label} · {timeAgo(item.at)}
+                              {t(meta.label)} · {timeAgo(item.at, undefined, t.locale)}
                             </span>
                           </span>
                           <ChevronRight
@@ -234,7 +241,7 @@ export default async function ProfilePage() {
                 href="/profile/results"
                 className="mt-4 flex items-center justify-center gap-1 text-sm font-semibold text-brand-400 hover:text-brand-300"
               >
-                Barcha natijalar <ChevronRight size={15} aria-hidden />
+                {t("Barcha natijalar", "All results")} <ChevronRight size={15} aria-hidden />
               </Link>
             </div>
           </Reveal>
@@ -245,27 +252,27 @@ export default async function ProfilePage() {
           <Avatar name={profile.full_name} src={profile.avatar_url} size="lg" ring={isPremium} />
           <div className="min-w-0 w-full flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-display text-2xl text-fg">{profile.full_name ?? "Foydalanuvchi"}</p>
+              <p className="font-display text-2xl text-fg">{profile.full_name ?? t("Foydalanuvchi", "User")}</p>
               {isPremium ? <Badge tone="premium">PREMIUM</Badge> : <Badge tone="neutral">FREE</Badge>}
               {profile.role !== "student" ? (
-                <Badge tone="brand">{profile.role === "admin" ? "Admin" : "O'qituvchi"}</Badge>
+                <Badge tone="brand">{profile.role === "admin" ? "Admin" : t("O'qituvchi", "Teacher")}</Badge>
               ) : null}
             </div>
             <p className="mt-1 truncate text-sm text-muted">{profile.email}</p>
             <p className="mt-1 text-xs text-muted">
-              Ro&apos;yxatdan o&apos;tgan: {formatDate(profile.created_at)}
+              {t("Ro'yxatdan o'tgan", "Joined")}: {formatDate(profile.created_at, t.locale)}
               {isPremium && profile.premium_until
-                ? ` · Premium muddati: ${formatDate(profile.premium_until)}`
+                ? ` · ${t("Premium muddati", "Premium until")}: ${formatDate(profile.premium_until, t.locale)}`
                 : ""}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <ButtonLink href="/profile/settings" variant="glass" size="sm">
-              <Settings size={15} aria-hidden /> Sozlamalar
+              <Settings size={15} aria-hidden /> {t("Sozlamalar", "Settings")}
             </ButtonLink>
             {!isPremium ? (
               <ButtonLink href="/premium" variant="premium" size="sm">
-                <Star size={15} aria-hidden /> Premium olish
+                <Star size={15} aria-hidden /> {t("Premium olish", "Get Premium")}
               </ButtonLink>
             ) : null}
           </div>

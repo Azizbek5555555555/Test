@@ -2,15 +2,17 @@ import Link from "next/link";
 import { Lock } from "react-feather";
 import type { ArticleListItem } from "@/lib/types";
 import { topicMeta } from "@/lib/constants";
+import { getT } from "@/i18n/server";
 
 /** Figma 07: maqola kartasi — mavzu belgisi, o'qish vaqti, sarlavha, yangi so'zlar */
-export function ArticleCard({
+export async function ArticleCard({
   article,
   unlocked,
 }: {
   article: ArticleListItem;
   unlocked: boolean;
 }) {
+  const t = await getT();
   const meta = topicMeta(article.topic);
   const locked = article.is_premium && !unlocked;
 
@@ -33,7 +35,7 @@ export function ArticleCard({
           {article.is_premium ? (
             <Lock size={12} className={locked ? "text-gold-400" : "text-muted"} aria-label="Premium" />
           ) : null}
-          {article.read_minutes} daqiqa
+          {article.read_minutes} {t("daqiqa", "min")}
         </span>
       </div>
 
@@ -41,10 +43,12 @@ export function ArticleCard({
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-5 text-[13px]">
         <span className="text-brand-400">
-          {article.word_count > 0 ? `${article.word_count} ta yangi so'z` : `${article.question_count} ta savol`}
+          {article.word_count > 0
+            ? t(`${article.word_count} ta yangi so'z`, `${article.word_count} new words`)
+            : t(`${article.question_count} ta savol`, `${article.question_count} questions`)}
         </span>
         <span className="font-semibold text-fg transition-transform group-hover:translate-x-1">
-          {locked ? "Premium →" : "O'qish →"}
+          {locked ? "Premium →" : `${t("O'qish", "Read")} →`}
         </span>
       </div>
     </Link>

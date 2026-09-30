@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useRef, useState } from "react";
 import { cn, formatClock } from "@/lib/format";
 
@@ -27,6 +28,7 @@ export function AudioPlayer({
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [failed, setFailed] = useState(false);
+  const t = useT();
 
   if (!src) {
     return (
@@ -34,8 +36,8 @@ export function AudioPlayer({
         className="rounded-xl border p-4 text-sm
                     border-warning/40 bg-warning/10 text-warning"
       >
-        🎧 <strong>Bu bo&apos;lim uchun audio tez orada qo&apos;shiladi.</strong>{" "}
-        Hozircha keyingi bo&apos;limga o&apos;tishingiz mumkin.
+        🎧 <strong>{t("Bu bo'lim uchun audio tez orada qo'shiladi.", "Audio for this section will be added soon.")}</strong>{" "}
+        {t("Hozircha keyingi bo'limga o'tishingiz mumkin.", "For now you can move on to the next section.")}
       </div>
     );
   }
@@ -46,8 +48,11 @@ export function AudioPlayer({
         className="rounded-xl border p-4 text-sm
                     border-danger/40 bg-danger/10 text-danger"
       >
-        ⛔ Audio faylni yuklab bo&apos;lmadi. Manzil to&apos;g&apos;riligini
-        tekshiring yoki administratorga murojaat qiling.
+        ⛔{" "}
+        {t(
+          "Audio faylni yuklab bo'lmadi. Sahifani yangilang yoki administratorga murojaat qiling.",
+          "Could not load the audio file. Refresh the page or contact an administrator.",
+        )}
       </div>
     );
   }
@@ -74,7 +79,7 @@ export function AudioPlayer({
           type="button"
           onClick={toggle}
           disabled={blocked}
-          aria-label={playing ? "Pauza" : "Ijro etish"}
+          aria-label={playing ? t("Pauza", "Pause") : t("Ijro etish", "Play")}
           className={cn(
             "w-12 h-12 rounded-full grid place-items-center text-lg shrink-0 transition-colors",
             blocked
@@ -105,8 +110,11 @@ export function AudioPlayer({
           {singlePlay ? (
             <p className="text-xs text-muted mt-1.5">
               {blocked
-                ? "🔒 Audio allaqachon ijro etilgan — imtihon qoidasiga ko'ra qayta tinglab bo'lmaydi."
-                : "⚠️ Bu audio faqat bir marta ijro etiladi."}
+                ? `🔒 ${t(
+                    "Audio allaqachon ijro etilgan — imtihon qoidasiga ko'ra qayta tinglab bo'lmaydi.",
+                    "The audio has already been played — under exam rules it cannot be replayed.",
+                  )}`
+                : `⚠️ ${t("Bu audio faqat bir marta ijro etiladi.", "This audio plays only once.")}`}
             </p>
           ) : null}
         </div>

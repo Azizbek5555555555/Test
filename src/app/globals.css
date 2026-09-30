@@ -4085,3 +4085,60 @@ html.lx-splash-done .lx-splash .lx-loader {
     animation-iteration-count: infinite !important;
   }
 }
+
+/* ==========================================================================
+   Til almashtirgich (UZ | EN)
+   ========================================================================== */
+/* komponent qatlamida — Tailwind utilitalari (hidden, sm:inline-grid) ustun turadi */
+@layer components {
+  .lang-switch {
+    position: relative;
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px;
+  }
+  .lang-switch-thumb {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f2c7bd, #e3a79b 55%, #d9b382);
+    box-shadow: 0 6px 16px -6px rgba(227, 167, 155, 0.7);
+    transition: transform 0.35s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  .lang-switch[data-active="en"] .lang-switch-thumb {
+    transform: translateX(100%);
+  }
+  .lang-switch-btn {
+    position: relative;
+    min-width: 36px;
+    border-radius: 999px;
+    padding: 5px 9px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    transition: color 0.25s ease;
+  }
+  .lang-switch-btn.is-active {
+    color: #0b1220;
+  }
+  .lang-switch-btn:not(.is-active):hover {
+    color: var(--fg);
+  }
+  .lang-switch.is-pending {
+    opacity: 0.7;
+  }
+}
+
+/* Tilga bog'liq qisqa matnlar (serverda til noma'lum joylar uchun: loaderlar) */
+html[lang="en"] .i18n-uz,
+html:not([lang="en"]) .i18n-en {
+  display: none !important;
+}

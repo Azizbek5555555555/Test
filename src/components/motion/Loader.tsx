@@ -20,7 +20,7 @@ export function loaderDots() {
   });
 }
 
-export function Loader({ size = 132, label = "Yuklanmoqda", className = "" }: { size?: number; label?: string; className?: string }) {
+export function Loader({ size = 132, label, className = "" }: { size?: number; label?: string; className?: string }) {
   return (
     <div
       className={`lx-loader ${className}`}
@@ -41,7 +41,15 @@ export function Loader({ size = 132, label = "Yuklanmoqda", className = "" }: { 
         <b>
           LevelX <span>English</span>
         </b>
-        <small>{label}</small>
+        <small>
+          {label ?? (
+            // til <html lang> bo'yicha tanlanadi (loading.tsx serverda tilni bilmasa ham)
+            <>
+              <span className="i18n-uz">Yuklanmoqda</span>
+              <span className="i18n-en">Loading</span>
+            </>
+          )}
+        </small>
       </div>
     </div>
   );
@@ -57,7 +65,7 @@ export function Loader({ size = 132, label = "Yuklanmoqda", className = "" }: { 
  * yo'qoladi; ko'pi bilan 3.5 soniya. JS o'chiq yoki "harakatni kamaytirish"
  * yoqilgan bo'lsa ko'rsatilmaydi.
  */
-export function Splash() {
+export function Splash({ label }: { label?: string }) {
   const code = `(function(){try{
 if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
 var h=document.documentElement,t0=Date.now(),done=false;h.classList.add("lx-splashing");
@@ -67,7 +75,7 @@ if(document.readyState==="complete")hide();else window.addEventListener("load",h
   return (
     <>
       <div className="lx-splash" aria-hidden>
-        <Loader size={210} />
+        <Loader size={210} label={label} />
       </div>
       <script dangerouslySetInnerHTML={{ __html: code }} />
     </>

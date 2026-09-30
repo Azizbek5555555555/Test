@@ -1,5 +1,7 @@
 "use server";
 
+import { getT } from "@/i18n/server";
+
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getUser } from "@/lib/auth";
 import type { AnswerMap } from "@/lib/types";
@@ -23,11 +25,12 @@ export async function submitArticleAnswersAction(
   articleId: string,
   answers: AnswerMap,
 ): Promise<ArticleSubmitResult> {
+  const t = await getT();
   const user = await getUser();
   if (!user) {
     return {
       ok: false,
-      message: "Javoblarni tekshirish uchun avval tizimga kiring.",
+      message: t("Javoblarni tekshirish uchun avval tizimga kiring.", "Log in first to check your answers."),
     };
   }
 
@@ -47,7 +50,7 @@ export async function submitArticleAnswersAction(
     }[];
 
     const row = rows[0];
-    if (!row) return { ok: false, message: "Natija olinmadi." };
+    if (!row) return { ok: false, message: t("Natija olinmadi.", "Could not get the result.") };
 
     return {
       ok: true,
@@ -56,6 +59,6 @@ export async function submitArticleAnswersAction(
       results: row.results,
     };
   } catch {
-    return { ok: false, message: "Tekshirishda xatolik yuz berdi." };
+    return { ok: false, message: t("Tekshirishda xatolik yuz berdi.", "Something went wrong while checking.") };
   }
 }

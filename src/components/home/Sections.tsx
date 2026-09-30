@@ -22,6 +22,8 @@ import {
 import { cn } from "@/lib/format";
 import { Reveal } from "@/components/motion/Reveal";
 import type { Course } from "@/lib/types";
+import { getT } from "@/i18n/server";
+import type { Bi, T } from "@/i18n";
 
 type IconType = ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
 
@@ -81,7 +83,8 @@ const BADGE_TONE = {
   success: "bg-success",
 } as const;
 
-export function FeatureGrid({ items, glass = true }: { items: FeatureItem[]; glass?: boolean }) {
+export async function FeatureGrid({ items, glass = true }: { items: FeatureItem[]; glass?: boolean }) {
+  const t = await getT();
   return (
     <div className="grid gap-5 lg:gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item, i) => {
@@ -121,7 +124,7 @@ export function FeatureGrid({ items, glass = true }: { items: FeatureItem[]; gla
                   item.premium ? "text-gold-400" : "text-brand-400",
                 )}
               >
-                Ochish
+                {t("Ochish", "Open")}
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
@@ -132,40 +135,40 @@ export function FeatureGrid({ items, glass = true }: { items: FeatureItem[]; gla
   );
 }
 
-export function featureItems(opts: { coursesEnabled: boolean; icons: "stars" | "specific" }): FeatureItem[] {
+export function featureItems(opts: { coursesEnabled: boolean; icons: "stars" | "specific" }, t: T): FeatureItem[] {
   const star = opts.icons === "stars";
   const items: FeatureItem[] = [
     {
       href: "/full-mock",
       title: "Full Mock",
-      text: "Real Multilevel imtihoni formatidagi to'liq mock testni bir o'tirishda ishlang.",
+      text: t("Real Multilevel imtihoni formatidagi to'liq mock testni bir o'tirishda ishlang.", "Take a complete mock test in the real Multilevel exam format in one sitting."),
       icon: star ? Star : FileText,
-      badge: { label: "Ommabop", tone: "accent" },
+      badge: { label: t("Ommabop", "Popular"), tone: "accent" },
     },
     {
       href: "/latest-questions",
-      title: "Oxirgi savollar",
-      text: "Real imtihonlarda tushgan savollar — yillar bo'yicha jamlangan.",
+      title: t("Oxirgi savollar", "Latest questions"),
+      text: t("Real imtihonlarda tushgan savollar — yillar bo'yicha jamlangan.", "Questions from real exams — collected year by year."),
       icon: star ? Star : Zap,
-      badge: star ? undefined : { label: "Yangi", tone: "success" },
+      badge: star ? undefined : { label: t("Yangi", "New"), tone: "success" },
     },
     {
       href: "/boost",
       title: "Boost Your English",
-      text: "Maqolalar, listening va lug'at — umumiy ingliz tilini mustahkamlang.",
+      text: t("Maqolalar, listening va lug'at — umumiy ingliz tilini mustahkamlang.", "Articles, listening and vocabulary — strengthen your general English."),
       icon: star ? Star : TrendingUp,
     },
     {
       href: "/vocabulary-battle",
       title: "Vocabulary Battle",
-      text: "Taymerli so'z o'yini: tez javob bering, ball to'plang va reytingda ko'tariling.",
+      text: t("Taymerli so'z o'yini: tez javob bering, ball to'plang va reytingda ko'tariling.", "A timed word game: answer fast, score points and climb the leaderboard."),
       icon: star ? Star : Zap,
-      badge: star ? undefined : { label: "Qiziqarli", tone: "gold" },
+      badge: star ? undefined : { label: t("Qiziqarli", "Fun"), tone: "gold" },
     },
     {
       href: "/exam-checking",
       title: "Exam Full Checking",
-      text: "Real kompyuter imtihoni simulyatsiyasi va Writing/Speaking bo'yicha o'qituvchi bahosi.",
+      text: t("Real kompyuter imtihoni simulyatsiyasi va Writing/Speaking bo'yicha o'qituvchi bahosi.", "A real computer-based exam simulation with teacher grading for Writing/Speaking."),
       icon: Lock,
       badge: { label: "Premium", tone: "gold" },
       premium: true,
@@ -174,15 +177,15 @@ export function featureItems(opts: { coursesEnabled: boolean; icons: "stars" | "
   if (opts.coursesEnabled) {
     items.push({
       href: "/courses",
-      title: "Offline kurslar",
-      text: "Toshkentdagi o'quv markazimizda o'qituvchi bilan intensiv tayyorgarlik.",
+      title: t("Offline kurslar", "Offline courses"),
+      text: t("Toshkentdagi o'quv markazimizda o'qituvchi bilan intensiv tayyorgarlik.", "Intensive preparation with a teacher at our learning centre in Tashkent."),
       icon: star ? Star : Download,
     });
   } else {
     items.push({
       href: "/leaderboard",
-      title: "Reyting",
-      text: "Haftalik va oylik reyting: eng faol o'quvchilar qatoriga kiring.",
+      title: t("Reyting", "Leaderboard"),
+      text: t("Haftalik va oylik reyting: eng faol o'quvchilar qatoriga kiring.", "Weekly and monthly rankings: join the most active learners."),
       icon: star ? Star : TrendingUp,
     });
   }
@@ -209,17 +212,18 @@ export function PullQuote({ children }: { children: ReactNode }) {
    Yo'l xaritasi — 5 qadam (Figma: how-it-works-section)
    ---------------------------------------------------------------------------- */
 const ROADMAP = [
-  { title: "Learn", text: "General English, maqolalar va lug'at bilan poydevor quring." },
-  { title: "Practice", text: "Reading, Listening, Writing va Speaking bo'yicha mashq qiling." },
-  { title: "Take Exam", text: "Full Mock va Exam Checking — qat'iy taymerli real sharoit." },
-  { title: "See Result", text: "Ballar, CEFR darajasi va har bir savol bo'yicha tahlil." },
-  { title: "Improve", text: "Zaif tomonlaringiz ustida ishlab, keyingi cho'qqiga chiqing." },
+  { title: "Learn", text: { uz: "General English, maqolalar va lug'at bilan poydevor quring.", en: "Build a foundation with General English, articles and vocabulary." } },
+  { title: "Practice", text: { uz: "Reading, Listening, Writing va Speaking bo'yicha mashq qiling.", en: "Practise Reading, Listening, Writing and Speaking." } },
+  { title: "Take Exam", text: { uz: "Full Mock va Exam Checking — qat'iy taymerli real sharoit.", en: "Full Mock and Exam Checking — real conditions with a strict timer." } },
+  { title: "See Result", text: { uz: "Ballar, CEFR darajasi va har bir savol bo'yicha tahlil.", en: "Scores, CEFR level and a question-by-question breakdown." } },
+  { title: "Improve", text: { uz: "Zaif tomonlaringiz ustida ishlab, keyingi cho'qqiga chiqing.", en: "Work on your weak spots and climb to the next peak." } },
 ];
 
-export function Roadmap() {
+export async function Roadmap() {
+  const t = await getT();
   return (
     <section className="container-page py-20 lg:py-20">
-      <SectionTitle eyebrow="Metodologiya" title="Cho'qqiga olib boruvchi yo'l" />
+      <SectionTitle eyebrow={t("Metodologiya", "Methodology")} title={t("Cho'qqiga olib boruvchi yo'l", "The path to the summit")} />
       <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-5">
         {ROADMAP.map((step, i) => (
           <Reveal key={step.title} delay={i * 110} className="flex flex-col gap-4">
@@ -232,7 +236,7 @@ export function Roadmap() {
               ) : null}
             </div>
             <h3 className="display-title text-[22px] font-semibold">{step.title}</h3>
-            <p className="text-[13px] leading-normal text-muted">{step.text}</p>
+            <p className="text-[13px] leading-normal text-muted">{t(step.text)}</p>
           </Reveal>
         ))}
       </div>
@@ -245,24 +249,25 @@ export function Roadmap() {
    ---------------------------------------------------------------------------- */
 const COURSE_IMAGES = ["/design/course-1.jpg", "/design/course-2.jpg", "/design/course-3.jpg"];
 
-export function CoursesStrip({ courses }: { courses: Course[] }) {
+export async function CoursesStrip({ courses }: { courses: Course[] }) {
   if (courses.length === 0) return null;
+  const t = await getT();
   return (
     <section className="container-page pt-20 pb-28 lg:pb-36">
       <SectionTitle
         align="left"
-        eyebrow="Offline mashg'ulotlar"
-        title="Intensiv kurslarimiz"
+        eyebrow={t("Offline mashg'ulotlar", "Offline classes")}
+        title={t("Intensiv kurslarimiz", "Our intensive courses")}
         action={
           <Link
             href="/courses"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-400 hover:text-brand-300 transition-colors"
           >
-            Barcha kurslar <ArrowRight size={14} />
+            {t("Barcha kurslar", "All courses")} <ArrowRight size={14} />
           </Link>
         }
       />
-      <p className="course-hand">Ustoz bilan yuzma-yuz — kichik guruhlarda</p>
+      <p className="course-hand">{t("Ustoz bilan yuzma-yuz — kichik guruhlarda", "Face to face with a teacher — in small groups")}</p>
       <div className="grid gap-6 lg:gap-7 md:grid-cols-3">
         {courses.slice(0, 3).map((course, i) => (
           <Reveal key={course.id} delay={i * 120} className="h-full">
@@ -308,7 +313,7 @@ export function CoursesStrip({ courses }: { courses: Course[] }) {
                       {course.seats ? (
                         <li>
                           <Users size={13} aria-hidden />
-                          {course.seats} o&apos;rin
+                          {course.seats} {t("o'rin", "seats")}
                         </li>
                       ) : null}
                     </ul>
@@ -316,14 +321,14 @@ export function CoursesStrip({ courses }: { courses: Course[] }) {
                   <div className="course-foot">
                     {course.price ? (
                       <p className="course-price">
-                        <small>Narxi</small>
+                        <small>{t("Narxi", "Price")}</small>
                         {course.price}
                       </p>
                     ) : (
                       <span />
                     )}
                     <Link href={`/courses/${course.slug}`} className="course-cta">
-                      Batafsil
+                      {t("Batafsil", "Details")}
                       <ArrowUpRight size={16} aria-hidden />
                     </Link>
                   </div>
@@ -340,20 +345,21 @@ export function CoursesStrip({ courses }: { courses: Course[] }) {
 /* ----------------------------------------------------------------------------
    To'rt asosiy ko'nikma (Figma: skills-section)
    ---------------------------------------------------------------------------- */
-const SKILLS: { title: string; text: string; href: string; icon: IconType; tone: string }[] = [
-  { title: "Reading", text: "Matn tuzilishi va tushunib o'qish", href: "/latest-questions", icon: BookOpen, tone: "text-brand-400" },
-  { title: "Listening", text: "Kundalik suhbatlar va turli talaffuzlar", href: "/boost/listening", icon: Headphones, tone: "text-gold-400" },
-  { title: "Writing", text: "Esse va xat yozish ko'nikmasi", href: "/latest-questions", icon: Edit, tone: "text-success" },
-  { title: "Speaking", text: "Savollarga ravon va aniq javob berish", href: "/latest-questions", icon: Volume2, tone: "text-warning" },
+const SKILLS: { title: string; text: Bi; href: string; icon: IconType; tone: string }[] = [
+  { title: "Reading", text: { uz: "Matn tuzilishi va tushunib o'qish", en: "Text structure and reading comprehension" }, href: "/latest-questions", icon: BookOpen, tone: "text-brand-400" },
+  { title: "Listening", text: { uz: "Kundalik suhbatlar va turli talaffuzlar", en: "Everyday conversations and a range of accents" }, href: "/boost/listening", icon: Headphones, tone: "text-gold-400" },
+  { title: "Writing", text: { uz: "Esse va xat yozish ko'nikmasi", en: "Essay and letter writing skills" }, href: "/latest-questions", icon: Edit, tone: "text-success" },
+  { title: "Speaking", text: { uz: "Savollarga ravon va aniq javob berish", en: "Answering questions fluently and accurately" }, href: "/latest-questions", icon: Volume2, tone: "text-warning" },
 ];
 
-export function SkillModules() {
+export async function SkillModules() {
+  const t = await getT();
   return (
     <section className="container-page pt-5 pb-10">
       <Reveal>
         <p className="eyebrow mb-6">
           <span className="h-px w-5 bg-brand-400" aria-hidden />
-          To&apos;rt asosiy ko&apos;nikma
+          {t("To'rt asosiy ko'nikma", "Four core skills")}
         </p>
       </Reveal>
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -369,9 +375,9 @@ export function SkillModules() {
                   <span className="text-xs font-semibold text-faint">CEFR B1–C1</span>
                 </div>
                 <h3 className="display-title text-[26px] font-semibold">{skill.title}</h3>
-                <p className="text-sm leading-normal text-muted flex-1">{skill.text}</p>
+                <p className="text-sm leading-normal text-muted flex-1">{t(skill.text)}</p>
                 <span className={cn("inline-flex items-center gap-1.5 text-[13px] font-semibold", skill.tone)}>
-                  Mashq qilish
+                  {t("Mashq qilish", "Practise")}
                   <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
@@ -386,7 +392,8 @@ export function SkillModules() {
 /* ----------------------------------------------------------------------------
    Qidiruv (Figma: search-bar)
    ---------------------------------------------------------------------------- */
-export function SearchBar() {
+export async function SearchBar() {
+  const t = await getT();
   return (
     <section className="container-page pt-5 pb-10">
       <form
@@ -398,9 +405,9 @@ export function SearchBar() {
         <input
           type="search"
           name="q"
-          placeholder="Mock testlar, maqolalar yoki mavzularni qidiring…"
+          placeholder={t("Mock testlar, maqolalar yoki mavzularni qidiring…", "Search mock tests, articles or topics…")}
           className="min-w-0 flex-1 bg-transparent text-[15px] text-fg placeholder:text-faint focus:outline-none"
-          aria-label="Qidirish"
+          aria-label={t("Qidirish", "Search")}
         />
       </form>
     </section>
@@ -410,21 +417,21 @@ export function SearchBar() {
 /* ----------------------------------------------------------------------------
    Bepul va Premium — taqqoslash jadvali
    ---------------------------------------------------------------------------- */
-const COMPARE: { label: string; free: boolean | string; premium: boolean | string }[] = [
-  { label: "Bepul Full Mock testlar", free: true, premium: true },
-  { label: "Barcha Full Mock testlar", free: false, premium: true },
-  { label: "Oxirgi tushgan savollar arxivi", free: "qisman", premium: "to'liq" },
-  { label: "Maqolalar va listening mashqlari", free: "bepullari", premium: "hammasi" },
-  { label: "Listening skriptlari", free: false, premium: true },
-  { label: "Writing va Speaking — o'qituvchi tekshiruvi", free: false, premium: true },
-  { label: "Exam Full Checking (real imtihon simulyatsiyasi)", free: false, premium: true },
-  { label: "Vocabulary Battle va reyting", free: true, premium: true },
-  { label: "Natijalar tarixi va CEFR daraja", free: true, premium: true },
+const COMPARE: { label: Bi; free: boolean | Bi; premium: boolean | Bi }[] = [
+  { label: { uz: "Bepul Full Mock testlar", en: "Free Full Mock tests" }, free: true, premium: true },
+  { label: { uz: "Barcha Full Mock testlar", en: "All Full Mock tests" }, free: false, premium: true },
+  { label: { uz: "Oxirgi tushgan savollar arxivi", en: "Archive of the latest exam questions" }, free: { uz: "qisman", en: "partial" }, premium: { uz: "to'liq", en: "full" } },
+  { label: { uz: "Maqolalar va listening mashqlari", en: "Articles and listening practice" }, free: { uz: "bepullari", en: "free ones" }, premium: { uz: "hammasi", en: "all" } },
+  { label: { uz: "Listening skriptlari", en: "Listening transcripts" }, free: false, premium: true },
+  { label: { uz: "Writing va Speaking — o'qituvchi tekshiruvi", en: "Writing and Speaking — teacher review" }, free: false, premium: true },
+  { label: { uz: "Exam Full Checking (real imtihon simulyatsiyasi)", en: "Exam Full Checking (real exam simulation)" }, free: false, premium: true },
+  { label: { uz: "Vocabulary Battle va reyting", en: "Vocabulary Battle and leaderboard" }, free: true, premium: true },
+  { label: { uz: "Natijalar tarixi va CEFR daraja", en: "Result history and CEFR level" }, free: true, premium: true },
 ];
 
-function CompareCell({ value, gold }: { value: boolean | string; gold?: boolean }) {
-  if (typeof value === "string") {
-    return <span className={cn("text-[13px] font-semibold", gold ? "text-gold-400" : "text-muted")}>{value}</span>;
+function CompareCell({ value, gold, t }: { value: boolean | Bi; gold?: boolean; t: T }) {
+  if (typeof value === "object") {
+    return <span className={cn("text-[13px] font-semibold", gold ? "text-gold-400" : "text-muted")}>{t(value)}</span>;
   }
   return value ? (
     <span
@@ -432,50 +439,51 @@ function CompareCell({ value, gold }: { value: boolean | string; gold?: boolean 
         "inline-grid size-6 place-items-center rounded-full text-[13px] font-bold",
         gold ? "bg-gold-400 text-ink-950" : "bg-success/20 text-success",
       )}
-      aria-label="bor"
+      aria-label={t("bor", "included")}
     >
       ✓
     </span>
   ) : (
-    <span className="text-faint" aria-label="yo'q">
+    <span className="text-faint" aria-label={t("yo'q", "not included")}>
       —
     </span>
   );
 }
 
-export function CompareTable() {
+export async function CompareTable() {
+  const t = await getT();
   return (
     <section className="container-page py-20">
-      <SectionTitle align="center" eyebrow="Tariflar" title="Bepul va Premium" />
+      <SectionTitle align="center" eyebrow={t("Tariflar", "Plans")} title={t("Bepul va Premium", "Free and Premium")} />
       <Reveal className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-line bg-ink-900/70">
         <div className="grid grid-cols-[1fr_88px_104px] items-center border-b border-line px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] sm:grid-cols-[1fr_140px_160px] sm:px-8">
-          <span className="text-muted">Imkoniyat</span>
-          <span className="text-center text-muted">Bepul</span>
+          <span className="text-muted">{t("Imkoniyat", "Feature")}</span>
+          <span className="text-center text-muted">{t("Bepul", "Free")}</span>
           <span className="text-center text-gold-400">Premium</span>
         </div>
         <ul>
           {COMPARE.map((row) => (
             <li
-              key={row.label}
+              key={row.label.uz}
               className="grid grid-cols-[1fr_88px_104px] items-center border-b border-line/60 px-5 py-3.5 text-sm transition-colors last:border-0 hover:bg-white/[0.02] sm:grid-cols-[1fr_140px_160px] sm:px-8"
             >
-              <span className="pr-3 text-fg">{row.label}</span>
+              <span className="pr-3 text-fg">{t(row.label)}</span>
               <span className="text-center">
-                <CompareCell value={row.free} />
+                <CompareCell value={row.free} t={t} />
               </span>
               <span className="relative text-center">
-                <CompareCell value={row.premium} gold />
+                <CompareCell value={row.premium} gold t={t} />
               </span>
             </li>
           ))}
         </ul>
         <div className="flex flex-col items-center justify-between gap-4 border-t border-line bg-gradient-to-r from-gold-400/10 to-transparent px-5 py-5 sm:flex-row sm:px-8">
-          <p className="text-sm text-muted">Ro&apos;yxatdan o&apos;tish bepul — Premiumni istalgan payt yoqasiz.</p>
+          <p className="text-sm text-muted">{t("Ro'yxatdan o'tish bepul — Premiumni istalgan payt yoqasiz.", "Signing up is free — turn on Premium whenever you like.")}</p>
           <Link
             href="/premium"
             className="inline-flex items-center gap-2 rounded-full bg-gold-400 px-6 py-3 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold-300"
           >
-            Premiumni ko&apos;rish <ArrowRight size={15} />
+            {t("Premiumni ko'rish", "See Premium")} <ArrowRight size={15} />
           </Link>
         </div>
       </Reveal>

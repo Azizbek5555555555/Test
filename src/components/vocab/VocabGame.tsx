@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { VocabRoundWord, VocabSession } from "@/lib/types";
@@ -36,6 +37,7 @@ export function VocabGame({
   packTitle: string;
   packEmoji: string;
 }) {
+  const t = useT();
   const [phase, setPhase] = useState<Phase>("intro");
   const [words, setWords] = useState<VocabRoundWord[]>([]);
   const [index, setIndex] = useState(0);
@@ -69,7 +71,7 @@ export function VocabGame({
 
     const result = await startVocabRoundAction(packId);
     if (!result.ok || !result.words || !result.roundId) {
-      setError(result.message ?? "So'zlarni yuklab bo'lmadi.");
+      setError(result.message ?? t("So'zlarni yuklab bo'lmadi.", "Could not load the words."));
       setPhase("error");
       return;
     }
@@ -151,7 +153,7 @@ export function VocabGame({
     const result = await submitVocabSessionAction(roundId, answersRef.current);
 
     if (!result.ok || !result.session) {
-      setError(result.message ?? "Natijani saqlab bo'lmadi.");
+      setError(result.message ?? t("Natijani saqlab bo'lmadi.", "Could not save the result."));
       setPhase("error");
       return;
     }
@@ -174,24 +176,25 @@ export function VocabGame({
         </p>
         <h1 className="display-title mt-3 text-[32px]">{packTitle}</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          {words.length || GAME_QUESTION_COUNT} ta so&apos;z · har biriga{" "}
-          {Math.round(GAME_TIME_LIMIT_MS / 1000)} soniya. Tez va to&apos;g&apos;ri javob bering —
-          qancha tez bo&apos;lsangiz, shuncha ko&apos;p ball.
+          {t(
+            `${words.length || GAME_QUESTION_COUNT} ta so'z · har biriga ${Math.round(GAME_TIME_LIMIT_MS / 1000)} soniya. Tez va to'g'ri javob bering — qancha tez bo'lsangiz, shuncha ko'p ball.`,
+            `${words.length || GAME_QUESTION_COUNT} words · ${Math.round(GAME_TIME_LIMIT_MS / 1000)} seconds each. Answer fast and correctly — the faster you are, the more points you get.`,
+          )}
         </p>
 
         <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
           <div className="rounded-xl border border-line bg-ink-800 p-3">
             <p className="font-display text-2xl text-fg lining-nums">{GAME_BASE_POINTS}</p>
-            <p className="text-xs text-muted">to&apos;g&apos;ri javob uchun</p>
+            <p className="text-xs text-muted">{t("to'g'ri javob uchun", "per correct answer")}</p>
           </div>
           <div className="rounded-xl border border-line bg-ink-800 p-3">
             <p className="font-display text-2xl text-gold-400 lining-nums">+{GAME_MAX_BONUS}</p>
-            <p className="text-xs text-muted">tezlik bonusi</p>
+            <p className="text-xs text-muted">{t("tezlik bonusi", "speed bonus")}</p>
           </div>
         </div>
 
         <Button size="lg" fullWidth className="mt-7" onClick={start}>
-          Jangni boshlash
+          {t("Jangni boshlash", "Start the battle")}
         </Button>
       </div>
     );
@@ -204,7 +207,7 @@ export function VocabGame({
           className="mx-auto block size-10 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400"
           aria-hidden
         />
-        <p className="mt-4 text-sm text-muted">Tayyorlanmoqda…</p>
+        <p className="mt-4 text-sm text-muted">{t("Tayyorlanmoqda…", "Getting ready…")}</p>
       </div>
     );
   }
@@ -212,15 +215,15 @@ export function VocabGame({
   if (phase === "error") {
     return (
       <div className="mx-auto max-w-md space-y-4">
-        <Alert tone="danger" title="Xatolik">
+        <Alert tone="danger" title={t("Xatolik", "Error")}>
           {error}
         </Alert>
         <div className="flex gap-3">
           <Button onClick={start} fullWidth>
-            Qayta urinish
+            {t("Qayta urinish", "Try again")}
           </Button>
           <ButtonLink href="/vocabulary-battle" variant="secondary" fullWidth>
-            Orqaga
+            {t("Orqaga", "Back")}
           </ButtonLink>
         </div>
       </div>
@@ -234,9 +237,9 @@ export function VocabGame({
     return (
       <div className="card mx-auto max-w-md animate-pop rounded-2xl p-8 text-center">
         <span className="rounded bg-success/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-success">
-          O&apos;yin yakunlandi
+          {t("O'yin yakunlandi", "Game over")}
         </span>
-        <p className="mt-6 text-[13px] uppercase tracking-wide text-muted">Yakuniy ball</p>
+        <p className="mt-6 text-[13px] uppercase tracking-wide text-muted">{t("Yakuniy ball", "Final score")}</p>
         <p className="mt-1 font-display text-6xl text-gold-400 lining-nums">
           {formatXp(session.score)} XP
         </p>
@@ -244,27 +247,27 @@ export function VocabGame({
 
         <dl className="space-y-2.5 text-left text-sm">
           <div className="flex justify-between">
-            <dt className="text-muted">To&apos;g&apos;ri javoblar:</dt>
+            <dt className="text-muted">{t("To'g'ri javoblar", "Correct answers")}:</dt>
             <dd className="font-semibold text-fg tabular-nums">
               {session.correct_count} / {session.total_count}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted">Aniqlik:</dt>
+            <dt className="text-muted">{t("Aniqlik", "Accuracy")}:</dt>
             <dd className="font-semibold text-success tabular-nums">{accuracy}%</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted">Haftalik o&apos;rningiz:</dt>
+            <dt className="text-muted">{t("Haftalik o'rningiz", "Weekly rank")}:</dt>
             <dd className="font-semibold text-brand-400 tabular-nums">{rank ? `#${rank}` : "—"}</dd>
           </div>
         </dl>
 
         <div className="mt-7 space-y-3">
           <Button fullWidth onClick={start}>
-            Yana o&apos;ynash
+            {t("Yana o'ynash", "Play again")}
           </Button>
           <ButtonLink href="/leaderboard" variant="secondary" fullWidth>
-            Reytingni ko&apos;rish
+            {t("Reytingni ko'rish", "See leaderboard")}
           </ButtonLink>
         </div>
 
@@ -272,7 +275,7 @@ export function VocabGame({
           href="/vocabulary-battle"
           className="mt-5 block text-center text-sm font-semibold text-muted hover:text-fg"
         >
-          Boshqa to&apos;plamni tanlash
+          {t("Boshqa to'plamni tanlash", "Choose another pack")}
         </Link>
       </div>
     );
@@ -290,7 +293,7 @@ export function VocabGame({
       {/* Yuqori qator */}
       <div className="flex items-center justify-between gap-4">
         <span className="text-sm font-semibold tabular-nums text-gold-400">
-          Savol {index + 1} / {words.length}
+          {t("Savol", "Question")} {index + 1} / {words.length}
         </span>
         <span className="inline-flex items-center gap-1 rounded bg-ink-700 px-2 py-1 text-[11px] font-semibold text-gold-400">
           ⚡ {packTitle}
@@ -306,7 +309,7 @@ export function VocabGame({
 
       {/* Taymer */}
       <div className="mt-3 flex items-center justify-between text-[13px]">
-        <span className="text-muted">Qolgan vaqt</span>
+        <span className="text-muted">{t("Qolgan vaqt", "Time left")}</span>
         <span
           className={cn(
             "font-semibold tabular-nums",
@@ -328,7 +331,7 @@ export function VocabGame({
 
       {/* Savol */}
       <p key={current.id} className="display-title mt-5 animate-fade-up text-[28px] leading-snug break-words sm:text-[32px]">
-        “{current.word}” so&apos;zining ma&apos;nosi?
+        {t(`“${current.word}” so'zining ma'nosi?`, `What does “${current.word}” mean?`)}
       </p>
 
       {/* Variantlar */}
@@ -358,12 +361,12 @@ export function VocabGame({
       </div>
 
       <div className="mt-6 flex items-center justify-between text-[13px]">
-        <span className="text-muted">Joriy ball</span>
+        <span className="text-muted">{t("Joriy ball", "Current score")}</span>
         <span className="text-lg font-semibold tabular-nums text-fg">{formatXp(localScore)}</span>
       </div>
 
       <p className="mt-4 text-center text-xs text-faint">
-        To&apos;g&apos;ri javob o&apos;yin oxirida serverda hisoblanadi — halol natija kafolatlanadi.
+        {t("To'g'ri javob o'yin oxirida serverda hisoblanadi — halol natija kafolatlanadi.", "Correct answers are checked on the server at the end of the game — a fair result is guaranteed.")}
       </p>
     </div>
   );

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Cormorant_Garamond, Inter } from "next/font/google";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { SITE_DESCRIPTION, SITE_DESCRIPTION_EN, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { getLocale, getT } from "@/i18n/server";
+import { I18nProvider } from "@/i18n/client";
 import { CursorFollower } from "@/components/motion/CursorFollower";
 import { Splash } from "@/components/motion/Loader";
 import "./globals.css";
@@ -28,12 +30,14 @@ const hand = Caveat({
   variable: "--font-hand",
 });
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
   title: {
     default: `${SITE_NAME} — ${SITE_TAGLINE}`,
     template: `%s · ${SITE_NAME}`,
   },
-  description: SITE_DESCRIPTION,
+  description: t(SITE_DESCRIPTION, SITE_DESCRIPTION_EN),
   applicationName: SITE_NAME,
   keywords: [
     "LevelX English",
@@ -48,12 +52,13 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
-    description: SITE_DESCRIPTION,
+    description: t(SITE_DESCRIPTION, SITE_DESCRIPTION_EN),
     type: "website",
-    locale: "uz_UZ",
+    locale: t.locale === "en" ? "en_US" : "uz_UZ",
   },
   robots: { index: true, follow: true },
-};
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -62,20 +67,21 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
   return (
     <html
-      lang="uz"
+      lang={locale}
       className={`dark ${inter.variable} ${cormorant.variable} ${hand.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <body className="min-h-dvh">
         {/* har bir to'liq yuklanishda (kirish, refresh) yuklanish ekrani */}
-        <Splash />
-        {children}
+        <Splash label={locale === "en" ? "Loading" : "Yuklanmoqda"} />
+        <I18nProvider locale={locale}>{children}</I18nProvider>
         <CursorFollower />
       </body>
     </html>

@@ -10,6 +10,8 @@ import type {
 import { cn, countWords } from "@/lib/format";
 import { Textarea, Input, Select } from "@/components/ui/Field";
 import { SpeakingRecorder } from "./SpeakingRecorder";
+import { useT } from "@/i18n/client";
+import type { T } from "@/i18n";
 
 export const AUTO_GRADED: QuestionKind[] = [
   "mcq",
@@ -83,6 +85,7 @@ export function QuestionRenderer({
   uploadContext,
 }: QuestionRendererProps) {
   const groupId = useId();
+  const t = useT();
 
   return (
     <div className="scroll-mt-24" id={`q-${question.id}`}>
@@ -110,6 +113,7 @@ export function QuestionRenderer({
               disabled,
               groupId,
               uploadContext,
+              t,
             })}
           </div>
         </div>
@@ -125,6 +129,7 @@ function renderControl({
   disabled,
   groupId,
   uploadContext,
+  t,
 }: {
   question: PublicQuestion;
   value: AnswerValue;
@@ -132,6 +137,7 @@ function renderControl({
   disabled?: boolean;
   groupId: string;
   uploadContext?: { attemptId: string; userId: string };
+  t: T;
 }) {
   switch (question.kind) {
     /* ------------------------------------------------------------ MCQ */
@@ -268,7 +274,7 @@ function renderControl({
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          placeholder="Javobingizni yozing…"
+          placeholder={t("Javobingizni yozing…", "Type your answer…")}
           className="max-w-sm"
           autoComplete="off"
           spellCheck={false}
@@ -314,7 +320,7 @@ function renderControl({
                 className="w-full sm:w-auto sm:min-w-[260px] sm:max-w-[60%] bg-surface"
                 aria-label={row.label}
               >
-                <option value="">— tanlang —</option>
+                <option value="">— {t("tanlang", "choose")} —</option>
                 {row.right.map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -337,13 +343,13 @@ function renderControl({
             value={text}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
-            placeholder="Javobingizni shu yerga yozing…"
+            placeholder={t("Javobingizni shu yerga yozing…", "Write your answer here…")}
             className="min-h-64 font-[inherit] leading-relaxed"
             spellCheck={false}
           />
           <div className="flex items-center justify-between mt-2 text-xs">
             <span className="text-muted">
-              Javobingiz o&apos;qituvchi tomonidan tekshiriladi.
+              {t("Javobingiz o'qituvchi tomonidan tekshiriladi.", "Your answer will be checked by a teacher.")}
             </span>
             <span
               className={cn(
@@ -351,7 +357,7 @@ function renderControl({
                 words < 100 ? "text-muted" : "text-success",
               )}
             >
-              {words} so&apos;z
+              {words} {t("so'z", "words")}
             </span>
           </div>
         </div>

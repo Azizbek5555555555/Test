@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import Image from "next/image";
 import Link from "next/link";
 import { Calendar, MapPin } from "react-feather";
@@ -6,7 +7,8 @@ import type { Course } from "@/lib/types";
 const COURSE_IMAGES = ["/design/course-1.jpg", "/design/course-2.jpg", "/design/course-3.jpg"];
 
 /** Figma 10: "Intensive On-Site Programs" kartasi */
-export function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
+export async function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
+  const t = await getT();
   return (
     <article data-spot className="spot card lift relative flex h-full flex-col overflow-hidden rounded-2xl">
       <div className="relative h-[180px] overflow-hidden">
@@ -45,13 +47,13 @@ export function CourseCard({ course, index = 0 }: { course: Course; index?: numb
           ) : null}
         </div>
 
-        <p className="mt-4 text-[15px] font-semibold text-fg">{course.price ?? "Narx kelishiladi"}</p>
+        <p className="mt-4 text-[15px] font-semibold text-fg">{course.price ?? t("Narx kelishiladi", "Price on request")}</p>
 
         <Link
           href={`/courses/${course.slug}`}
           className="mt-4 inline-flex w-full items-center justify-center rounded-full border-[1.5px] border-brand-400 px-6 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-brand-400 hover:text-ink-950"
         >
-          Kursga yozilish
+          {t("Kursga yozilish", "Enrol")}
         </Link>
       </div>
     </article>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useRef } from "react";
 import { useTilt } from "@/components/motion/useTilt";
 import { LogoSeal } from "./LogoSeal";
@@ -10,6 +11,7 @@ import { LogoSeal } from "./LogoSeal";
  * gologramma yaltirog'i yuradi, atrofida ikki oltin halqa sekin aylanadi.
  */
 export function PremiumCard3D({ active }: { active?: boolean }) {
+  const t = useT();
   const sceneRef = useRef<HTMLDivElement>(null);
   useTilt(sceneRef);
 
@@ -45,7 +47,7 @@ export function PremiumCard3D({ active }: { active?: boolean }) {
             <div className="pc-sign">
               <span>Authorized Premium member</span>
             </div>
-            <p className="pc-back-list">Full Mock · Exam Checking · Writing &amp; Speaking tekshiruvi</p>
+            <p className="pc-back-list">Full Mock · Exam Checking · {t("Writing & Speaking tekshiruvi", "Writing & Speaking review")}</p>
             <LogoSeal size={44} className="pc-back-seal" />
           </div>
           {/* old tomoni */}
@@ -66,8 +68,8 @@ export function PremiumCard3D({ active }: { active?: boolean }) {
             <p className="pc-number">LX 2026 •••• 0079</p>
             <div className="pc-bottom">
               <div>
-                <p className="pc-label">A&apos;zo</p>
-                <p className="pc-name">Sizning ismingiz</p>
+                <p className="pc-label">{t("A'zo", "Member")}</p>
+                <p className="pc-name">{t("Sizning ismingiz", "Your name")}</p>
               </div>
               <div>
                 <p className="pc-label">Since</p>

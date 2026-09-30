@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useActionState } from "react";
 import { applyToCourseAction, type ActionResult } from "@/lib/actions/forms";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +18,7 @@ export function CourseApplyForm({
   defaultName?: string | null;
   defaultPhone?: string | null;
 }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState<
     ActionResult | null,
     FormData
@@ -24,9 +26,9 @@ export function CourseApplyForm({
 
   if (state?.ok) {
     return (
-      <Alert tone="success" title="Ariza qabul qilindi 🎉">
+      <Alert tone="success" title={t("Ariza qabul qilindi 🎉", "Application received 🎉")}>
         {state.message} <br />
-        <span className="text-xs opacity-80">Kurs: {courseTitle}</span>
+        <span className="text-xs opacity-80">{t("Kurs", "Course")}: {courseTitle}</span>
       </Alert>
     );
   }
@@ -37,7 +39,7 @@ export function CourseApplyForm({
 
       <input type="hidden" name="course_id" value={courseId} />
 
-      <Field label="Ism-familiya" htmlFor="apply-name" required>
+      <Field label={t("Ism-familiya", "Full name")} htmlFor="apply-name" required>
         <Input
           id="apply-name"
           name="full_name"
@@ -50,7 +52,7 @@ export function CourseApplyForm({
         />
       </Field>
 
-      <Field label="Telefon raqam" htmlFor="apply-phone" required>
+      <Field label={t("Telefon raqam", "Phone number")} htmlFor="apply-phone" required>
         <Input
           id="apply-phone"
           name="phone"
@@ -63,25 +65,27 @@ export function CourseApplyForm({
       </Field>
 
       <Field
-        label="Qo'shimcha izoh"
+        label={t("Qo'shimcha izoh", "Additional note")}
         htmlFor="apply-note"
-        hint="Darajangiz, qulay vaqtingiz yoki savolingiz"
+        hint={t("Darajangiz, qulay vaqtingiz yoki savolingiz", "Your level, preferred time or a question")}
       >
         <Textarea
           id="apply-note"
           name="note"
-          placeholder="Masalan: hozir B1 darajadaman, kechki guruh qulay."
+          placeholder={t("Masalan: hozir B1 darajadaman, kechki guruh qulay.", "E.g. I am at B1 now, an evening group suits me.")}
           maxLength={1000}
         />
       </Field>
 
       <Button type="submit" size="lg" fullWidth disabled={pending}>
-        {pending ? "Yuborilmoqda…" : "Ro'yxatdan o'tish"}
+        {pending ? t("Yuborilmoqda…", "Sending…") : t("Ro'yxatdan o'tish", "Enrol")}
       </Button>
 
       <p className="text-xs text-muted text-center">
-        Arizangizni qabul qilgach, administrator siz bilan telefon orqali
-        bog&apos;lanadi.
+        {t(
+          "Arizangizni qabul qilgach, administrator siz bilan telefon orqali bog'lanadi.",
+          "Once we receive your application, an administrator will contact you by phone.",
+        )}
       </p>
     </form>
   );

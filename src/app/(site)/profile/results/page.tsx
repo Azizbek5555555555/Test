@@ -6,32 +6,33 @@ import { getMyAttemptsWithTests } from "@/lib/queries";
 import { PageHeader, EmptyState } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { AttemptRow } from "@/components/profile/AttemptRow";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Natijalarim",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Natijalarim", "My results"), robots: { index: false, follow: false } };
+}
 
 export default async function MyResultsPage() {
   const profile = await getProfile();
   if (!profile)
     redirect(`/login?next=${encodeURIComponent("/profile/results")}`);
 
-  const attempts = await getMyAttemptsWithTests(100);
+  const [attempts, t] = await Promise.all([getMyAttemptsWithTests(100), getT()]);
 
   const groups = [
     {
-      title: "Davom etayotgan",
+      title: t("Davom etayotgan", "In progress"),
       items: attempts.filter((a) => a.status === "in_progress"),
       empty: null,
     },
     {
-      title: "Tekshiruvda",
+      title: t("Tekshiruvda", "In review"),
       items: attempts.filter((a) => a.status === "submitted"),
       empty: null,
     },
     {
-      title: "Baholangan",
+      title: t("Baholangan", "Graded"),
       items: attempts.filter((a) => a.status === "graded"),
       empty: null,
     },
@@ -43,21 +44,24 @@ export default async function MyResultsPage() {
         href="/profile"
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg mb-6"
       >
-        ← Profil
+        ← {t("Profil", "Profile")}
       </Link>
 
       <PageHeader
         eyebrow="Progress"
-        title="Barcha natijalarim"
-        description="Har bir test natijasi shu yerda saqlanadi. Natija ustiga bosib, javoblar tahlilini ko'rishingiz mumkin."
+        title={t("Barcha natijalarim", "All my results")}
+        description={t(
+          "Har bir test natijasi shu yerda saqlanadi. Natija ustiga bosib, javoblar tahlilini ko'rishingiz mumkin.",
+          "Every test result is saved here. Click a result to see the answer breakdown.",
+        )}
       />
 
       {attempts.length === 0 ? (
         <EmptyState
           icon="📊"
-          title="Natijalar hali yo'q"
-          description="Birinchi testni ishlab ko'ring — natijangiz avtomatik saqlanadi."
-          action={<ButtonLink href="/full-mock">Full Mock testlar</ButtonLink>}
+          title={t("Natijalar hali yo'q", "No results yet")}
+          description={t("Birinchi testni ishlab ko'ring — natijangiz avtomatik saqlanadi.", "Take your first test — your result is saved automatically.")}
+          action={<ButtonLink href="/full-mock">{t("Full Mock testlar", "Full Mock tests")}</ButtonLink>}
         />
       ) : (
         <div className="space-y-8">

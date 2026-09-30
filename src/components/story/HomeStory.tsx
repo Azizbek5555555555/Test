@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { ArrowRight, BookOpen, Check, Edit3, Headphones, Mic, Star, Zap } from "react-feather";
@@ -82,8 +83,9 @@ function countValue(p: number, segments: { range: Range; from: number; to: numbe
    Komponent
    ============================================================================ */
 export function HomeStory({ stats }: { stats: SiteStats }) {
-  const chapters = useMemo(() => storyChapters(stats), [stats]);
-  const proof = useMemo(() => heroProof(stats), [stats]);
+  const t = useT();
+  const chapters = useMemo(() => storyChapters(stats, t), [stats, t]);
+  const proof = useMemo(() => heroProof(stats, t), [stats, t]);
   const rootRef = useRef<HTMLElement>(null);
   // "static" — harakatsiz variant (reduced motion, sekin internet, kam xotira)
   const mode = useMotionMode();
@@ -298,7 +300,7 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
       ref={rootRef}
       className="story"
       data-mode={mode}
-      aria-label="LevelX English — natija varaqasi"
+      aria-label={t("LevelX English — natija varaqasi", "LevelX English — result sheet")}
       style={
         {
           "--story-h-d": `${STORY_HEIGHT.desktop}vh`,
@@ -337,7 +339,7 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
         </div>
 
         <div data-kf="hint" className="story-hint" aria-hidden>
-          <span>Pastga suring</span>
+          <span>{t("Pastga suring", "Scroll down")}</span>
           <i />
         </div>
       </div>
@@ -395,6 +397,7 @@ function ChapterButtons({ cta }: { cta: NonNullable<StoryChapter["cta"]> }) {
 
 /** Hero: nishon, ajratilgan so'zli sarlavha, qo'lyozma shior, tugmalar va haqiqiy sonlar */
 function HeroBlock({ chapter, proof }: { chapter: StoryChapter; proof: string[] }) {
+  const t = useT();
   const hl = chapter.highlight;
   const at = hl ? chapter.title.indexOf(hl) : -1;
   const before = at >= 0 ? chapter.title.slice(0, at) : chapter.title;
@@ -420,7 +423,7 @@ function HeroBlock({ chapter, proof }: { chapter: StoryChapter; proof: string[] 
       <p className="hero-hand">Push Past Your Limits</p>
       <p className="story-body">{chapter.body}</p>
       {chapter.cta ? <ChapterButtons cta={chapter.cta} /> : null}
-      <ul className="hero-proof" aria-label="Platforma haqida">
+      <ul className="hero-proof" aria-label={t("Platforma haqida", "About the platform")}>
         {proof.map((item) => (
           <li key={item}>
             <Check size={13} strokeWidth={2.5} aria-hidden />
@@ -437,6 +440,9 @@ const CHIP_ICONS = { headphones: Headphones, book: BookOpen, pen: Edit3, mic: Mi
 function FloaterEl({ floater: f, index }: { floater: Floater; index: number }) {
   const Icon = f.icon ? CHIP_ICONS[f.icon] : null;
   const visibleAtStart = f.show[0] <= 0;
+  const t = useT();
+  const text = typeof f.text === "string" ? f.text : t(f.text);
+  const sub = f.sub === undefined ? undefined : typeof f.sub === "string" ? f.sub : t(f.sub);
   return (
     <div
       data-float={index}
@@ -465,29 +471,29 @@ function FloaterEl({ floater: f, index }: { floater: Floater; index: number }) {
               <Icon size={15} strokeWidth={1.8} />
             </span>
             <span>
-              <b>{f.text}</b>
-              {f.sub ? <small>{f.sub}</small> : null}
+              <b>{text}</b>
+              {sub ? <small>{sub}</small> : null}
             </span>
           </>
         ) : f.kind === "card" ? (
           <>
-            <b>{f.text}</b>
-            <small>{f.sub}</small>
+            <b>{text}</b>
+            <small>{sub}</small>
           </>
         ) : f.kind === "note" ? (
           <>
-            <b>{f.text}</b>
-            <small>{f.sub}</small>
+            <b>{text}</b>
+            <small>{sub}</small>
           </>
         ) : f.kind === "word" ? (
           <>
-            {f.text}
+            {text}
             <svg viewBox="0 0 120 12" preserveAspectRatio="none" aria-hidden>
               <path d="M2 8 C 30 3, 60 11, 118 5" />
             </svg>
           </>
         ) : (
-          f.text
+          text
         )}
       </div>
     </div>

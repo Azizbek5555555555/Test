@@ -14,11 +14,12 @@ import { ButtonLink } from "@/components/ui/Button";
 import { FeedbackCards, ResultCard } from "@/components/test/ResultCard";
 import { AnswerReview } from "@/components/test/AnswerReview";
 import { PrintButton } from "@/components/test/PrintButton";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Natija",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Natija", "Result"), robots: { index: false, follow: false } };
+}
 
 export default async function ResultPage({
   params,
@@ -27,7 +28,7 @@ export default async function ResultPage({
 }) {
   const { attemptId } = await params;
 
-  const profile = await getProfile();
+  const [profile, t] = await Promise.all([getProfile(), getT()]);
   if (!profile) {
     redirect(`/login?next=${encodeURIComponent(`/results/${attemptId}`)}`);
   }
@@ -69,13 +70,13 @@ export default async function ResultPage({
             href="/profile/results"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg"
           >
-            ← Barcha natijalar
+            ← {t("Barcha natijalar", "All results")}
           </Link>
           <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.12em] text-success">
-            Batafsil natija
+            {t("Batafsil natija", "Detailed result")}
           </p>
           <h1 className="display-title mt-1 text-[34px] sm:text-[40px]">
-            Natijalar tahlili
+            {t("Natijalar tahlili", "Result analysis")}
           </h1>
         </div>
 
@@ -90,11 +91,11 @@ export default async function ResultPage({
                   <PrintButton fullWidth />
                   {testSet ? (
                     <ButtonLink href={`/tests/${testSet.slug}`} fullWidth>
-                      Qayta ishlash
+                      {t("Qayta ishlash", "Retake")}
                     </ButtonLink>
                   ) : (
                     <ButtonLink href="#tahlil" fullWidth>
-                      Tahlil
+                      {t("Tahlil", "Analysis")}
                     </ButtonLink>
                   )}
                 </>
@@ -106,23 +107,26 @@ export default async function ResultPage({
             <FeedbackCards attempt={attempt} />
             <div id="tahlil" className="print:hidden">
               <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-400">
-                Javoblar tahlili
+                {t("Javoblar tahlili", "Answer breakdown")}
               </p>
               <p className="text-muted text-sm mb-6">
-                Har bir savol bo&apos;yicha to&apos;g&apos;ri javob va izohni
-                ko&apos;ring — bu keyingi safar xatoni takrorlamaslikka yordam
-                beradi.
+                {t(
+                  "Har bir savol bo'yicha to'g'ri javob va izohni ko'ring — bu keyingi safar xatoni takrorlamaslikka yordam beradi.",
+                  "See the correct answer and explanation for every question — it helps you avoid the same mistake next time.",
+                )}
               </p>
 
               {scriptLocked ? (
                 <div className="card mb-8 flex flex-wrap items-center justify-between gap-3 p-4">
                   <p className="text-sm">
-                    <strong>Audio skripti</strong> — faqat Premium
-                    foydalanuvchilar uchun. Qaysi so&apos;zni eshitmaganingizni
-                    skript orqali aniqlang.
+                    <strong>{t("Audio skripti", "Audio transcript")}</strong>{" "}
+                    {t(
+                      "— faqat Premium foydalanuvchilar uchun. Qaysi so'zni eshitmaganingizni skript orqali aniqlang.",
+                      "— for Premium members only. Use the transcript to find the words you missed.",
+                    )}
                   </p>
                   <ButtonLink href="/premium" size="sm" variant="premium">
-                    Premiumga o&apos;tish
+                    {t("Premiumga o'tish", "Go Premium")}
                   </ButtonLink>
                 </div>
               ) : null}
@@ -132,7 +136,7 @@ export default async function ResultPage({
                   {transcripts.map((part) => (
                     <details key={part.id} className="card overflow-hidden p-0">
                       <summary className="cursor-pointer select-none p-4 text-sm font-semibold hover:bg-ink-800">
-                        Audio skripti — {part.title}
+                        {t("Audio skripti", "Audio transcript")} — {part.title}
                       </summary>
                       <p className="px-4 pb-4 text-sm leading-relaxed whitespace-pre-line">
                         {part.transcript}
@@ -146,7 +150,7 @@ export default async function ResultPage({
                 <AnswerReview rows={review} />
               ) : (
                 <div className="card p-6 text-sm text-muted">
-                  Tahlil mavjud emas.
+                  {t("Tahlil mavjud emas.", "No analysis available.")}
                 </div>
               )}
             </div>

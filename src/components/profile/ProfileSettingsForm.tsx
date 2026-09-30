@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useActionState } from "react";
 import { updateProfileAction, type ActionResult } from "@/lib/actions/profile";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +14,7 @@ export function ProfileSettingsForm({
   defaultName: string;
   defaultPhone: string;
 }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState<
     ActionResult | null,
     FormData
@@ -24,7 +26,7 @@ export function ProfileSettingsForm({
         <Alert tone={state.ok ? "success" : "danger"}>{state.message}</Alert>
       ) : null}
 
-      <Field label="Ism-familiya" htmlFor="settings-name" required>
+      <Field label={t("Ism-familiya", "Full name")} htmlFor="settings-name" required>
         <Input
           id="settings-name"
           name="full_name"
@@ -38,9 +40,9 @@ export function ProfileSettingsForm({
       </Field>
 
       <Field
-        label="Telefon raqam"
+        label={t("Telefon raqam", "Phone number")}
         htmlFor="settings-phone"
-        hint="Kurslarga yozilishda avtomatik to'ldiriladi"
+        hint={t("Kurslarga yozilishda avtomatik to'ldiriladi", "Filled in automatically when you enrol in courses")}
       >
         <Input
           id="settings-phone"
@@ -53,7 +55,7 @@ export function ProfileSettingsForm({
       </Field>
 
       <Button type="submit" disabled={pending}>
-        {pending ? "Saqlanmoqda…" : "Saqlash"}
+        {pending ? t("Saqlanmoqda…", "Saving…") : t("Saqlash", "Save")}
       </Button>
     </form>
   );

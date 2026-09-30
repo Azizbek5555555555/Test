@@ -10,15 +10,22 @@ import { TestSetCard } from "@/components/test/TestSetCard";
 import { FeedbackCards, ResultCard } from "@/components/test/ResultCard";
 import { ExamGateHeader, ExamRules, ExamSequence } from "@/components/exam/ExamGate";
 import { Reveal } from "@/components/motion/Reveal";
+import { getT } from "@/i18n/server";
+import type { T } from "@/i18n";
 
-export const metadata: Metadata = {
-  title: "Exam Full Checking",
-  description:
-    "Real Multilevel kompyuter imtihoni simulyatsiyasi: Listening → Reading → Writing → Speaking va to'liq natija.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: "Exam Full Checking",
+    description: t(
+      "Real Multilevel kompyuter imtihoni simulyatsiyasi: Listening → Reading → Writing → Speaking va to'liq natija.",
+      "A real Multilevel computer-based exam simulation: Listening → Reading → Writing → Speaking with a full result.",
+    ),
+  };
+}
 
 /** "Natija namunasi" bo'limi uchun ko'rgazmali (haqiqiy bo'lmagan) natija */
-const SAMPLE_ATTEMPT: Attempt = {
+const sampleAttempt = (t: T): Attempt => ({
   id: "namuna",
   user_id: "namuna",
   test_set_id: "namuna",
@@ -31,10 +38,14 @@ const SAMPLE_ATTEMPT: Attempt = {
   overall_score: 62,
   cefr_level: "B2",
   teacher_feedback: {
-    writing:
+    writing: t(
       "Esselaringiz izchil va mantiqiy. 2-paragrafda bir nechta uzun, bo'linmagan gaplar bor. C1 ga chiqish uchun murakkab ergash gaplarni ko'proq ishlating.",
-    speaking:
+      "Your essays are coherent and logical. Paragraph 2 has a few long run-on sentences. To reach C1, use more complex subordinate clauses.",
+    ),
+    speaking: t(
       "Talaffuz aniq. 3-qismda kichik to'xtalishlar bor. Ravonlikni saqlash uchun 1 daqiqalik taymer bilan javob berishni mashq qiling.",
+      "Clear pronunciation. There are small hesitations in Part 3. Practise answering with a 1-minute timer to keep your fluency.",
+    ),
   },
   needs_manual_check: false,
   graded_by: null,
@@ -42,13 +53,15 @@ const SAMPLE_ATTEMPT: Attempt = {
   started_at: "2026-01-01T00:00:00.000Z",
   submitted_at: "2026-01-01T02:20:00.000Z",
   expires_at: null,
-};
+});
 
 export default async function ExamCheckingPage() {
-  const [profile, exams] = await Promise.all([
+  const [profile, exams, t] = await Promise.all([
     getProfile(),
     getTestSets({ category: "exam_checking" }),
+    getT(),
   ]);
+  const sample = sampleAttempt(t);
 
   const unlocked = profileHasPremium(profile);
   const outlines = await getTestOutlines(exams.map((e) => e.id));
@@ -65,24 +78,25 @@ export default async function ExamCheckingPage() {
     <div>
       {/* 3D CEFR sertifikati: skroll bilan aylanadi, atrofida oltin halqalar */}
       <CertReveal
-        eyebrow="Exam Full Checking · imtihon simulyatori"
-        title="Natijangiz CEFR darajasida"
+        eyebrow={t("Exam Full Checking · imtihon simulyatori", "Exam Full Checking · exam simulator")}
+        title={t("Natijangiz CEFR darajasida", "Your result as a CEFR level")}
         highlight="CEFR"
         hand="Real exam. Real level."
         actions={
           <>
             <ButtonLink href={startHref} size="lg" variant={unlocked ? "primary" : "premium"}>
-              {unlocked ? "Imtihonni boshlash" : "Premium bilan ochish"}
+              {unlocked ? t("Imtihonni boshlash", "Start the exam") : t("Premium bilan ochish", "Unlock with Premium")}
             </ButtonLink>
             <ButtonLink href="#natija" size="lg" variant="secondary">
-              Natija namunasi
+              {t("Natija namunasi", "Sample result")}
             </ButtonLink>
           </>
         }
       >
-        Uch bosqichli imtihon muhiti: tayyorgarlik va vaqt rejasi, real kompyuter
-        imtihonidek ishlash oynasi va har bir ko&apos;nikma bo&apos;yicha batafsil natija —
-        umumiy ball va CEFR darajasi bilan.
+        {t(
+          "Uch bosqichli imtihon muhiti: tayyorgarlik va vaqt rejasi, real kompyuter imtihonidek ishlash oynasi va har bir ko'nikma bo'yicha batafsil natija — umumiy ball va CEFR darajasi bilan.",
+          "A three-stage exam environment: preparation and a time plan, a real computer-based exam window, and a detailed result for every skill — with an overall score and CEFR level.",
+        )}
       </CertReveal>
 
       {/* ------------------------------------------------ 1-bosqich: kirish */}
@@ -91,7 +105,10 @@ export default async function ExamCheckingPage() {
           <Reveal>
             <ExamGateHeader
               title="Exam Full Checking"
-              description="Multilevel imtihonini xuddi real kompyuter imtihonidek topshiring — Listening va Reading darhol baholanadi, Writing va Speaking'ni o'qituvchi tekshiradi."
+              description={t(
+                "Multilevel imtihonini xuddi real kompyuter imtihonidek topshiring — Listening va Reading darhol baholanadi, Writing va Speaking'ni o'qituvchi tekshiradi.",
+                "Take the Multilevel exam just like the real computer-based exam — Listening and Reading are marked instantly, and a teacher reviews Writing and Speaking.",
+              )}
               totalMinutes={first?.duration_minutes}
             />
           </Reveal>
@@ -105,7 +122,7 @@ export default async function ExamCheckingPage() {
           </div>
           <div className="mt-8">
             <ButtonLink href={startHref} size="lg" variant={unlocked ? "primary" : "premium"}>
-              {unlocked ? "Imtihonni boshlash" : "Premium bilan ochish"}
+              {unlocked ? t("Imtihonni boshlash", "Start the exam") : t("Premium bilan ochish", "Unlock with Premium")}
             </ButtonLink>
           </div>
         </div>
@@ -115,16 +132,16 @@ export default async function ExamCheckingPage() {
       <section id="imtihonlar" className="container-page scroll-mt-28 py-16">
         <Reveal>
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-400">
-            2-bosqich: imtihon
+            {t("2-bosqich: imtihon", "Stage 2: the exam")}
           </p>
-          <h2 className="display-title mt-1 text-[32px]">Mavjud imtihonlar</h2>
+          <h2 className="display-title mt-1 text-[32px]">{t("Mavjud imtihonlar", "Available exams")}</h2>
         </Reveal>
         {exams.length === 0 ? (
           <div className="mt-6">
             <EmptyState
               icon="🎯"
-              title="Imtihonlar hali qo'shilmagan"
-              description="Admin panel orqali 'Exam Checking' turkumida imtihon yarating."
+              title={t("Imtihonlar hali qo'shilmagan", "No exams yet")}
+              description={t("Tez orada yangi imtihonlar qo'shiladi.", "New exams are coming soon.")}
             />
           </div>
         ) : (
@@ -149,17 +166,17 @@ export default async function ExamCheckingPage() {
         <div className="container-page py-16">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-success">
-              3-bosqich: batafsil natija
+              {t("3-bosqich: batafsil natija", "Stage 3: detailed result")}
             </p>
-            <h2 className="display-title mt-1 text-[32px]">Natija qanday ko&apos;rinadi</h2>
-            <p className="mt-2 text-sm text-muted">Quyidagi natija — namuna (haqiqiy o&apos;quvchi natijasi emas).</p>
+            <h2 className="display-title mt-1 text-[32px]">{t("Natija qanday ko'rinadi", "What the result looks like")}</h2>
+            <p className="mt-2 text-sm text-muted">{t("Quyidagi natija — namuna (haqiqiy o'quvchi natijasi emas).", "The result below is a sample (not a real learner's result).")}</p>
           </Reveal>
           <div className="mt-8 grid items-start gap-8 lg:grid-cols-[440px_1fr] lg:gap-10">
             <Reveal>
-              <ResultCard attempt={SAMPLE_ATTEMPT} testTitle="Namuna imtihon" />
+              <ResultCard attempt={sample} testTitle={t("Namuna imtihon", "Sample exam")} />
             </Reveal>
             <Reveal delay={100}>
-              <FeedbackCards attempt={SAMPLE_ATTEMPT} />
+              <FeedbackCards attempt={sample} />
             </Reveal>
           </div>
         </div>

@@ -1,5 +1,7 @@
 "use server";
 
+import { getT } from "@/i18n/server";
+
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/auth";
@@ -16,16 +18,17 @@ export async function applyToCourseAction(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const t = await getT();
   const courseId = String(formData.get("course_id") ?? "");
   const fullName = String(formData.get("full_name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
 
-  if (!courseId) return { ok: false, message: "Kurs tanlanmagan." };
+  if (!courseId) return { ok: false, message: t("Kurs tanlanmagan.", "No course selected.") };
   if (fullName.length < 2)
-    return { ok: false, message: "Ism-familiyani to'liq kiriting." };
+    return { ok: false, message: t("Ism-familiyani to'liq kiriting.", "Enter your full name.") };
   if (!PHONE_RE.test(phone))
-    return { ok: false, message: "Telefon raqamini to'g'ri kiriting." };
+    return { ok: false, message: t("Telefon raqamini to'g'ri kiriting.", "Enter a valid phone number.") };
 
   try {
     const profile = await getProfile();
@@ -41,14 +44,14 @@ export async function applyToCourseAction(
 
     if (error) return { ok: false, message: error.message };
   } catch {
-    return { ok: false, message: "Arizani yuborib bo'lmadi." };
+    return { ok: false, message: t("Arizani yuborib bo'lmadi.", "Could not send the application.") };
   }
 
   revalidatePath("/admin/applications");
   return {
     ok: true,
     message:
-      "Arizangiz qabul qilindi! Tez orada siz bilan bog'lanamiz.",
+      t("Arizangiz qabul qilindi! Tez orada siz bilan bog'lanamiz.", "Your application has been received! We will contact you soon."),
   };
 }
 
@@ -59,23 +62,24 @@ export async function sendContactMessageAction(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const t = await getT();
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
 
-  if (name.length < 2) return { ok: false, message: "Ismingizni kiriting." };
+  if (name.length < 2) return { ok: false, message: t("Ismingizni kiriting.", "Enter your name.") };
   if (message.length < 10)
-    return { ok: false, message: "Xabar kamida 10 ta belgidan iborat bo'lsin." };
+    return { ok: false, message: t("Xabar kamida 10 ta belgidan iborat bo'lsin.", "The message must be at least 10 characters long.") };
   if (!email && !phone)
     return {
       ok: false,
-      message: "Email yoki telefon raqamdan birini kiriting.",
+      message: t("Email yoki telefon raqamdan birini kiriting.", "Enter an email or a phone number."),
     };
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-    return { ok: false, message: "Email manzilini to'g'ri kiriting." };
+    return { ok: false, message: t("Email manzilini to'g'ri kiriting.", "Enter a valid email address.") };
   if (phone && !PHONE_RE.test(phone))
-    return { ok: false, message: "Telefon raqamini to'g'ri kiriting." };
+    return { ok: false, message: t("Telefon raqamini to'g'ri kiriting.", "Enter a valid phone number.") };
 
   try {
     const supabase = await createServerSupabase();
@@ -88,13 +92,13 @@ export async function sendContactMessageAction(
 
     if (error) return { ok: false, message: error.message };
   } catch {
-    return { ok: false, message: "Xabarni yuborib bo'lmadi." };
+    return { ok: false, message: t("Xabarni yuborib bo'lmadi.", "Could not send the message.") };
   }
 
   revalidatePath("/admin/messages");
   return {
     ok: true,
-    message: "Xabaringiz yuborildi! Tez orada javob beramiz.",
+    message: t("Xabaringiz yuborildi! Tez orada javob beramiz.", "Your message has been sent! We will reply soon."),
   };
 }
 
@@ -105,14 +109,15 @@ export async function requestPremiumAction(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const t = await getT();
   const plan = String(formData.get("plan") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
 
-  if (!plan) return { ok: false, message: "Tarifni tanlang." };
+  if (!plan) return { ok: false, message: t("Tarifni tanlang.", "Choose a plan.") };
 
   const profile = await getProfile();
   if (!profile)
-    return { ok: false, message: "Avval tizimga kiring." };
+    return { ok: false, message: t("Avval tizimga kiring.", "Please log in first.") };
 
   try {
     const supabase = await createServerSupabase();
@@ -130,7 +135,7 @@ export async function requestPremiumAction(
       return {
         ok: true,
         message:
-          "Sizda allaqachon ko'rib chiqilayotgan so'rov bor. Admin tasdiqlashini kuting.",
+          t("Sizda allaqachon ko'rib chiqilayotgan so'rov bor. Admin tasdiqlashini kuting.", "You already have a request under review. Please wait for an admin to approve it."),
       };
     }
 
@@ -144,7 +149,7 @@ export async function requestPremiumAction(
 
     if (error) return { ok: false, message: error.message };
   } catch {
-    return { ok: false, message: "So'rovni yuborib bo'lmadi." };
+    return { ok: false, message: t("So'rovni yuborib bo'lmadi.", "Could not send the request.") };
   }
 
   revalidatePath("/admin/premium");
@@ -152,6 +157,6 @@ export async function requestPremiumAction(
   return {
     ok: true,
     message:
-      "So'rovingiz yuborildi! To'lovni amalga oshirib, chekni Telegram orqali yuboring — admin tasdiqlagach Premium faollashadi.",
+      t("So'rovingiz yuborildi! To'lovni amalga oshirib, chekni Telegram orqali yuboring — admin tasdiqlagach Premium faollashadi.", "Your request has been sent! Make the payment and send the receipt via Telegram — Premium activates once an admin approves it."),
   };
 }

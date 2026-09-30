@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useState } from "react";
 import type { AnswerMap, AnswerValue, ArticleQuestionPublic } from "@/lib/types";
 import {
@@ -32,6 +33,7 @@ export function ArticleQuiz({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   if (questions.length === 0) return null;
 
@@ -52,7 +54,7 @@ export function ArticleQuiz({
     setLoading(false);
 
     if (!result.ok) {
-      setError(result.message ?? "Xatolik yuz berdi.");
+      setError(result.message ?? t("Xatolik yuz berdi.", "Something went wrong."));
       return;
     }
 
@@ -75,7 +77,7 @@ export function ArticleQuiz({
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h2 className="text-2xl font-extrabold">Reading questions</h2>
         <span className="text-sm text-muted tabular-nums">
-          {results ? "Tekshirildi" : `${answeredCount} / ${questions.length}`}
+          {results ? t("Tekshirildi", "Checked") : `${answeredCount} / ${questions.length}`}
         </span>
       </div>
 
@@ -85,11 +87,14 @@ export function ArticleQuiz({
             tone={
               percent(score.correct, score.total) >= 70 ? "success" : "warning"
             }
-            title={`Natija: ${score.correct} / ${score.total} (${percent(score.correct, score.total)}%)`}
+            title={`${t("Natija", "Result")}: ${score.correct} / ${score.total} (${percent(score.correct, score.total)}%)`}
           >
             {percent(score.correct, score.total) >= 70
-              ? "Ajoyib! Bu matnni yaxshi tushundingiz."
-              : "Xato qilgan savollaringizni ko'rib chiqing — pastda to'g'ri javob va izoh bor."}
+              ? t("Ajoyib! Bu matnni yaxshi tushundingiz.", "Great! You understood this text well.")
+              : t(
+                  "Xato qilgan savollaringizni ko'rib chiqing — pastda to'g'ri javob va izoh bor.",
+                  "Review the questions you got wrong — the correct answer and explanation are below.",
+                )}
           </Alert>
         </div>
       ) : null}
@@ -145,7 +150,7 @@ export function ArticleQuiz({
                         value={typeof value === "string" ? value : ""}
                         onChange={(e) => setAnswer(question.id, e.target.value)}
                         disabled={Boolean(results)}
-                        placeholder="Javobingizni yozing…"
+                        placeholder={t("Javobingizni yozing…", "Type your answer…")}
                         className="max-w-sm"
                         autoComplete="off"
                       />
@@ -177,7 +182,7 @@ export function ArticleQuiz({
 
                   {result && !result.correct ? (
                     <p className="text-sm mt-3 font-semibold text-success">
-                      To&apos;g&apos;ri javob: {formatCorrect(result.answer)}
+                      {t("To'g'ri javob", "Correct answer")}: {formatCorrect(result.answer)}
                     </p>
                   ) : null}
 
@@ -196,11 +201,11 @@ export function ArticleQuiz({
       <div className="flex flex-wrap gap-3 mt-6">
         {!signedIn ? (
           <ButtonLink href={loginHref} size="lg">
-            Javoblarni tekshirish uchun kiring
+            {t("Javoblarni tekshirish uchun kiring", "Log in to check your answers")}
           </ButtonLink>
         ) : results ? (
           <Button variant="secondary" size="lg" onClick={reset}>
-            Qayta ishlash
+            {t("Qayta ishlash", "Try again")}
           </Button>
         ) : (
           <Button
@@ -208,7 +213,7 @@ export function ArticleQuiz({
             onClick={check}
             disabled={loading || answeredCount === 0}
           >
-            {loading ? "Tekshirilmoqda…" : "Javoblarni tekshirish"}
+            {loading ? t("Tekshirilmoqda…", "Checking…") : t("Javoblarni tekshirish", "Check answers")}
           </Button>
         )}
       </div>

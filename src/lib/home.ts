@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { T } from "@/i18n";
 import { createServerSupabase } from "./supabase/server";
 import { createAdminSupabase } from "./supabase/admin";
 import { isSupabaseConfigured } from "./supabase/env";
@@ -133,7 +134,7 @@ export function studyStreak(dates: string[]): number {
 }
 
 /** Toshkent vaqti bo'yicha salomlashish */
-export function greeting(): string {
+export function greeting(t: T): string {
   const hour = Number(
     new Intl.DateTimeFormat("en-GB", {
       timeZone: "Asia/Tashkent",
@@ -141,10 +142,10 @@ export function greeting(): string {
       hour12: false,
     }).format(new Date()),
   );
-  if (hour < 5) return "Xayrli tun";
-  if (hour < 12) return "Xayrli tong";
-  if (hour < 18) return "Xayrli kun";
-  return "Xayrli kech";
+  if (hour < 5) return t("Xayrli tun", "Good night");
+  if (hour < 12) return t("Xayrli tong", "Good morning");
+  if (hour < 18) return t("Xayrli kun", "Good afternoon");
+  return t("Xayrli kech", "Good evening");
 }
 
 /* -------------------------------------------------------------------------

@@ -20,7 +20,7 @@ export const CERT = {
   title: "Certificate",
   subtitle: "of English Language Proficiency",
   certify: "This is to certify that",
-  name: "Sizning ismingiz",
+  name: { uz: "Sizning ismingiz", en: "Your name" },
   achieved: "has demonstrated English proficiency at",
   level: "C1",
   levelName: "Advanced",

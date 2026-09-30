@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
 import { updateProfileAction, type ActionResult } from "@/lib/actions/profile";
@@ -17,6 +18,7 @@ export function OnboardingForm({
   next: string;
 }) {
   const router = useRouter();
+  const t = useT();
   const [state, formAction, pending] = useActionState<
     ActionResult | null,
     FormData
@@ -33,7 +35,7 @@ export function OnboardingForm({
     <form action={formAction} className="space-y-4">
       {state && !state.ok ? <Alert tone="danger">{state.message}</Alert> : null}
 
-      <Field label="Ism-familiya" htmlFor="full_name" required>
+      <Field label={t("Ism-familiya", "Full name")} htmlFor="full_name" required>
         <Input
           id="full_name"
           name="full_name"
@@ -48,9 +50,9 @@ export function OnboardingForm({
       </Field>
 
       <Field
-        label="Telefon raqam"
+        label={t("Telefon raqam", "Phone number")}
         htmlFor="phone"
-        hint="Majburiy emas — kurslarga yozilishda qo'l keladi"
+        hint={t("Majburiy emas — kurslarga yozilishda qo'l keladi", "Optional — handy when enrolling in courses")}
       >
         <Input
           id="phone"
@@ -63,7 +65,7 @@ export function OnboardingForm({
       </Field>
 
       <Button type="submit" size="lg" fullWidth disabled={pending}>
-        {pending ? "Saqlanmoqda…" : "Davom etish"}
+        {pending ? t("Saqlanmoqda…", "Saving…") : t("Davom etish", "Continue")}
       </Button>
     </form>
   );

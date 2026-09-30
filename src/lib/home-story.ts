@@ -7,6 +7,7 @@
  * o'zgartirish mumkin.
  */
 import type { SiteStats } from "./home";
+import type { Bi, T } from "@/i18n";
 
 /* -------------------------------------------------------------------------
    Umumiy
@@ -37,12 +38,12 @@ export interface StoryChapter {
 }
 
 /** Hero ostidagi kichik "isbot" qatori — faqat bazadagi haqiqiy sonlar */
-export function heroProof(stats: SiteStats): string[] {
+export function heroProof(stats: SiteStats, t: T): string[] {
   const items: string[] = [];
-  if (stats.fullMocks > 0) items.push(`${stats.fullMocks} ta Full Mock`);
-  if (stats.questions > 0) items.push(`${stats.questions.toLocaleString("ru-RU")} ta savol`);
-  items.push("4 ko'nikma");
-  items.push("O'qituvchi tekshiruvi");
+  if (stats.fullMocks > 0) items.push(t(`${stats.fullMocks} ta Full Mock`, `${stats.fullMocks} Full Mocks`));
+  if (stats.questions > 0) items.push(t(`${stats.questions.toLocaleString("ru-RU")} ta savol`, `${stats.questions.toLocaleString("en-US")} questions`));
+  items.push(t("4 ko'nikma", "4 skills"));
+  items.push(t("O'qituvchi tekshiruvi", "Teacher review"));
   return items;
 }
 
@@ -50,98 +51,137 @@ export function heroProof(stats: SiteStats): string[] {
 const n = (value: number, withNumber: string, without: string) =>
   value > 0 ? withNumber.replace("{n}", value.toLocaleString("ru-RU")) : without;
 
-export function storyChapters(stats: SiteStats): StoryChapter[] {
+export function storyChapters(stats: SiteStats, t: T): StoryChapter[] {
   return [
     {
       id: "hero",
       range: [0, 0.12],
       hero: true,
-      eyebrow: "Multilevel imtihoniga tayyorlov platformasi",
-      title: "Natijangizni o'zingiz yozasiz",
-      highlight: "o'zingiz",
-      body: "O'rganing. Mashq qiling. Imtihon topshiring. O'sing. Multilevel imtihoniga kerak bo'lgan hamma narsa — bitta platformada.",
+      eyebrow: t("Multilevel imtihoniga tayyorlov platformasi", "Multilevel exam preparation platform"),
+      title: t("Natijangizni o'zingiz yozasiz", "You write your own result"),
+      highlight: t("o'zingiz", "own"),
+      body: t(
+        "O'rganing. Mashq qiling. Imtihon topshiring. O'sing. Multilevel imtihoniga kerak bo'lgan hamma narsa — bitta platformada.",
+        "Learn. Practise. Take the exam. Grow. Everything you need for the Multilevel exam — on one platform.",
+      ),
       cta: {
-        primary: { label: "Bepul boshlash", href: "/login" },
-        secondary: { label: "Premiumni ko'rish", href: "/premium" },
+        primary: { label: t("Bepul boshlash", "Start free"), href: "/login" },
+        secondary: { label: t("Premiumni ko'rish", "See Premium"), href: "/premium" },
       },
     },
     {
       id: "name",
       range: [0.12, 0.26],
-      eyebrow: "01 · Boshlanish",
-      title: "Har bir natija ismingizdan boshlanadi",
-      body: "Bepul ro'yxatdan o'ting — har bir test, ball va o'qituvchi izohi profilingizda saqlanib boradi.",
+      eyebrow: t("01 · Boshlanish", "01 · The start"),
+      title: t("Har bir natija ismingizdan boshlanadi", "Every result starts with your name"),
+      body: t(
+        "Bepul ro'yxatdan o'ting — har bir test, ball va o'qituvchi izohi profilingizda saqlanib boradi.",
+        "Sign up for free — every test, score and teacher comment is saved in your profile.",
+      ),
     },
     {
       id: "listening",
       range: [0.26, 0.335],
       eyebrow: "02 · Listening",
-      title: "Tinglab tushunish",
-      body: n(
-        stats.listeningSets,
-        "{n} ta listening mashqi va har bir Full Mock'da real audio. Skript bilan qaysi so'zni eshitmaganingizni topasiz.",
-        "Real imtihon audiolari va skriptlar bilan qaysi so'zni eshitmaganingizni topasiz.",
-      ),
+      title: t("Tinglab tushunish", "Listening comprehension"),
+      body: t.locale === "en"
+        ? n(
+            stats.listeningSets,
+            "{n} listening practices and real audio in every Full Mock. With the script you find exactly which words you missed.",
+            "Real exam audio and scripts show you exactly which words you missed.",
+          )
+        : n(
+            stats.listeningSets,
+            "{n} ta listening mashqi va har bir Full Mock'da real audio. Skript bilan qaysi so'zni eshitmaganingizni topasiz.",
+            "Real imtihon audiolari va skriptlar bilan qaysi so'zni eshitmaganingizni topasiz.",
+          ),
     },
     {
       id: "reading",
       range: [0.335, 0.41],
       eyebrow: "03 · Reading",
-      title: "O'qib tushunish",
-      body: n(
-        stats.fullMocks,
-        `{n} ta Full Mock${stats.articles > 0 ? ` va ${stats.articles} ta maqola` : ""} — real imtihon matnlari, yangi so'zlar bilan.`,
-        "Real imtihon matnlari, maqolalar va yangi so'zlar bilan mashq qiling.",
-      ),
+      title: t("O'qib tushunish", "Reading comprehension"),
+      body: t.locale === "en"
+        ? n(
+            stats.fullMocks,
+            `{n} Full Mocks${stats.articles > 0 ? ` and ${stats.articles} articles` : ""} — real exam texts with new vocabulary.`,
+            "Practise with real exam texts, articles and new vocabulary.",
+          )
+        : n(
+            stats.fullMocks,
+            `{n} ta Full Mock${stats.articles > 0 ? ` va ${stats.articles} ta maqola` : ""} — real imtihon matnlari, yangi so'zlar bilan.`,
+            "Real imtihon matnlari, maqolalar va yangi so'zlar bilan mashq qiling.",
+          ),
     },
     {
       id: "writing",
       range: [0.41, 0.485],
       eyebrow: "04 · Writing",
-      title: "Yozish — o'qituvchi nazoratida",
-      body: "Task 1 va Task 2 esselaringizni o'qituvchi tekshiradi, har biriga izoh qoldiradi.",
+      title: t("Yozish — o'qituvchi nazoratida", "Writing — checked by a teacher"),
+      body: t(
+        "Task 1 va Task 2 esselaringizni o'qituvchi tekshiradi, har biriga izoh qoldiradi.",
+        "A teacher checks your Task 1 and Task 2 essays and comments on each one.",
+      ),
     },
     {
       id: "speaking",
       range: [0.485, 0.56],
       eyebrow: "05 · Speaking",
-      title: "Gapiring — biz eshitamiz",
-      body: "Mikrofon orqali javob bering. O'qituvchi talaffuz, ravonlik va lug'atingizni baholaydi.",
+      title: t("Gapiring — biz eshitamiz", "Speak — we are listening"),
+      body: t(
+        "Mikrofon orqali javob bering. O'qituvchi talaffuz, ravonlik va lug'atingizni baholaydi.",
+        "Answer through your microphone. A teacher assesses your pronunciation, fluency and vocabulary.",
+      ),
     },
     {
       id: "result",
       range: [0.56, 0.68],
-      eyebrow: "06 · Natija",
-      title: "Aniq CEFR daraja — bir qarashda",
-      body: n(
-        stats.questions,
-        "Har bir bo'lim 100 ballik tizimda, umumiy daraja A1 dan C1 gacha. Bazada {n} ta real savol.",
-        "Har bir bo'lim 100 ballik tizimda, umumiy daraja A1 dan C1 gacha.",
-      ),
+      eyebrow: t("06 · Natija", "06 · The result"),
+      title: t("Aniq CEFR daraja — bir qarashda", "A clear CEFR level — at a glance"),
+      body: t.locale === "en"
+        ? n(
+            stats.questions,
+            "Every section is scored out of 100, with an overall level from A1 to C1. {n} real questions in the bank.",
+            "Every section is scored out of 100, with an overall level from A1 to C1.",
+          )
+        : n(
+            stats.questions,
+            "Har bir bo'lim 100 ballik tizimda, umumiy daraja A1 dan C1 gacha. Bazada {n} ta real savol.",
+            "Har bir bo'lim 100 ballik tizimda, umumiy daraja A1 dan C1 gacha.",
+          ),
     },
     {
       id: "teacher",
       range: [0.68, 0.8],
-      eyebrow: "07 · O'qituvchi izohi",
-      title: "Xatolaringiz — qizil ruchka bilan",
-      body: "Nima yaxshi chiqqani va nimani tuzatish kerakligi — har bir ish bo'yicha aniq izoh.",
+      eyebrow: t("07 · O'qituvchi izohi", "07 · Teacher feedback"),
+      title: t("Xatolaringiz — qizil ruchka bilan", "Your mistakes — in red pen"),
+      body: t(
+        "Nima yaxshi chiqqani va nimani tuzatish kerakligi — har bir ish bo'yicha aniq izoh.",
+        "What went well and what to fix — clear feedback on every piece of work.",
+      ),
     },
     {
       id: "improve",
       range: [0.8, 0.92],
-      eyebrow: "08 · O'sish",
-      title: "B2 dan C1 ga — qadam-baqadam",
-      body: "Zaif bo'limingizni mashq qiling, qayta topshiring va ballaringiz qanday ko'tarilayotganini kuzating.",
+      eyebrow: t("08 · O'sish", "08 · Growth"),
+      title: t("B2 dan C1 ga — qadam-baqadam", "From B2 to C1 — step by step"),
+      body: t(
+        "Zaif bo'limingizni mashq qiling, qayta topshiring va ballaringiz qanday ko'tarilayotganini kuzating.",
+        "Practise your weakest section, retake the test and watch your scores rise.",
+      ),
     },
     {
       id: "final",
       range: [0.92, 1],
-      eyebrow: "Sizning navbatingiz",
-      title: "Keyingi natija varaqasi — sizniki",
-      body: "Bugun bepul boshlang. Birinchi Full Mock testingiz 2 daqiqada tayyor.",
+      eyebrow: t("Sizning navbatingiz", "Your turn"),
+      title: t("Keyingi natija varaqasi — sizniki", "The next result sheet is yours"),
+      body: t(
+        "Bugun bepul boshlang. Birinchi Full Mock testingiz 2 daqiqada tayyor.",
+        "Start free today. Your first Full Mock test is ready in 2 minutes.",
+      ),
       cta: {
-        primary: { label: "Bepul boshlash", href: "/login" },
-        secondary: { label: "Full Mock testlar", href: "/full-mock" },
+        primary: { label: t("Bepul boshlash", "Start free"), href: "/login" },
+        secondary: { label: t("Full Mock testlar", "Full Mock tests"), href: "/full-mock" },
       },
     },
   ];
@@ -151,16 +191,18 @@ export function storyChapters(stats: SiteStats): StoryChapter[] {
    Varaqa (namuna) — ko'rsatiladigan ma'lumotlar
    ------------------------------------------------------------------------- */
 export const SHEET = {
-  title: "Natija varaqasi",
-  subtitle: "Multilevel · CEFR",
-  nameLabel: "Ism, familiya",
-  name: "Sizning ismingiz",
-  overallLabel: "Umumiy ball",
-  teacherLabel: "O'qituvchi izohi",
-  teacherNote: "Coherence a'lo! Murakkab gaplarni mashq qiling.",
-  signatureLabel: "Imzo",
-  sample: "Namuna",
-} as const;
+  title: { uz: "Natija varaqasi", en: "Result sheet" },
+  subtitle: { uz: "Multilevel · CEFR", en: "Multilevel · CEFR" },
+  nameLabel: { uz: "Ism, familiya", en: "Full name" },
+  name: { uz: "Sizning ismingiz", en: "Your name" },
+  examLabel: { uz: "Imtihon", en: "Exam" },
+  dateLabel: { uz: "Sana", en: "Date" },
+  overallLabel: { uz: "Umumiy ball", en: "Overall score" },
+  teacherLabel: { uz: "O'qituvchi izohi", en: "Teacher's comment" },
+  teacherNote: { uz: "Coherence a'lo! Murakkab gaplarni mashq qiling.", en: "Great coherence! Practise complex sentences." },
+  signatureLabel: { uz: "Imzo", en: "Signature" },
+  sample: { uz: "Namuna", en: "Sample" },
+} satisfies Record<string, Bi>;
 
 export type SkillKey = "listening" | "reading" | "writing" | "speaking";
 
@@ -313,8 +355,8 @@ export type FloaterKind = "word" | "note" | "letter" | "card" | "chip";
 export interface Floater {
   id: string;
   kind: FloaterKind;
-  text: string;
-  sub?: string;
+  text: string | Bi;
+  sub?: string | Bi;
   /** Qaysi ikonka (faqat "chip" uchun) */
   icon?: "headphones" | "book" | "pen" | "mic" | "spark";
   /** Sahna ichidagi joyi, % (varaqa atrofi). Mobil uchun alohida bo'lishi mumkin */
@@ -337,15 +379,15 @@ export const FLOATERS: Floater[] = [
   { id: "w-coherent", kind: "word", text: "coherent", at: [80, 6], depth: 0.5, rot: 6, show: [0, 0.45], mobile: true, atMobile: [70, 2], minWidth: 1400 },
   { id: "l-aa", kind: "letter", text: "Aa", at: [-20, 56], depth: 0.7, rot: -6, show: [0, 1] },
   { id: "w-paraphrase", kind: "word", text: "paraphrase", at: [-14, 44], depth: 0.25, rot: -4, show: [0, 0.24], minWidth: 1200 },
-  { id: "c-listening", kind: "chip", icon: "headphones", text: "Listening", sub: "audio · skript", at: [84, 24], depth: 0.3, rot: 4, show: [0.26, 0.345], mobile: true, atMobile: [66, 10] },
-  { id: "c-reading", kind: "chip", icon: "book", text: "Reading", sub: "matn · savollar", at: [-18, 34], depth: 0.3, rot: -4, show: [0.335, 0.42], mobile: true, atMobile: [0, 12] },
+  { id: "c-listening", kind: "chip", icon: "headphones", text: "Listening", sub: { uz: "audio · skript", en: "audio · script" }, at: [84, 24], depth: 0.3, rot: 4, show: [0.26, 0.345], mobile: true, atMobile: [66, 10] },
+  { id: "c-reading", kind: "chip", icon: "book", text: "Reading", sub: { uz: "matn · savollar", en: "text · questions" }, at: [-18, 34], depth: 0.3, rot: -4, show: [0.335, 0.42], mobile: true, atMobile: [0, 12] },
   { id: "c-writing", kind: "chip", icon: "pen", text: "Writing", sub: "Task 1 · Task 2", at: [86, 44], depth: 0.3, rot: 3, show: [0.41, 0.495], mobile: true, atMobile: [66, 18] },
-  { id: "c-speaking", kind: "chip", icon: "mic", text: "Speaking", sub: "yozib olish", at: [-16, 62], depth: 0.3, rot: -3, show: [0.485, 0.57], mobile: true, atMobile: [0, 20] },
-  { id: "n-task2", kind: "note", text: "Task 2", sub: "250 so'z · 40 daqiqa", at: [80, 66], depth: 0.45, rot: 7, show: [0.4, 0.62] },
-  { id: "k-resilient", kind: "card", text: "resilient", sub: "chidamli", at: [-22, 22], depth: 0.55, rot: -10, show: [0.6, 0.96] },
-  { id: "k-eloquent", kind: "card", text: "eloquent", sub: "notiq", at: [88, 58], depth: 0.4, rot: 8, show: [0.66, 1], mobile: true, atMobile: [68, 70] },
+  { id: "c-speaking", kind: "chip", icon: "mic", text: "Speaking", sub: { uz: "yozib olish", en: "recording" }, at: [-16, 62], depth: 0.3, rot: -3, show: [0.485, 0.57], mobile: true, atMobile: [0, 20] },
+  { id: "n-task2", kind: "note", text: "Task 2", sub: { uz: "250 so'z · 40 daqiqa", en: "250 words · 40 min" }, at: [80, 66], depth: 0.45, rot: 7, show: [0.4, 0.62] },
+  { id: "k-resilient", kind: "card", text: "resilient", sub: { uz: "chidamli", en: "tough, adaptable" }, at: [-22, 22], depth: 0.55, rot: -10, show: [0.6, 0.96] },
+  { id: "k-eloquent", kind: "card", text: "eloquent", sub: { uz: "notiq", en: "well-spoken" }, at: [88, 58], depth: 0.4, rot: 8, show: [0.66, 1], mobile: true, atMobile: [68, 70] },
   { id: "l-c1", kind: "letter", text: "C1", at: [92, 82], depth: 0.8, rot: 6, show: [0.8, 1] },
-  { id: "s-spark", kind: "chip", icon: "spark", text: "+13 ball", sub: "qayta topshirish", at: [-14, 76], depth: 0.35, rot: -5, show: [0.82, 0.97], mobile: true, atMobile: [2, 72] },
+  { id: "s-spark", kind: "chip", icon: "spark", text: { uz: "+13 ball", en: "+13 points" }, sub: { uz: "qayta topshirish", en: "retake" }, at: [-14, 76], depth: 0.35, rot: -5, show: [0.82, 0.97], mobile: true, atMobile: [2, 72] },
 ];
 
 /* -------------------------------------------------------------------------
@@ -401,7 +443,7 @@ export const REVEAL_RESULT = {
   form: "Test Report Form",
   exam: "Multilevel · CEFR",
   ref: "№ LX-2026-0079",
-  name: "Sizning ismingiz",
+  name: { uz: "Sizning ismingiz", en: "Your name" } as Bi,
   date: "2026",
   centre: "LevelX Online",
   scores: [
@@ -412,8 +454,8 @@ export const REVEAL_RESULT = {
   ],
   overall: 79,
   level: "C1",
-  comment: "Ajoyib natija! Keyingi maqsad — C1 dan ham yuqori.",
-  sample: "Namuna",
+  comment: { uz: "Ajoyib natija! Keyingi maqsad — C1 dan ham yuqori.", en: "Excellent result! Next goal — beyond C1." } as Bi,
+  sample: { uz: "Namuna", en: "Sample" } as Bi,
 } as const;
 
 /** Vaqtlar (0..1 — shu bo'lim ichidagi skroll ulushi) */

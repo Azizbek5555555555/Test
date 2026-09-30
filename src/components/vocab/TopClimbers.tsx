@@ -4,9 +4,10 @@ import type { LeaderboardRow, MyRankRow } from "@/lib/types";
 import { LEADERBOARD_PERIODS, type LeaderboardPeriod } from "@/lib/constants";
 import { cn, formatXp } from "@/lib/format";
 import { Avatar } from "@/components/ui/Avatar";
+import { getT } from "@/i18n/server";
 
 /** Figma 08: "Top Climbers" — davr tablari, TOP ro'yxat va "Siz" qatori */
-export function TopClimbers({
+export async function TopClimbers({
   rows,
   period,
   me,
@@ -23,6 +24,7 @@ export function TopClimbers({
   hrefFor: (period: LeaderboardPeriod) => string;
   limit?: number;
 }) {
+  const t = await getT();
   const top = rows.slice(0, limit);
   const meInTop = me ? top.some((r) => r.rank === me.rank) : false;
 
@@ -30,7 +32,7 @@ export function TopClimbers({
     <div className="rounded-2xl border border-line bg-ink-800 p-6 sm:p-7">
       <div className="flex items-center justify-between">
         <h2 className="display-title text-[26px]">Top Climbers</h2>
-        <Link href="/leaderboard" aria-label="To'liq reyting" className="text-brand-400 hover:text-brand-300">
+        <Link href="/leaderboard" aria-label={t("To'liq reyting", "Full leaderboard")} className="text-brand-400 hover:text-brand-300">
           <TrendingUp size={18} aria-hidden />
         </Link>
       </div>
@@ -53,7 +55,7 @@ export function TopClimbers({
       </div>
 
       {top.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted">Bu davrda hali hech kim o&apos;ynamadi.</p>
+        <p className="py-8 text-center text-sm text-muted">{t("Bu davrda hali hech kim o'ynamadi.", "Nobody has played in this period yet.")}</p>
       ) : (
         <ol className="mt-5 space-y-2.5">
           {top.map((r) => (
@@ -73,8 +75,8 @@ export function TopClimbers({
       {me && !meInTop ? (
         <div className="mt-5 flex items-center gap-3 rounded-lg border border-brand-400/70 bg-brand-400/10 px-3 py-2.5">
           <span className="w-5 font-display text-sm text-muted lining-nums">{me.rank}</span>
-          <Avatar name={myName ?? "Siz"} src={myAvatar ?? null} size="sm" />
-          <span className="flex-1 text-sm font-semibold text-fg">Siz</span>
+          <Avatar name={myName ?? t("Siz", "You")} src={myAvatar ?? null} size="sm" />
+          <span className="flex-1 text-sm font-semibold text-fg">{t("Siz", "You")}</span>
           <span className="text-sm font-semibold tabular-nums text-brand-400">{formatXp(me.xp)} XP</span>
         </div>
       ) : null}

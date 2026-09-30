@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import { ChevronDown, MessageCircle } from "react-feather";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/motion/Reveal";
@@ -11,21 +12,24 @@ export interface FaqItem {
  * Figma: "Frequently Asked Questions" bloki — chapda aloqa kartasi,
  * o'ngda ochiladigan savollar (brauzerning <details> elementi, JS kerak emas).
  */
-export function FaqSection({
+export async function FaqSection({
   items,
-  title = "Ko'p so'raladigan savollar",
-  eyebrow = "Savollar",
+  title,
+  eyebrow,
 }: {
   items: FaqItem[];
   title?: string;
   eyebrow?: string;
 }) {
+  const t = await getT();
+  title ??= t("Ko'p so'raladigan savollar", "Frequently asked questions");
+  eyebrow ??= t("Savollar", "Questions");
   return (
     <section className="container-page py-20">
       <Reveal className="text-center">
         <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-success">{eyebrow}</p>
         <h2 className="display-title mt-3 text-[36px] sm:text-[44px]">{title}</h2>
-        <p className="mt-2 text-sm text-muted">Javoblar shu yerda</p>
+        <p className="mt-2 text-sm text-muted">{t("Javoblar shu yerda", "Answers are right here")}</p>
       </Reveal>
 
       <div className="mx-auto mt-12 grid max-w-5xl gap-6 lg:grid-cols-[0.8fr_1.2fr]">
@@ -33,12 +37,12 @@ export function FaqSection({
           <span className="grid size-14 place-items-center rounded-2xl border border-line bg-ink-800 text-brand-400">
             <MessageCircle size={24} strokeWidth={1.75} aria-hidden />
           </span>
-          <p className="display-title mt-5 text-2xl">Boshqa savolingiz bormi?</p>
+          <p className="display-title mt-5 text-2xl">{t("Boshqa savolingiz bormi?", "Have another question?")}</p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            Bizga yozing — jamoamiz odatda bir necha soat ichida javob beradi.
+            {t("Bizga yozing — jamoamiz odatda bir necha soat ichida javob beradi.", "Write to us — our team usually replies within a few hours.")}
           </p>
           <ButtonLink href="/contact" variant="light" size="sm" className="mt-6">
-            Bog&apos;lanish
+            {t("Bog'lanish", "Contact us")}
           </ButtonLink>
         </Reveal>
 

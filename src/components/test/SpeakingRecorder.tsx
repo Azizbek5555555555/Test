@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { AnswerValue } from "@/lib/types";
@@ -46,6 +47,7 @@ export function SpeakingRecorder({
   uploadContext?: { attemptId: string; userId: string };
 }) {
   const answer = readAnswer(value);
+  const t = useT();
 
   const [status, setStatus] = useState<Status>(answer.audio ? "done" : "idle");
   const [seconds, setSeconds] = useState(0);
@@ -115,7 +117,10 @@ export function SpeakingRecorder({
       }, 1000);
     } catch {
       setError(
-        "Mikrofonga ruxsat berilmadi. Javobingizni matn ko'rinishida yozishingiz mumkin.",
+        t(
+          "Mikrofonga ruxsat berilmadi. Javobingizni matn ko'rinishida yozishingiz mumkin.",
+          "Microphone access was denied. You can write your answer as text instead.",
+        ),
       );
       setStatus("error");
     }
@@ -154,7 +159,10 @@ export function SpeakingRecorder({
 
       if (uploadError) {
         setError(
-          "Audio yuklanmadi. Javobingizni matn ko'rinishida ham yozib qo'ying.",
+          t(
+            "Audio yuklanmadi. Javobingizni matn ko'rinishida ham yozib qo'ying.",
+            "The audio did not upload. Please also write your answer as text.",
+          ),
         );
         setStatus("error");
         return;
@@ -163,7 +171,7 @@ export function SpeakingRecorder({
       onChange({ text: answer.text, audio: path });
       setStatus("done");
     } catch {
-      setError("Audio yuklanmadi. Matn ko'rinishida yozib qo'ying.");
+      setError(t("Audio yuklanmadi. Matn ko'rinishida yozib qo'ying.", "The audio did not upload. Please write it as text."));
       setStatus("error");
     }
   }
@@ -191,7 +199,7 @@ export function SpeakingRecorder({
                            text-sm font-bold text-white hover:bg-danger transition-colors"
               >
                 <span className="w-2.5 h-2.5 rounded-sm bg-white" aria-hidden />
-                To&apos;xtatish
+                {t("To'xtatish", "Stop")}
               </button>
             ) : (
               <button
@@ -205,7 +213,7 @@ export function SpeakingRecorder({
                 )}
               >
                 <span className="w-2.5 h-2.5 rounded-full bg-white" aria-hidden />
-                {status === "done" ? "Qayta yozish" : "Yozishni boshlash"}
+                {status === "done" ? t("Qayta yozish", "Record again") : t("Yozishni boshlash", "Start recording")}
               </button>
             )}
 
@@ -217,12 +225,12 @@ export function SpeakingRecorder({
             ) : null}
 
             {status === "uploading" ? (
-              <span className="text-sm text-muted">Yuklanmoqda…</span>
+              <span className="text-sm text-muted">{t("Yuklanmoqda…", "Uploading…")}</span>
             ) : null}
 
             {status === "done" && answer.audio ? (
               <span className="text-sm font-semibold text-success">
-                ✅ Yozildi va saqlandi
+                ✅ {t("Yozildi va saqlandi", "Recorded and saved")}
               </span>
             ) : null}
 
@@ -233,7 +241,7 @@ export function SpeakingRecorder({
                 disabled={disabled}
                 className="text-sm text-muted hover:text-fg font-semibold ml-auto"
               >
-                O&apos;chirish
+                {t("O'chirish", "Delete")}
               </button>
             ) : null}
           </div>
@@ -255,8 +263,10 @@ export function SpeakingRecorder({
         </div>
       ) : (
         <p className="text-xs text-muted">
-          Brauzeringiz ovoz yozishni qo&apos;llab-quvvatlamaydi — javobingizni
-          matn ko&apos;rinishida yozing.
+          {t(
+            "Brauzeringiz ovoz yozishni qo'llab-quvvatlamaydi — javobingizni matn ko'rinishida yozing.",
+            "Your browser does not support voice recording — please write your answer as text.",
+          )}
         </p>
       )}
 
@@ -264,7 +274,10 @@ export function SpeakingRecorder({
         value={answer.text}
         onChange={(e) => updateText(e.target.value)}
         disabled={disabled}
-        placeholder="Javobingizning asosiy fikrlarini shu yerga yozing (ixtiyoriy, lekin tavsiya etiladi)…"
+        placeholder={t(
+          "Javobingizning asosiy fikrlarini shu yerga yozing (ixtiyoriy, lekin tavsiya etiladi)…",
+          "Write the main points of your answer here (optional, but recommended)…",
+        )}
         className="min-h-32"
       />
     </div>
