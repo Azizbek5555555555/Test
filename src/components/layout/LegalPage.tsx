@@ -1,8 +1,9 @@
+import { getT } from "@/i18n/server";
 import type { ReactNode } from "react";
 import { PageHeader } from "@/components/ui/Card";
 
 /** Maxfiylik siyosati va Foydalanish shartlari uchun umumiy ko'rinish */
-export function LegalPage({
+export async function LegalPage({
   title,
   description,
   updated,
@@ -13,10 +14,13 @@ export function LegalPage({
   updated: string;
   children: ReactNode;
 }) {
+  const t = await getT();
   return (
     <div className="container-page py-10 max-w-3xl">
-      <PageHeader eyebrow="Hujjatlar" title={title} description={description} />
-      <p className="text-xs text-muted -mt-4 mb-8">Oxirgi yangilanish: {updated}</p>
+      <PageHeader eyebrow={t("Hujjatlar", "Documents")} title={title} description={description} />
+      <p className="text-xs text-muted -mt-4 mb-8">
+        {t("Oxirgi yangilanish", "Last updated")}: {updated}
+      </p>
       <div className="space-y-8 leading-relaxed">{children}</div>
     </div>
   );

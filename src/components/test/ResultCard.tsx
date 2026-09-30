@@ -2,12 +2,14 @@ import type { Attempt, SectionBreakdownEntry, SkillSection } from "@/lib/types";
 import { EXAM_SECTION_ORDER, SECTION_LABEL, SECTIONS, SITE_NAME } from "@/lib/constants";
 import { cefrFromScore, cn, formatDateTime } from "@/lib/format";
 import { ProgressRing } from "@/components/ui/ProgressRing";
+import { getT } from "@/i18n/server";
+import type { T } from "@/i18n";
 
 /**
  * Figma 09 "Instant Diagnostic Breakdown" — natija kartasi:
  *   MULTILEVEL RESULT · CEFR halqasi · bo'limlar "62 / 100" · amallar
  */
-export function ResultCard({
+export async function ResultCard({
   attempt,
   testTitle,
   studentName,
@@ -18,6 +20,7 @@ export function ResultCard({
   studentName?: string | null;
   actions?: React.ReactNode;
 }) {
+  const t = await getT();
   const scores = attempt.section_scores ?? {};
   const breakdown = attempt.section_breakdown ?? {};
   // Imtihon tartibida (Listening → Reading → Writing → Speaking)
@@ -43,7 +46,7 @@ export function ResultCard({
               {attempt.cefr_level ?? "—"}
             </p>
             <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
-              {attempt.cefr_level ? "Umumiy CEFR" : "Tekshirilmoqda"}
+              {attempt.cefr_level ? t("Umumiy CEFR", "Overall CEFR") : t("Tekshirilmoqda", "Being reviewed")}
             </p>
             {overall != null ? (
               <p className="mt-1 text-xs tabular-nums text-muted">{overall} / 100</p>
@@ -60,20 +63,26 @@ export function ResultCard({
             score={scores[section] ?? null}
             correct={pointsOrCount(breakdown[section], "correct")}
             total={pointsOrCount(breakdown[section], "total")}
+            t={t}
           />
         ))}
       </ul>
 
       {attempt.needs_manual_check ? (
         <div className="mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm leading-relaxed text-fg">
-          <strong>Writing va Speaking javoblaringiz o&apos;qituvchi tekshiruvida.</strong>{" "}
-          Tekshirilgach yakuniy ball va CEFR darajasi yangilanadi — natija profilingizda saqlanadi.
+          <strong>
+            {t("Writing va Speaking javoblaringiz o'qituvchi tekshiruvida.", "Your Writing and Speaking answers are being reviewed by a teacher.")}
+          </strong>{" "}
+          {t(
+            "Tekshirilgach yakuniy ball va CEFR darajasi yangilanadi — natija profilingizda saqlanadi.",
+            "Once reviewed, your final score and CEFR level will update — the result is saved in your profile.",
+          )}
         </div>
       ) : null}
 
       <p className="mt-6 text-center text-xs text-faint">
         {studentName ? `${studentName} · ` : ""}
-        {formatDateTime(attempt.submitted_at ?? attempt.started_at)}
+        {formatDateTime(attempt.submitted_at ?? attempt.started_at, t.locale)}
       </p>
 
       {actions ? <div className="mt-6 grid grid-cols-2 gap-3 print:hidden">{actions}</div> : null}
@@ -82,18 +91,19 @@ export function ResultCard({
 }
 
 /** Figma: "Coach feedback" kartalari — o'qituvchi izohi har bo'lim uchun */
-export function FeedbackCards({ attempt }: { attempt: Attempt }) {
+export async function FeedbackCards({ attempt }: { attempt: Attempt }) {
   const entries = Object.entries(attempt.teacher_feedback ?? {}).filter(([, v]) => v) as [
     SkillSection,
     string,
   ][];
   if (entries.length === 0) return null;
+  const t = await getT();
   const scores = attempt.section_scores ?? {};
 
   return (
     <section className="mb-10">
       <p className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-brand-400">
-        O&apos;qituvchi izohi va tahlil
+        {t("O'qituvchi izohi va tahlil", "Teacher feedback and analysis")}
       </p>
       <div className="space-y-4">
         {entries.map(([section, text]) => {
@@ -139,11 +149,13 @@ function ScoreRow({
   score,
   correct,
   total,
+  t,
 }: {
   section: SkillSection;
   score: number | null;
   correct?: number;
   total?: number;
+  t: T;
 }) {
   const pending = score == null;
   const pct = score ?? 0;
@@ -153,7 +165,7 @@ function ScoreRow({
       <div className="flex items-center justify-between gap-2 text-sm">
         <span className="text-fg">{SECTION_LABEL[section]}</span>
         {pending ? (
-          <span className="text-xs font-semibold text-warning">tekshirilmoqda</span>
+          <span className="text-xs font-semibold text-warning">{t("tekshirilmoqda", "in review")}</span>
         ) : (
           <span className="font-semibold tabular-nums text-fg">
             {score} / 100

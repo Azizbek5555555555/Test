@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useEffect, useRef, type ReactNode } from "react";
 import {
   CERT,
@@ -69,6 +70,7 @@ export function CertReveal({
   actions?: ReactNode;
   children?: ReactNode;
 }) {
+  const t = useT();
   const rootRef = useRef<HTMLElement>(null);
   const mode = useMotionMode();
 
@@ -258,8 +260,8 @@ export function CertReveal({
             {hand ? <p className="hero-hand">{hand}</p> : null}
             {children ? <div className="cr-body mt-4 max-w-xl text-[15px] leading-relaxed text-muted">{children}</div> : null}
             {actions ? <div className="mt-7 flex flex-wrap gap-3">{actions}</div> : null}
-            <div className="cr-ladder" aria-label="CEFR darajalari">
-              <p>CEFR yo&apos;lingiz</p>
+            <div className="cr-ladder" aria-label={t("CEFR darajalari", "CEFR levels")}>
+              <p>{t("CEFR yo'lingiz", "Your CEFR path")}</p>
               <ol>
                 {CERT.scale.map((lv, i) => (
                   <li key={lv} data-rung className={cn("cr-rung", i === CERT.levelIndex && "cr-rung-goal")}>
@@ -358,6 +360,7 @@ function CertBack() {
 }
 
 function CertFront() {
+  const t = useT();
   return (
     <div className="cr-face cr-front">
       <svg className="cr-border" viewBox={`0 0 ${CERT_W} ${CERT_H}`} preserveAspectRatio="none">
@@ -390,7 +393,7 @@ function CertFront() {
         <p className="cr-small mt-5">{CERT.certify}</p>
         <div className="cr-name-line">
           <span data-creveal="name" className="rr-hand rr-hand-blue cr-name" style={{ clipPath: "inset(0 100% 0 0)" }}>
-            {CERT.name}
+            {t(CERT.name)}
           </span>
         </div>
         <p className="cr-small">{CERT.achieved}</p>

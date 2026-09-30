@@ -3,12 +3,13 @@ import { Clock, Lock, Star } from "react-feather";
 import type { SkillSection, TestSet } from "@/lib/types";
 import { SECTION_LABEL } from "@/lib/constants";
 import { cn, formatDuration } from "@/lib/format";
+import { getT } from "@/i18n/server";
 
 /**
  * Figma 05: test kartasi — yuqorida kirish holati + belgi, Cormorant sarlavha,
  * bo'limlar qatori, pastda savollar soni / vaqt va tugma.
  */
-export function TestSetCard({
+export async function TestSetCard({
   testSet,
   questionCount,
   unlocked,
@@ -23,6 +24,7 @@ export function TestSetCard({
   sections?: SkillSection[];
   showDescription?: boolean;
 }) {
+  const t = await getT();
   const locked = testSet.is_premium && !unlocked;
   const manual =
     sections?.some((s) => s === "writing" || s === "speaking") ?? false;
@@ -41,11 +43,11 @@ export function TestSetCard({
             ) : (
               <Star size={13} strokeWidth={2} aria-hidden />
             )}
-            {locked ? "Faqat Premium" : "Premium"}
+            {locked ? t("Faqat Premium", "Premium only") : "Premium"}
           </span>
         ) : (
           <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-success">
-            Bepul
+            {t("Bepul", "Free")}
           </span>
         )}
         {sections && sections.length > 0 ? (
@@ -57,7 +59,7 @@ export function TestSetCard({
                 : "border border-line bg-ink-800 text-muted",
             )}
           >
-            {manual ? "To'liq tekshiruv" : "Avto baholash"}
+            {manual ? t("To'liq tekshiruv", "Full review") : t("Avto baholash", "Auto-marked")}
           </span>
         ) : null}
       </div>
@@ -82,12 +84,12 @@ export function TestSetCard({
           {questionCount ? (
             <span className="inline-flex items-center gap-1.5">
               <Star size={14} className="text-brand-400" aria-hidden />
-              {questionCount} ta savol
+              {questionCount} {t("ta savol", "questions")}
             </span>
           ) : null}
           <span className="inline-flex items-center gap-1.5">
             <Clock size={14} className="text-brand-400" aria-hidden />
-            {formatDuration(testSet.duration_minutes)}
+            {formatDuration(testSet.duration_minutes, t.locale)}
           </span>
           {testSet.level ? (
             <span className="rounded-full border border-line px-2 py-0.5 text-[11px] font-semibold">
@@ -104,7 +106,7 @@ export function TestSetCard({
               : "bg-brand-400 text-ink-950 group-hover:bg-brand-300",
           )}
         >
-          {locked ? "Premiumni ochish" : "Boshlash"}
+          {locked ? t("Premiumni ochish", "Unlock Premium") : t("Boshlash", "Start")}
         </span>
       </div>
     </Link>

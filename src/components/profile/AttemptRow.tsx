@@ -3,15 +3,17 @@ import type { AttemptWithTest } from "@/lib/queries";
 import { SECTIONS, SECTION_LABEL } from "@/lib/constants";
 import { formatDateTime } from "@/lib/format";
 import { Badge, CefrBadge } from "@/components/ui/Badge";
+import { getT } from "@/i18n/server";
 
 const STATUS_META = {
-  in_progress: { tone: "info" as const, label: "Davom etmoqda" },
-  submitted: { tone: "warning" as const, label: "Tekshiruvda" },
-  graded: { tone: "success" as const, label: "Baholandi" },
-  abandoned: { tone: "neutral" as const, label: "Bekor qilingan" },
+  in_progress: { tone: "info" as const, label: { uz: "Davom etmoqda", en: "In progress" } },
+  submitted: { tone: "warning" as const, label: { uz: "Tekshiruvda", en: "In review" } },
+  graded: { tone: "success" as const, label: { uz: "Baholandi", en: "Graded" } },
+  abandoned: { tone: "neutral" as const, label: { uz: "Bekor qilingan", en: "Cancelled" } },
 };
 
-export function AttemptRow({ attempt }: { attempt: AttemptWithTest }) {
+export async function AttemptRow({ attempt }: { attempt: AttemptWithTest }) {
+  const t = await getT();
   const test = attempt.test_sets;
   const status = STATUS_META[attempt.status];
   const inProgress = attempt.status === "in_progress";
@@ -36,14 +38,14 @@ export function AttemptRow({ attempt }: { attempt: AttemptWithTest }) {
           <h3 className="font-bold truncate">
             {test?.title ?? "Test"}
           </h3>
-          <Badge tone={status.tone}>{status.label}</Badge>
+          <Badge tone={status.tone}>{t(status.label)}</Badge>
           {attempt.mode === "exam_checking" ? (
             <Badge tone="premium">🎯 Exam</Badge>
           ) : null}
         </div>
 
         <p className="text-xs text-muted mt-1">
-          {formatDateTime(attempt.submitted_at ?? attempt.started_at)}
+          {formatDateTime(attempt.submitted_at ?? attempt.started_at, t.locale)}
           {test?.year_label ? ` · ${test.year_label}` : ""}
         </p>
 

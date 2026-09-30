@@ -9,12 +9,18 @@ import { ChipLink, ChipRow } from "@/components/ui/ChipLink";
 import { PageHero } from "@/components/marketing/PageHero";
 import { ArticleCard } from "@/components/boost/ArticleCard";
 import { Reveal } from "@/components/motion/Reveal";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Articles",
-  description:
-    "Science, Technology, Health, Education, Psychology, History, Environment va Society mavzularidagi maqolalar.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("Maqolalar", "Articles"),
+    description: t(
+      "Science, Technology, Health, Education, Psychology, History, Environment va Society mavzularidagi maqolalar.",
+      "Articles on Science, Technology, Health, Education, Psychology, History, Environment and Society.",
+    ),
+  };
+}
 
 export default async function ArticlesPage({
   searchParams,
@@ -22,11 +28,11 @@ export default async function ArticlesPage({
   searchParams: Promise<{ topic?: string; level?: string }>;
 }) {
   const { topic, level } = await searchParams;
-  const activeTopic = ARTICLE_TOPICS.some((t) => t.slug === topic)
+  const activeTopic = ARTICLE_TOPICS.some((tp) => tp.slug === topic)
     ? (topic as string)
     : "all";
 
-  const [profile, all] = await Promise.all([getProfile(), listArticles()]);
+  const [profile, all, t] = await Promise.all([getProfile(), listArticles(), getT()]);
   const unlocked = profileHasPremium(profile);
 
   // Mavjud darajalar (A2, B1, B2, C1 ...) — tartib bilan
@@ -44,29 +50,31 @@ export default async function ArticlesPage({
 
   const href = (next: { topic?: string; level?: string }) => {
     const params = new URLSearchParams();
-    const t = next.topic ?? activeTopic;
+    const tp = next.topic ?? activeTopic;
     const l = next.level ?? activeLevel;
-    if (t !== "all") params.set("topic", t);
+    if (tp !== "all") params.set("topic", tp);
     if (l !== "all") params.set("level", l);
     const qs = params.toString();
     return qs ? `/boost/articles?${qs}` : "/boost/articles";
   };
 
-  const topics = ARTICLE_TOPICS.filter((t) => byLevel.some((a) => a.topic === t.slug));
+  const topics = ARTICLE_TOPICS.filter((tp) => byLevel.some((a) => a.topic === tp.slug));
 
   return (
     <div>
       <PageHero
         eyebrow="Boost Your General English"
-        title="Maqolalar o'qish zali"
-        highlight="o'qish zali"
+        title={t("Maqolalar o'qish zali", "Article reading room")}
+        highlight={t("o'qish zali", "reading room")}
         hand="Read. Learn. Grow."
         words={["context", "summary", "True / False", "paraphrase"]}
       >
-        Har bir maqolada: matn, yangi so&apos;zlar va Reading savollari (True/False/Not Given,
-        Multiple Choice, Gap Filling).{" "}
+        {t(
+          "Har bir maqolada: matn, yangi so'zlar va Reading savollari (True/False/Not Given, Multiple Choice, Gap Filling).",
+          "Every article has the text, new words and Reading questions (True/False/Not Given, Multiple Choice, Gap Filling).",
+        )}{" "}
         <Link href="/boost" className="text-brand-400 hover:text-brand-300">
-          ← Bo&apos;lim sahifasi
+          ← {t("Bo'lim sahifasi", "Section page")}
         </Link>
       </PageHero>
 
@@ -75,7 +83,7 @@ export default async function ArticlesPage({
           {levels.length > 1 ? (
             <ChipRow>
               <ChipLink href={href({ level: "all" })} active={activeLevel === "all"}>
-                Barcha darajalar
+                {t("Barcha darajalar", "All levels")}
               </ChipLink>
               {levels.map((l) => (
                 <ChipLink key={l} href={href({ level: l })} active={activeLevel === l}>
@@ -87,11 +95,11 @@ export default async function ArticlesPage({
           {topics.length > 0 ? (
             <ChipRow>
               <ChipLink href={href({ topic: "all" })} active={activeTopic === "all"}>
-                Barchasi · {byLevel.length}
+                {t("Barchasi", "All")} · {byLevel.length}
               </ChipLink>
-              {topics.map((t) => (
-                <ChipLink key={t.slug} href={href({ topic: t.slug })} active={activeTopic === t.slug}>
-                  {t.label} · {byLevel.filter((a) => a.topic === t.slug).length}
+              {topics.map((tp) => (
+                <ChipLink key={tp.slug} href={href({ topic: tp.slug })} active={activeTopic === tp.slug}>
+                  {tp.label} · {byLevel.filter((a) => a.topic === tp.slug).length}
                 </ChipLink>
               ))}
             </ChipRow>
@@ -102,11 +110,11 @@ export default async function ArticlesPage({
           <div className="mt-8">
             <EmptyState
               icon="📰"
-              title="Maqolalar topilmadi"
-              description="Bu mavzuda hali maqola yo'q. Admin panel orqali qo'shishingiz mumkin."
+              title={t("Maqolalar topilmadi", "No articles found")}
+              description={t("Bu mavzuda hali maqola yo'q.", "There are no articles on this topic yet.")}
               action={
                 <ButtonLink href="/boost/articles" variant="secondary">
-                  Barcha maqolalar
+                  {t("Barcha maqolalar", "All articles")}
                 </ButtonLink>
               }
             />

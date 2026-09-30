@@ -16,6 +16,8 @@ import { Alert } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/marketing/PageHero";
 import { ExamGateHeader, ExamRules, ExamSequence } from "@/components/exam/ExamGate";
+import { getT } from "@/i18n/server";
+import type { Bi } from "@/i18n";
 
 export async function generateMetadata({
   params,
@@ -27,9 +29,15 @@ export async function generateMetadata({
   return { title: exam?.title ?? "Exam Full Checking" };
 }
 
-const START_ERRORS: Record<string, string> = {
-  empty: "Bu imtihon hali to'ldirilmagan — savollar qo'shilgach boshlash mumkin bo'ladi.",
-  start: "Imtihonni boshlab bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.",
+const START_ERRORS: Record<string, Bi> = {
+  empty: {
+    uz: "Bu imtihon hali to'ldirilmagan — savollar qo'shilgach boshlash mumkin bo'ladi.",
+    en: "This exam is not complete yet — you can start once the questions are added.",
+  },
+  start: {
+    uz: "Imtihonni boshlab bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.",
+    en: "Could not start the exam. Refresh the page and try again.",
+  },
 };
 
 export default async function ExamIntroPage({
@@ -41,9 +49,9 @@ export default async function ExamIntroPage({
 }) {
   const { slug } = await params;
   const { error: errorKey } = await searchParams;
-  const startError = errorKey ? START_ERRORS[errorKey] : undefined;
+  const [profile, t] = await Promise.all([getProfile(), getT()]);
+  const startError = errorKey && START_ERRORS[errorKey] ? t(START_ERRORS[errorKey]) : undefined;
 
-  const profile = await getProfile();
   if (!profile) {
     redirect(`/login?next=${encodeURIComponent(`/exam-checking/${slug}`)}`);
   }
@@ -67,8 +75,8 @@ export default async function ExamIntroPage({
 
   return (
     <div>
-      <PageHero eyebrow="Imtihon simulyatori" title={exam.title} hand="Real exam. Real result." className="pb-10">
-        {exam.description ?? "Real Multilevel kompyuter imtihoni simulyatsiyasi."}{" "}
+      <PageHero eyebrow={t("Imtihon simulyatori", "Exam simulator")} title={exam.title} hand="Real exam. Real result." className="pb-10">
+        {exam.description ?? t("Real Multilevel kompyuter imtihoni simulyatsiyasi.", "A real Multilevel computer-based exam simulation.")}{" "}
         <Link href="/exam-checking" className="text-brand-400 hover:text-brand-300">
           ← Exam Full Checking
         </Link>
@@ -77,11 +85,14 @@ export default async function ExamIntroPage({
       <section className="border-y border-line bg-ink-900/40">
         <div className="container-page py-12">
           <ExamGateHeader
-            title={openAttempt ? "Tugallanmagan imtihon" : "Imtihonga tayyormisiz?"}
+            title={openAttempt ? t("Tugallanmagan imtihon", "Unfinished exam") : t("Imtihonga tayyormisiz?", "Ready for the exam?")}
             description={
               openAttempt
-                ? "Siz bu imtihonni boshlagansiz. Qoldirgan joyingizdan davom eting."
-                : `Imtihon ${sections.length || 4} bo'limdan iborat, jami ${counts[exam.id] ?? 0} ta savol. Tinch joy va ishonchli internet tavsiya etiladi.`
+                ? t("Siz bu imtihonni boshlagansiz. Qoldirgan joyingizdan davom eting.", "You have already started this exam. Continue where you left off.")
+                : t(
+                    `Imtihon ${sections.length || 4} bo'limdan iborat, jami ${counts[exam.id] ?? 0} ta savol. Tinch joy va ishonchli internet tavsiya etiladi.`,
+                    `The exam has ${sections.length || 4} sections and ${counts[exam.id] ?? 0} questions in total. A quiet place and a reliable internet connection are recommended.`,
+                  )
             }
             totalMinutes={exam.duration_minutes}
           />
@@ -100,18 +111,18 @@ export default async function ExamIntroPage({
           <div className="mt-8 flex flex-wrap items-center gap-4">
             {parts.length === 0 ? (
               <p className="text-sm font-semibold text-muted">
-                Bu imtihon hali tayyor emas. Tez orada qo&apos;shiladi.
+                {t("Bu imtihon hali tayyor emas. Tez orada qo'shiladi.", "This exam is not ready yet. It will be added soon.")}
               </p>
             ) : (
               <form action={startAttemptAction}>
                 <input type="hidden" name="test_set_id" value={exam.id} />
                 <Button type="submit" size="lg">
-                  {openAttempt ? "Davom ettirish" : "Imtihonni boshlash"}
+                  {openAttempt ? t("Davom ettirish", "Continue") : t("Imtihonni boshlash", "Start the exam")}
                 </Button>
               </form>
             )}
             {openAttempt ? (
-              <p className="text-xs text-muted">Yangi urinish boshlash uchun avvalgisini yakunlang.</p>
+              <p className="text-xs text-muted">{t("Yangi urinish boshlash uchun avvalgisini yakunlang.", "Finish the previous attempt to start a new one.")}</p>
             ) : null}
           </div>
         </div>
@@ -120,33 +131,33 @@ export default async function ExamIntroPage({
       <section className="container-page grid gap-6 py-14 md:grid-cols-2">
         <div className="card-glass rounded-2xl p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-400">
-            Tayyorgarlik ro&apos;yxati
+            {t("Tayyorgarlik ro'yxati", "Preparation checklist")}
           </p>
           <ul className="mt-4 space-y-2.5 text-sm text-muted">
             {[
-              "Naushnik ulangan va ishlayapti",
-              "Mikrofonga ruxsat berilgan (Speaking uchun)",
-              "Qurilma quvvati yetarli, internet barqaror",
-              "Atrofda shovqin yo'q",
-            ].map((t) => (
-              <li key={t} className="flex items-center gap-2.5">
-                <Check size={15} className="shrink-0 text-success" aria-hidden /> {t}
+              t("Naushnik ulangan va ishlayapti", "Headphones are connected and working"),
+              t("Mikrofonga ruxsat berilgan (Speaking uchun)", "Microphone access is allowed (for Speaking)"),
+              t("Qurilma quvvati yetarli, internet barqaror", "Your device is charged and the internet is stable"),
+              t("Atrofda shovqin yo'q", "No noise around you"),
+            ].map((line) => (
+              <li key={line} className="flex items-center gap-2.5">
+                <Check size={15} className="shrink-0 text-success" aria-hidden /> {line}
               </li>
             ))}
           </ul>
         </div>
         <div className="card-glass rounded-2xl p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-400">
-            Natija qanday chiqadi?
+            {t("Natija qanday chiqadi?", "How is the result produced?")}
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted">
-            Listening va Reading darhol avtomatik baholanadi. Writing va Speaking javoblaringizni
-            o&apos;qituvchi tekshirib, izoh bilan ball qo&apos;yadi. Shundan keyin yakuniy{" "}
-            <strong className="text-fg">Overall</strong> ball va{" "}
-            <strong className="text-fg">CEFR daraja</strong> profilingizda paydo bo&apos;ladi.
+            {t(
+              "Listening va Reading darhol avtomatik baholanadi. Writing va Speaking javoblaringizni o'qituvchi tekshirib, izoh bilan ball qo'yadi. Shundan keyin yakuniy Overall ball va CEFR daraja profilingizda paydo bo'ladi.",
+              "Listening and Reading are marked automatically right away. A teacher reviews your Writing and Speaking answers and scores them with feedback. After that, your final Overall score and CEFR level appear in your profile.",
+            )}
           </p>
           <ButtonLink href="/full-mock" variant="secondary" size="sm" className="mt-5">
-            Avval bepul mashq qilish
+            {t("Avval bepul mashq qilish", "Practise for free first")}
           </ButtonLink>
         </div>
       </section>

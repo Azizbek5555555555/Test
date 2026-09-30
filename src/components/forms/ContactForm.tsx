@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useActionState } from "react";
 import {
   sendContactMessageAction,
@@ -18,6 +19,7 @@ export function ContactForm({
   defaultEmail?: string | null;
   defaultPhone?: string | null;
 }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState<
     ActionResult | null,
     FormData
@@ -25,7 +27,7 @@ export function ContactForm({
 
   if (state?.ok) {
     return (
-      <Alert tone="success" title="Xabar yuborildi ✅">
+      <Alert tone="success" title={t("Xabar yuborildi ✅", "Message sent ✅")}>
         {state.message}
       </Alert>
     );
@@ -35,7 +37,7 @@ export function ContactForm({
     <form action={formAction} className="space-y-4">
       {state && !state.ok ? <Alert tone="danger">{state.message}</Alert> : null}
 
-      <Field label="Ismingiz" htmlFor="contact-name" required>
+      <Field label={t("Ismingiz", "Your name")} htmlFor="contact-name" required>
         <Input
           id="contact-name"
           name="name"
@@ -54,12 +56,12 @@ export function ContactForm({
             name="email"
             type="email"
             defaultValue={defaultEmail ?? ""}
-            placeholder="siz@example.com"
+            placeholder={t("siz@example.com", "you@example.com")}
             autoComplete="email"
           />
         </Field>
 
-        <Field label="Telefon" htmlFor="contact-phone">
+        <Field label={t("Telefon", "Phone")} htmlFor="contact-phone">
           <Input
             id="contact-phone"
             name="phone"
@@ -71,11 +73,11 @@ export function ContactForm({
         </Field>
       </div>
 
-      <Field label="Xabaringiz" htmlFor="contact-message" required>
+      <Field label={t("Xabaringiz", "Your message")} htmlFor="contact-message" required>
         <Textarea
           id="contact-message"
           name="message"
-          placeholder="Savolingizni yoki taklifingizni yozing…"
+          placeholder={t("Savolingizni yoki taklifingizni yozing…", "Write your question or suggestion…")}
           required
           minLength={10}
           maxLength={3000}
@@ -84,7 +86,7 @@ export function ContactForm({
       </Field>
 
       <Button type="submit" size="lg" fullWidth disabled={pending}>
-        {pending ? "Yuborilmoqda…" : "Xabarni yuborish"}
+        {pending ? t("Yuborilmoqda…", "Sending…") : t("Xabarni yuborish", "Send message")}
       </Button>
     </form>
   );

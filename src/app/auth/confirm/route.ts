@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getPublicOrigin } from "@/lib/request-origin";
+import { getT } from "@/i18n/server";
 
 /**
  * Emaildagi "Tasdiqlash" havolasi shu manzilga olib keladi
@@ -12,6 +13,7 @@ import { getPublicOrigin } from "@/lib/request-origin";
  *  - `?code=...` — Supabase'ning standart shabloni ({{ .ConfirmationURL }})
  */
 export async function GET(request: NextRequest) {
+  const t = await getT();
   const { searchParams } = new URL(request.url);
   const origin = getPublicOrigin(request);
   const tokenHash = searchParams.get("token_hash");
@@ -28,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   if (!code && (!tokenHash || !type)) {
     return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent("Tasdiqlash havolasi noto'g'ri yoki eskirgan.")}`,
+      `${origin}/login?error=${encodeURIComponent(t("Tasdiqlash havolasi noto'g'ri yoki eskirgan.", "The confirmation link is invalid or has expired."))}`,
     );
   }
 
@@ -48,7 +50,7 @@ export async function GET(request: NextRequest) {
     }
   } catch {
     return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent("Supabase sozlanmagan. SETUP.md ga qarang.")}`,
+      `${origin}/login?error=${encodeURIComponent(t("Supabase sozlanmagan. SETUP.md ga qarang.", "Login is temporarily unavailable. Please try again later."))}`,
     );
   }
 

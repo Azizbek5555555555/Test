@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import { useState, useTransition } from "react";
 import type { PremiumPlan } from "@/lib/types";
 import { startPaymentAction } from "@/lib/actions/payments";
@@ -30,6 +31,7 @@ export function OnlinePayment({
   plans: PremiumPlan[];
   providers: Provider[];
 }) {
+  const t = useT();
   const [selected, setSelected] = useState(
     plans.find((p) => p.popular)?.id ?? plans[0]?.id ?? "",
   );
@@ -79,12 +81,14 @@ export function OnlinePayment({
                   className="absolute -top-2.5 left-4 rounded-full bg-gold-400 px-2 py-0.5
                              text-[10px] font-bold uppercase tracking-wide text-ink-950"
                 >
-                  Ommabop
+                  {t("Ommabop", "Popular")}
                 </span>
               ) : null}
-              <p className="font-display text-xl text-fg">{item.title}</p>
+              <p className="font-display text-xl text-fg">
+                {t(item.title, `${item.months} ${item.months === 1 ? "month" : "months"}`)}
+              </p>
               <p className="mt-1 text-lg font-semibold tabular-nums text-gold-400">
-                {formatSum(item.amount)}
+                {formatSum(item.amount, t.locale)}
               </p>
               {item.note ? <p className="text-xs text-muted mt-1.5">{item.note}</p> : null}
               <span
@@ -118,15 +122,17 @@ export function OnlinePayment({
             )}
           >
             {busy === provider
-              ? "To'lov sahifasi ochilmoqda…"
-              : `${PROVIDERS[provider].label} orqali to'lash`}
+              ? t("To'lov sahifasi ochilmoqda…", "Opening the payment page…")
+              : t(`${PROVIDERS[provider].label} orqali to'lash`, `Pay with ${PROVIDERS[provider].label}`)}
           </button>
         ))}
       </div>
 
       <p className="text-xs text-muted leading-relaxed">
-        Uzcard va Humo kartalari qabul qilinadi. To&apos;lov o&apos;tishi bilan
-        Premium <strong>avtomatik</strong> yoqiladi — chek yuborish shart emas.
+        {t(
+          "Uzcard va Humo kartalari qabul qilinadi. To'lov o'tishi bilan Premium avtomatik yoqiladi — chek yuborish shart emas.",
+          "Uzcard and Humo cards are accepted. Premium turns on automatically once the payment goes through — no need to send a receipt.",
+        )}
       </p>
     </div>
   );

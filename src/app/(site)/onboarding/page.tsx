@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/auth";
 import { OnboardingForm } from "./OnboardingForm";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Profilni to'ldirish" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Profilni to'ldirish", "Complete your profile") };
+}
 
 export default async function OnboardingPage({
   searchParams,
@@ -18,6 +22,7 @@ export default async function OnboardingPage({
   const profile = await getProfile();
   if (!profile) redirect(`/login?next=${encodeURIComponent("/onboarding")}`);
   if (profile.onboarded && profile.full_name) redirect(next);
+  const t = await getT();
 
   return (
     <div className="container-page py-12 sm:py-20">
@@ -26,10 +31,12 @@ export default async function OnboardingPage({
           <span className="text-4xl" aria-hidden>
             👋
           </span>
-          <h1 className="text-2xl font-extrabold mt-3">Deyarli tayyor!</h1>
+          <h1 className="text-2xl font-extrabold mt-3">{t("Deyarli tayyor!", "Almost there!")}</h1>
           <p className="text-sm text-muted mt-2 leading-relaxed">
-            Natijalaringiz va reytingda ismingiz ko&apos;rinishi uchun uni
-            kiriting.
+            {t(
+              "Natijalaringiz va reytingda ismingiz ko'rinishi uchun uni kiriting.",
+              "Enter your name so it appears on your results and the leaderboard.",
+            )}
           </p>
         </div>
 

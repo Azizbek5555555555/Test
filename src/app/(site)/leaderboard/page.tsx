@@ -8,18 +8,25 @@ import { PageHero } from "@/components/marketing/PageHero";
 import { ChipLink, ChipRow } from "@/components/ui/ChipLink";
 import { Avatar } from "@/components/ui/Avatar";
 import { ButtonLink } from "@/components/ui/Button";
+import { getT } from "@/i18n/server";
+import type { Bi } from "@/i18n";
 
-export const metadata: Metadata = {
-  title: "Vocabulary Leaderboard",
-  description:
-    "Vocabulary Battle reytingi: Daily, Weekly, Monthly va All Time bo'yicha eng yaxshi o'yinchilar.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: "Vocabulary Leaderboard",
+    description: t(
+      "Vocabulary Battle reytingi: Daily, Weekly, Monthly va All Time bo'yicha eng yaxshi o'yinchilar.",
+      "Vocabulary Battle leaderboard: the best players Daily, Weekly, Monthly and All Time.",
+    ),
+  };
+}
 
-const PERIOD_LABEL: Record<LeaderboardPeriod, string> = {
-  daily: "Bugungi",
-  weekly: "Haftalik",
-  monthly: "Oylik",
-  all: "Umumiy",
+const PERIOD_LABEL: Record<LeaderboardPeriod, Bi> = {
+  daily: { uz: "Bugungi", en: "Today's" },
+  weekly: { uz: "Haftalik", en: "Weekly" },
+  monthly: { uz: "Oylik", en: "Monthly" },
+  all: { uz: "Umumiy", en: "All-time" },
 };
 
 export default async function LeaderboardPage({
@@ -32,10 +39,11 @@ export default async function LeaderboardPage({
     LEADERBOARD_PERIODS.some((p) => p.id === period) ? period : "weekly"
   ) as LeaderboardPeriod;
 
-  const [profile, rows, myRank] = await Promise.all([
+  const [profile, rows, myRank, t] = await Promise.all([
     getProfile(),
     getLeaderboard(active, 100),
     getMyRank(active),
+    getT(),
   ]);
 
   const tabs = LEADERBOARD_PERIODS.map((p) => ({
@@ -58,14 +66,16 @@ export default async function LeaderboardPage({
         className="pb-10"
         bare
       >
-        Vocabulary Battle reytingi: eng faol o&apos;quvchilar. Har kuni
-        o&apos;ynang va cho&apos;qqiga ko&apos;tariling.
+        {t(
+          "Vocabulary Battle reytingi: eng faol o'quvchilar. Har kuni o'ynang va cho'qqiga ko'tariling.",
+          "The Vocabulary Battle leaderboard: the most active learners. Play every day and climb to the top.",
+        )}
       </PageHero>
       <div className="container-page">
         <ChipRow className="mb-8">
-          {tabs.map((t) => (
-            <ChipLink key={t.id} href={t.href} active={t.id === active}>
-              {t.label}
+          {tabs.map((tab) => (
+            <ChipLink key={tab.id} href={tab.href} active={tab.id === active}>
+              {tab.label}
             </ChipLink>
           ))}
         </ChipRow>
@@ -73,10 +83,10 @@ export default async function LeaderboardPage({
         {rows.length === 0 ? (
           <EmptyState
             icon="🏆"
-            title={`${PERIOD_LABEL[active]} reyting hali bo'sh`}
-            description="Birinchi bo'lib o'ynang va reytingni boshlang!"
+            title={t(`${t(PERIOD_LABEL[active])} reyting hali bo'sh`, `The ${t(PERIOD_LABEL[active]).toLowerCase()} leaderboard is empty`)}
+            description={t("Birinchi bo'lib o'ynang va reytingni boshlang!", "Be the first to play and start the leaderboard!")}
             action={
-              <ButtonLink href="/vocabulary-battle">O&apos;ynash</ButtonLink>
+              <ButtonLink href="/vocabulary-battle">{t("O'ynash", "Play")}</ButtonLink>
             }
           />
         ) : (
@@ -105,7 +115,7 @@ export default async function LeaderboardPage({
                             "mb-3 font-display text-3xl lining-nums",
                             place === 1 ? "text-gold-400" : "text-muted",
                           )}
-                          aria-label={`${place}-o'rin`}
+                          aria-label={t(`${place}-o'rin`, `Place ${place}`)}
                         >
                           {medals[i]}
                         </p>
@@ -123,7 +133,7 @@ export default async function LeaderboardPage({
                           {formatXp(player.xp)}
                         </p>
                         <p className="text-xs text-muted">
-                          {player.games} o&apos;yin
+                          {player.games} {t("o'yin", "games")}
                         </p>
                       </div>
                     </div>
@@ -139,10 +149,10 @@ export default async function LeaderboardPage({
                   <tr className="border-b border-line bg-ink-800 text-[11px] uppercase tracking-[0.08em] text-muted">
                     <th className="text-left font-bold px-4 py-3 w-16">#</th>
                     <th className="text-left font-bold px-4 py-3">
-                      O&apos;yinchi
+                      {t("O'yinchi", "Player")}
                     </th>
                     <th className="text-right font-bold px-4 py-3 hidden sm:table-cell">
-                      O&apos;yinlar
+                      {t("O'yinlar", "Games")}
                     </th>
                     <th className="text-right font-bold px-4 py-3">XP</th>
                   </tr>
@@ -182,7 +192,7 @@ export default async function LeaderboardPage({
                             ) : null}
                             {isMe ? (
                               <span className="text-xs font-bold text-brand-400 shrink-0">
-                                (siz)
+                                ({t("siz", "you")})
                               </span>
                             ) : null}
                           </div>
@@ -210,9 +220,9 @@ export default async function LeaderboardPage({
                     size="md"
                   />
                   <div>
-                    <p className="font-bold">{profile.full_name ?? "Siz"}</p>
+                    <p className="font-bold">{profile.full_name ?? t("Siz", "You")}</p>
                     <p className="text-xs text-muted">
-                      {PERIOD_LABEL[active]} reyting
+                      {t(`${t(PERIOD_LABEL[active])} reyting`, `${t(PERIOD_LABEL[active])} leaderboard`)}
                     </p>
                   </div>
                 </div>
@@ -220,7 +230,7 @@ export default async function LeaderboardPage({
                 <div className="flex items-center gap-6">
                   <div className="text-center">
                     <p className="text-xs font-semibold text-muted">
-                      O&apos;rningiz
+                      {t("O'rningiz", "Your rank")}
                     </p>
                     <p className="font-display text-2xl lining-nums">
                       {myRank ? `#${myRank.rank}` : "—"}
@@ -233,7 +243,7 @@ export default async function LeaderboardPage({
                     </p>
                   </div>
                   <ButtonLink href="/vocabulary-battle">
-                    O&apos;ynash
+                    {t("O'ynash", "Play")}
                   </ButtonLink>
                 </div>
               </div>

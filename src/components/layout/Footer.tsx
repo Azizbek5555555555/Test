@@ -1,3 +1,4 @@
+import { getT } from "@/i18n/server";
 import Link from "next/link";
 import { getContactSettings } from "@/lib/settings";
 import { COURSES_ENABLED, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
@@ -9,15 +10,16 @@ import { BrandMark, BrandWordmark } from "./BrandLogo";
  */
 export async function Footer() {
   const contact = await getContactSettings();
+  const t = await getT();
   const year = new Date().getFullYear();
 
   const quickLinks = [
     { href: "/full-mock", label: "Full Mock" },
-    { href: "/latest-questions", label: "Oxirgi savollar" },
+    { href: "/latest-questions", label: t("Oxirgi savollar", "Latest questions") },
     { href: "/boost", label: "General English" },
     { href: "/vocabulary-battle", label: "Vocabulary Battle" },
     { href: "/exam-checking", label: "Exam Full Checking" },
-    ...(COURSES_ENABLED ? [{ href: "/courses", label: "Offline kurslar" }] : []),
+    ...(COURSES_ENABLED ? [{ href: "/courses", label: t("Offline kurslar", "Offline courses") }] : []),
     { href: "/premium", label: "Premium" },
   ];
 
@@ -41,13 +43,14 @@ export async function Footer() {
               “{SITE_TAGLINE}”
             </p>
             <p className="text-[13px] leading-relaxed text-faint max-w-sm">
-              Multilevel imtihoniga tayyorgarlik uchun puxta ishlangan materiallar:
-              real mock testlar, oxirgi tushgan savollar va o&apos;qituvchi
-              tekshiruvi. Qadamma-qadam — cho&apos;qqiga.
+              {t(
+                "Multilevel imtihoniga tayyorgarlik uchun puxta ishlangan materiallar: real mock testlar, oxirgi tushgan savollar va o'qituvchi tekshiruvi. Qadamma-qadam — cho'qqiga.",
+                "Carefully crafted materials to prepare for the Multilevel exam: real mock tests, the latest exam questions and teacher feedback. Step by step — to the summit.",
+              )}
             </p>
           </div>
 
-          <FooterColumn title="Platforma">
+          <FooterColumn title={t("Platforma", "Platform")}>
             {quickLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="text-sm text-muted hover:text-brand-300 transition-colors">
@@ -57,7 +60,7 @@ export async function Footer() {
             ))}
           </FooterColumn>
 
-          <FooterColumn title="Aloqa kanallari">
+          <FooterColumn title={t("Aloqa kanallari", "Contact channels")}>
             {channels.map((item) => (
               <li key={item.href}>
                 <a
@@ -71,13 +74,13 @@ export async function Footer() {
             ))}
             <li>
               <Link href="/contact" className="text-sm text-brand-400 hover:text-brand-300 transition-colors">
-                Xabar yuborish →
+                {t("Xabar yuborish →", "Send a message →")}
               </Link>
             </li>
           </FooterColumn>
 
           {contact.address || contact.working_hours ? (
-            <FooterColumn title="Manzil">
+            <FooterColumn title={t("Manzil", "Address")}>
               {contact.address ? (
                 <li className="text-[13px] leading-normal text-muted">{contact.address}</li>
               ) : null}
@@ -90,14 +93,14 @@ export async function Footer() {
 
         <div className="mt-12 pt-6 border-t border-line flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between text-[13px] text-faint">
           <p>
-            © {year} {SITE_NAME}. Cho&apos;qqingiz uchun puxta ishlangan.
+            © {year} {SITE_NAME}. {t("Cho'qqingiz uchun puxta ishlangan.", "Crafted for your summit.")}
           </p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-fg transition-colors">
-              Maxfiylik siyosati
+              {t("Maxfiylik siyosati", "Privacy policy")}
             </Link>
             <Link href="/terms" className="hover:text-fg transition-colors">
-              Foydalanish shartlari
+              {t("Foydalanish shartlari", "Terms of use")}
             </Link>
           </div>
         </div>

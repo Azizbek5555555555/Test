@@ -12,6 +12,7 @@ import { HomeStory } from "@/components/story/HomeStory";
 import { AmbientBackdrop } from "@/components/story/AmbientBackdrop";
 import { ResultReveal } from "@/components/story/ResultReveal";
 import { StatsReveal } from "@/components/home/StatsReveal";
+import { getT } from "@/i18n/server";
 import {
   CompareTable,
   CoursesStrip,
@@ -36,9 +37,10 @@ export default async function HomePage() {
    MEHMON (kirmagan foydalanuvchi)
    ============================================================================ */
 async function GuestHome() {
-  const [stats, courses] = await Promise.all([
+  const [stats, courses, t] = await Promise.all([
     getSiteStats(),
     COURSES_ENABLED ? getCourses() : Promise.resolve([]),
+    getT(),
   ]);
 
   return (
@@ -47,12 +49,12 @@ async function GuestHome() {
       <AmbientBackdrop>
 
       <StatsReveal
-        eyebrow="Platforma raqamlarda"
+        eyebrow={t("Platforma raqamlarda", "The platform in numbers")}
         items={[
-          { value: stats.fullMocks, label: "Full Mock test", icon: "mock" },
-          { value: stats.listeningSets, label: "Listening mashqi", icon: "listening" },
-          { value: stats.articles, label: "Maqola", icon: "article" },
-          { value: stats.questions, label: "Savollar bazasi", icon: "question" },
+          { value: stats.fullMocks, label: t("Full Mock test", "Full Mock tests"), icon: "mock" },
+          { value: stats.listeningSets, label: t("Listening mashqi", "Listening sets"), icon: "listening" },
+          { value: stats.articles, label: t("Maqola", "Articles"), icon: "article" },
+          { value: stats.questions, label: t("Savollar bazasi", "Question bank"), icon: "question" },
         ]}
       />
 
@@ -61,13 +63,13 @@ async function GuestHome() {
 
       {/* ------------------------------------------------------- VOSITALAR */}
       <section className="container-page py-20">
-        <SectionTitle eyebrow="Platforma imkoniyatlari" title="Cho'qqiga chiqish uchun vositalar" />
-        <FeatureGrid items={featureItems({ coursesEnabled: COURSES_ENABLED, icons: "stars" })} />
+        <SectionTitle eyebrow={t("Platforma imkoniyatlari", "Platform features")} title={t("Cho'qqiga chiqish uchun vositalar", "Tools for reaching the summit")} />
+        <FeatureGrid items={featureItems({ coursesEnabled: COURSES_ENABLED, icons: "stars" }, t)} />
       </section>
 
       <CompareTable />
 
-      <PullQuote>Davom eting. Siz yorqinroq kelajakni qurayapsiz.</PullQuote>
+      <PullQuote>{t("Davom eting. Siz yorqinroq kelajakni qurayapsiz.", "Keep going. You are building a brighter future.")}</PullQuote>
 
       <Roadmap />
 
@@ -80,7 +82,8 @@ async function GuestHome() {
   );
 }
 
-function AboutSection() {
+async function AboutSection() {
+  const t = await getT();
   return (
     <section className="container-page py-20" id="about">
       <Reveal className="card-glass grid overflow-hidden lg:grid-cols-[1fr_1.1fr]">
@@ -95,37 +98,38 @@ function AboutSection() {
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950/80 via-ink-950/20 to-transparent lg:bg-gradient-to-r" />
           <div className="absolute bottom-8 left-8 right-8">
             <p className="font-display italic text-2xl sm:text-[28px] leading-snug text-brand-300">
-              “Har bir qadam cho&apos;qqi sari puxta chizilgan.”
+              “{t("Har bir qadam cho'qqi sari puxta chizilgan.", "Every step is carefully mapped toward the summit.")}”
             </p>
           </div>
         </div>
         <div className="p-8 sm:p-12">
           <p className="eyebrow">
             <span className="h-px w-5 bg-brand-400" aria-hidden />
-            Biz haqimizda
+            {t("Biz haqimizda", "About us")}
           </p>
           <h2 className="display-title mt-4 text-4xl sm:text-[44px]">LevelX English</h2>
           <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted">
             <p>
-              LevelX English — ingliz tilini o&apos;rganishni yanada tizimli, amaliy va
-              natijaga yo&apos;naltirilgan qilish maqsadida yaratilgan ta&apos;lim brendi.
-              Maqsadimiz — o&apos;quvchiga o&apos;z imkoniyatlaridan yuqoriga chiqishga
-              yordam berish.
+              {t(
+                "LevelX English — ingliz tilini o'rganishni yanada tizimli, amaliy va natijaga yo'naltirilgan qilish maqsadida yaratilgan ta'lim brendi. Maqsadimiz — o'quvchiga o'z imkoniyatlaridan yuqoriga chiqishga yordam berish.",
+                "LevelX English is an education brand created to make learning English more structured, practical and results-driven. Our goal is to help every learner push past their own limits.",
+              )}
             </p>
             <p>
-              Reading, Listening, Writing va Speaking ko&apos;nikmalari bir tizim asosida
-              rivojlanadi: to&apos;liq mock testlar, so&apos;nggi imtihon savollari,
-              maqolalar, listening practice va vocabulary.
+              {t(
+                "Reading, Listening, Writing va Speaking ko'nikmalari bir tizim asosida rivojlanadi: to'liq mock testlar, so'nggi imtihon savollari, maqolalar, listening practice va vocabulary.",
+                "Reading, Listening, Writing and Speaking grow within one system: full mock tests, the latest exam questions, articles, listening practice and vocabulary.",
+              )}
             </p>
           </div>
           <div className="mt-8 grid grid-cols-2 gap-6 border-t border-line pt-8">
             <div>
               <p className="font-display text-5xl font-semibold text-brand-400">4</p>
-              <p className="mt-1 text-sm text-muted">ko&apos;nikma — bitta tizimda</p>
+              <p className="mt-1 text-sm text-muted">{t("ko'nikma — bitta tizimda", "skills — one system")}</p>
             </div>
             <div>
               <p className="font-display text-5xl font-semibold text-gold-400">1</p>
-              <p className="mt-1 text-sm text-muted">maqsad — {SITE_TAGLINE}</p>
+              <p className="mt-1 text-sm text-muted">{t("maqsad", "goal")} — {SITE_TAGLINE}</p>
             </div>
           </div>
         </div>
@@ -138,7 +142,7 @@ function AboutSection() {
    KIRGAN O'QUVCHI
    ============================================================================ */
 async function LearnerHome({ name }: { name: string | null }) {
-  const { continueCard, streakDays } = await getLearnerSnapshot();
+  const [{ continueCard, streakDays }, t] = await Promise.all([getLearnerSnapshot(), getT()]);
   const firstName = name?.trim().split(/\s+/)[0];
 
   return (
@@ -162,14 +166,14 @@ async function LearnerHome({ name }: { name: string | null }) {
 
         <div className="container-page pt-16 lg:pt-20 pb-10">
           <p className="text-lg font-medium text-muted animate-fade-up">
-            {greeting()}
+            {greeting(t)}
             {firstName ? `, ${firstName}` : ""} 👋
           </p>
           <h1
             className="display-title mt-6 max-w-[800px] text-5xl sm:text-6xl lg:text-[72px] font-semibold leading-[1.1] tracking-[-0.015em] text-balance-title animate-fade-up"
             style={{ animationDelay: "80ms" }}
           >
-            Davom eting. Siz yorqinroq kelajakni qurayapsiz.
+            {t("Davom eting. Siz yorqinroq kelajakni qurayapsiz.", "Keep going. You are building a brighter future.")}
           </h1>
 
           <div
@@ -180,11 +184,11 @@ async function LearnerHome({ name }: { name: string | null }) {
               <div className="flex min-w-0 flex-1 flex-col gap-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold-400">
                   {continueCard
-                    ? `Jarayonda · ${continueCard.percent}% bajarildi`
-                    : "Boshlashga tayyormisiz?"}
+                    ? t(`Jarayonda · ${continueCard.percent}% bajarildi`, `In progress · ${continueCard.percent}% done`)
+                    : t("Boshlashga tayyormisiz?", "Ready to start?")}
                 </p>
                 <p className="display-title truncate text-2xl">
-                  {continueCard ? continueCard.title : "Birinchi Full Mock testingizni ishlang"}
+                  {continueCard ? continueCard.title : t("Birinchi Full Mock testingizni ishlang", "Take your first Full Mock test")}
                 </p>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
                   <div
@@ -194,17 +198,17 @@ async function LearnerHome({ name }: { name: string | null }) {
                 </div>
               </div>
               <ButtonLink href={continueCard?.href ?? "/full-mock"} className="shrink-0 px-7">
-                {continueCard ? "Davom ettirish" : "Boshlash"}
+                {continueCard ? t("Davom ettirish", "Continue") : t("Boshlash", "Start")}
               </ButtonLink>
             </div>
 
             <div className="card-glass flex shrink-0 flex-col items-center justify-center gap-3 rounded-2xl p-6 lg:w-[280px]">
               <FlameIcon className="size-11 text-gold-400" />
               <p className="display-title text-[32px] font-semibold leading-none">
-                {streakDays} kun
+                {streakDays} {t("kun", streakDays === 1 ? "day" : "days")}
               </p>
               <p className="text-xs font-semibold uppercase tracking-[0.04em] text-faint">
-                {streakDays > 0 ? "Ketma-ket faollik" : "Bugun boshlang"}
+                {streakDays > 0 ? t("Ketma-ket faollik", "Day streak") : t("Bugun boshlang", "Start today")}
               </p>
             </div>
           </div>
@@ -218,33 +222,35 @@ async function LearnerHome({ name }: { name: string | null }) {
         <Reveal>
           <p className="eyebrow mb-6">
             <span className="h-px w-5 bg-brand-400" aria-hidden />
-            Imtihon vositalari
+            {t("Imtihon vositalari", "Exam tools")}
           </p>
         </Reveal>
         <FeatureGrid
           glass={false}
-          items={featureItems({ coursesEnabled: COURSES_ENABLED, icons: "specific" })}
+          items={featureItems({ coursesEnabled: COURSES_ENABLED, icons: "specific" }, t)}
         />
       </section>
 
       <PullQuote>
-        Cho&apos;qqi jim qadamlar bilan zabt etiladi. Qancha qolganiga emas — qancha
-        ko&apos;tarilganingizga qarang.
+        {t(
+          "Cho'qqi jim qadamlar bilan zabt etiladi. Qancha qolganiga emas — qancha ko'tarilganingizga qarang.",
+          "Summits are conquered with quiet steps. Look not at how far is left — but at how far you have climbed.",
+        )}
       </PullQuote>
 
       <section className="container-page pb-10">
         <Reveal className="card-glass flex flex-col items-start justify-between gap-6 rounded-2xl p-8 sm:flex-row sm:items-center">
           <div>
-            <h2 className="display-title text-3xl">Natijalaringiz bir joyda</h2>
+            <h2 className="display-title text-3xl">{t("Natijalaringiz bir joyda", "All your results in one place")}</h2>
             <p className="mt-2 text-sm text-muted">
-              Ballar, CEFR darajasi, o&apos;qituvchi izohlari va o&apos;sish dinamikasi.
+              {t("Ballar, CEFR darajasi, o'qituvchi izohlari va o'sish dinamikasi.", "Scores, CEFR level, teacher feedback and your progress over time.")}
             </p>
           </div>
           <Link
             href="/profile"
             className="inline-flex items-center gap-2 text-sm font-semibold text-brand-400 hover:text-brand-300"
           >
-            Shaxsiy kabinet <ArrowRight size={16} />
+            {t("Shaxsiy kabinet", "My dashboard")} <ArrowRight size={16} />
           </Link>
         </Reveal>
       </section>

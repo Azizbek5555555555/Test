@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/client";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import {
@@ -58,6 +59,7 @@ function scoreRange(i: number): Range {
 
 export function ResultReveal() {
   const mode = useMotionMode();
+  const t = useT();
   const rootRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -273,7 +275,7 @@ export function ResultReveal() {
       ref={rootRef}
       className="rr"
       data-mode={mode}
-      aria-label="Natija varaqasi"
+      aria-label={t("Natija varaqasi", "Result sheet")}
       style={
         {
           "--rr-h-d": `${REVEAL_HEIGHT.desktop}vh`,
@@ -326,14 +328,14 @@ export function ResultReveal() {
         <div data-rtext="intro" className="rr-text rr-text-top">
           <p className="eyebrow justify-center">
             <span className="h-px w-6 bg-brand-400" aria-hidden />
-            Sizning natijangiz
+            {t("Sizning natijangiz", "Your result")}
           </p>
-          <h2 className="display-title mt-3 text-[34px] sm:text-[52px]">Varaqni aylantiring</h2>
+          <h2 className="display-title mt-3 text-[34px] sm:text-[52px]">{t("Varaqni aylantiring", "Turn the sheet over")}</h2>
         </div>
         <div data-rtext="outro" className="rr-text rr-text-bottom" style={{ opacity: 0, visibility: "hidden" }}>
-          <p className="rr-hand-title">Har bir urinish — yangi varaq.</p>
+          <p className="rr-hand-title">{t("Har bir urinish — yangi varaq.", "Every attempt — a new sheet.")}</p>
           <Link href="/login" className="story-btn story-btn-primary mt-4">
-            Birinchi varaqni boshlash
+            {t("Birinchi varaqni boshlash", "Start your first sheet")}
           </Link>
         </div>
 
@@ -383,6 +385,7 @@ function CardBack() {
 
 function CardFront() {
   const r = REVEAL_RESULT;
+  const t = useT();
   return (
     <div className="rr-face rr-front" aria-hidden>
       <svg className="rr-guilloche" viewBox="0 0 680 460" preserveAspectRatio="xMidYMid slice">
@@ -401,31 +404,31 @@ function CardFront() {
         <div className="text-right">
           <p className="rr-caps">{r.exam}</p>
           <p className="rr-small mt-1">{r.ref}</p>
-          <span className="story-sample">{r.sample}</span>
+          <span className="story-sample">{t(r.sample)}</span>
         </div>
       </div>
       <div className="rr-rule mt-3" />
 
       <div className="mt-4 grid grid-cols-[1.6fr_0.7fr_1fr] gap-4">
         <div>
-          <p className="rr-label">Nomzod / Candidate</p>
+          <p className="rr-label">{t("Nomzod / Candidate", "Candidate")}</p>
           <div className="rr-field">
             <span data-rreveal="name" className="rr-hand rr-hand-blue" style={{ clipPath: "inset(0 100% 0 0)" }}>
-              {r.name}
+              {t(r.name)}
             </span>
           </div>
         </div>
         <div>
-          <p className="rr-label">Sana</p>
+          <p className="rr-label">{t("Sana", "Date")}</p>
           <p className="rr-value">{r.date}</p>
         </div>
         <div>
-          <p className="rr-label">Markaz</p>
+          <p className="rr-label">{t("Markaz", "Centre")}</p>
           <p className="rr-value">{r.centre}</p>
         </div>
       </div>
 
-      <p className="rr-label mt-5">Natijalar / Test results</p>
+      <p className="rr-label mt-5">{t("Natijalar / Test results", "Test results")}</p>
       <div className="rr-scores mt-2">
         {r.scores.map((s) => (
           <div key={s.key} className="rr-box">
@@ -451,10 +454,10 @@ function CardFront() {
 
       <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0 flex-1">
-          <p className="rr-label">Izoh / Comments</p>
+          <p className="rr-label">{t("Izoh / Comments", "Comments")}</p>
           <div className="rr-field rr-field-note">
             <span data-rreveal="comment" className="rr-hand rr-hand-red" style={{ clipPath: "inset(0 100% 0 0)" }}>
-              {r.comment}
+              {t(r.comment)}
             </span>
           </div>
         </div>

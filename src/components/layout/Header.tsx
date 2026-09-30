@@ -1,3 +1,5 @@
+import { LangSwitch } from "./LangSwitch";
+import { getT } from "@/i18n/server";
 import Link from "next/link";
 import { getProfile, isStaff, profileHasPremium } from "@/lib/auth";
 import { MAIN_NAV, SITE_NAME } from "@/lib/constants";
@@ -31,6 +33,7 @@ async function getLastLevel(userId: string): Promise<string | null> {
  * Chapda logo, o'rtada havolalar (faol — accent), o'ngda foydalanuvchi.
  */
 export async function Header() {
+  const t = await getT();
   const profile = await getProfile();
   const level = profile ? await getLastLevel(profile.id) : null;
 
@@ -41,15 +44,16 @@ export async function Header() {
           <Link
             href="/"
             className="flex items-center gap-3 shrink-0"
-            aria-label={`${SITE_NAME} — bosh sahifa`}
+            aria-label={`${SITE_NAME} — ${t("bosh sahifa", "home")}`}
           >
             <BrandMark size={34} />
             <BrandWordmark className="text-[22px] leading-none hidden sm:block" />
           </Link>
 
-          <NavLinks items={MAIN_NAV} />
+          <NavLinks items={MAIN_NAV.map((item) => ({ href: item.href, label: t(item.label) }))} />
 
           <div className="ml-auto flex items-center gap-4">
+            <LangSwitch className="hidden sm:inline-grid" />
             {profile ? (
               <UserMenu
                 user={{
@@ -68,10 +72,10 @@ export async function Header() {
                   href="/login"
                   className="hidden sm:inline text-sm font-semibold text-fg hover:text-brand-300 transition-colors"
                 >
-                  Kirish
+                  {t("Kirish", "Log in")}
                 </Link>
                 <ButtonLink href="/login" size="sm" className="hidden sm:inline-flex">
-                  Bepul boshlash
+                  {t("Bepul boshlash", "Start free")}
                 </ButtonLink>
               </>
             )}

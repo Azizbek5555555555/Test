@@ -1,5 +1,7 @@
 "use server";
 
+import { getT } from "@/i18n/server";
+
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
@@ -104,8 +106,9 @@ export async function saveAnswersAction(
   answers: AnswerMap,
   currentPartIndex: number,
 ): Promise<AttemptActionResult> {
+  const t = await getT();
   const profile = await getProfile();
-  if (!profile) return { ok: false, message: "Sessiya tugagan. Qayta kiring." };
+  if (!profile) return { ok: false, message: t("Sessiya tugagan. Qayta kiring.", "Your session has expired. Please log in again.") };
 
   try {
     const supabase = await createServerSupabase();
@@ -122,7 +125,7 @@ export async function saveAnswersAction(
     if (error) return { ok: false, message: error.message };
     return { ok: true };
   } catch {
-    return { ok: false, message: "Saqlab bo'lmadi. Internetni tekshiring." };
+    return { ok: false, message: t("Saqlab bo'lmadi. Internetni tekshiring.", "Could not save. Check your internet connection.") };
   }
 }
 
@@ -133,8 +136,9 @@ export async function submitAttemptAction(
   attemptId: string,
   answers: AnswerMap,
 ): Promise<AttemptActionResult> {
+  const t = await getT();
   const profile = await getProfile();
-  if (!profile) return { ok: false, message: "Sessiya tugagan. Qayta kiring." };
+  if (!profile) return { ok: false, message: t("Sessiya tugagan. Qayta kiring.", "Your session has expired. Please log in again.") };
 
   try {
     const supabase = await createServerSupabase();
@@ -157,7 +161,7 @@ export async function submitAttemptAction(
     revalidatePath("/profile/results");
     return { ok: true, attemptId };
   } catch {
-    return { ok: false, message: "Yakunlashda xatolik yuz berdi." };
+    return { ok: false, message: t("Yakunlashda xatolik yuz berdi.", "Something went wrong while finishing.") };
   }
 }
 

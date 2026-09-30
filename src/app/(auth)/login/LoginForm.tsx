@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/i18n/client";
+import type { T } from "@/i18n";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -29,6 +31,7 @@ export function LoginForm({
   emailEnabled: boolean;
 }) {
   const router = useRouter();
+  const t = useT();
 
   const [mode, setMode] = useState<Mode>("login");
   const [step, setStep] = useState<Step>("email");
@@ -73,9 +76,7 @@ export function LoginForm({
       }
       // Muvaffaqiyatli bo'lsa brauzer Google sahifasiga o'tadi
     } catch {
-      setError(
-        "Supabase sozlanmagan. .env.local faylini to'ldiring (SETUP.md).",
-      );
+      setError(t("Kirish vaqtincha ishlamayapti. Keyinroq urinib ko'ring.", "Login is temporarily unavailable. Please try again later."));
       setLoading(null);
     }
   }
@@ -88,7 +89,7 @@ export function LoginForm({
 
     const trimmed = email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setError("Email manzilini to'g'ri kiriting.");
+      setError(t("Email manzilini to'g'ri kiriting.", "Enter a valid email address."));
       return;
     }
 
@@ -111,13 +112,14 @@ export function LoginForm({
         setStep("code");
         setResendIn(RESEND_SECONDS);
         setInfo(
-          `Xatda "Sign in" havolasi bo'lsa — uni shu brauzerda oching.`,
+          t(
+            `Xatda "Sign in" havolasi bo'lsa — uni shu brauzerda oching.`,
+            `If the email has a "Sign in" link, open it in this browser.`,
+          ),
         );
       }
     } catch {
-      setError(
-        "Supabase sozlanmagan. .env.local faylini to'ldiring (SETUP.md).",
-      );
+      setError(t("Kirish vaqtincha ishlamayapti. Keyinroq urinib ko'ring.", "Login is temporarily unavailable. Please try again later."));
     } finally {
       setLoading(null);
     }
@@ -129,7 +131,7 @@ export function LoginForm({
 
     const trimmedCode = value.replace(/\s/g, "");
     if (trimmedCode.length < CODE_LENGTH) {
-      setError(`${CODE_LENGTH} xonali kodni to'liq kiriting.`);
+      setError(t(`${CODE_LENGTH} xonali kodni to'liq kiriting.`, `Enter the full ${CODE_LENGTH}-digit code.`));
       return;
     }
 
@@ -145,7 +147,10 @@ export function LoginForm({
       if (verifyError) {
         // Supabase noto'g'ri va eskirgan kod uchun bir xil xato qaytaradi
         setError(
-          "Kod noto'g'ri yoki muddati tugagan. Qaytadan kiriting yoki yangi kod so'rang.",
+          t(
+            "Kod noto'g'ri yoki muddati tugagan. Qaytadan kiriting yoki yangi kod so'rang.",
+            "The code is wrong or has expired. Enter it again or request a new code.",
+          ),
         );
         setCode(EMPTY_CODE);
         setAttempt((n) => n + 1);
@@ -156,7 +161,7 @@ export function LoginForm({
         router.refresh();
       }
     } catch {
-      setError("Tekshirishda xatolik yuz berdi.");
+      setError(t("Tekshirishda xatolik yuz berdi.", "Something went wrong while verifying."));
       setLoading(null);
     }
   }
@@ -170,9 +175,9 @@ export function LoginForm({
         <span className="grid size-12 place-items-center rounded-xl border border-line bg-surface text-brand-400">
           <Mail size={22} strokeWidth={1.75} aria-hidden />
         </span>
-        <h2 className="display-title mt-4 text-[32px]">Emailni tasdiqlang</h2>
+        <h2 className="display-title mt-4 text-[32px]">{t("Emailni tasdiqlang", "Confirm your email")}</h2>
         <p className="mt-2 text-[15px] leading-relaxed text-muted">
-          {CODE_LENGTH} xonali tasdiqlash kodini yubordik:{" "}
+          {t(`${CODE_LENGTH} xonali tasdiqlash kodini yubordik:`, `We sent a ${CODE_LENGTH}-digit confirmation code to:`)}{" "}
           <span className="font-semibold text-fg">{email}</span>
         </p>
 
@@ -183,7 +188,7 @@ export function LoginForm({
             void verifyCode(code);
           }}
         >
-          <Label htmlFor="otp-0">Tasdiqlash kodi</Label>
+          <Label htmlFor="otp-0">{t("Tasdiqlash kodi", "Confirmation code")}</Label>
           <OtpInput
             key={attempt}
             value={code}
@@ -191,6 +196,7 @@ export function LoginForm({
             onComplete={(v) => void verifyCode(v)}
             disabled={busy}
             invalid={Boolean(error)}
+            digitLabel={(n) => t(`${n}-raqam`, `Digit ${n}`)}
           />
 
           <div className="mt-5 space-y-3">
@@ -199,19 +205,19 @@ export function LoginForm({
           </div>
 
           <Button type="submit" size="lg" fullWidth className="mt-7" disabled={busy}>
-            {loading === "code" ? "Tekshirilmoqda…" : "Tasdiqlash"}
+            {loading === "code" ? t("Tekshirilmoqda…", "Verifying…") : t("Tasdiqlash", "Confirm")}
           </Button>
         </form>
 
         <p className="mt-5 text-center text-[13px] text-muted">
-          Kod kelmadimi?{" "}
+          {t("Kod kelmadimi?", "Didn't get the code?")}{" "}
           <button
             type="button"
             className="font-semibold text-fg hover:text-brand-400 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:text-fg"
             onClick={() => void sendCode()}
             disabled={busy || resendIn > 0}
           >
-            Qayta yuborish
+            {t("Qayta yuborish", "Resend")}
             {resendIn > 0 ? ` (00:${String(resendIn).padStart(2, "0")})` : ""}
           </button>
         </p>
@@ -226,11 +232,11 @@ export function LoginForm({
               setInfo(null);
             }}
           >
-            ← Emailni o&apos;zgartirish
+            ← {t("Emailni o'zgartirish", "Change email")}
           </button>
         </p>
 
-        <Steps current={2} />
+        <Steps current={2} t={t} />
       </div>
     );
   }
@@ -239,18 +245,18 @@ export function LoginForm({
   return (
     <div>
       <h2 className="display-title text-[32px]">
-        {mode === "login" ? "Xush kelibsiz" : "Hisob yarating"}
+        {mode === "login" ? t("Xush kelibsiz", "Welcome back") : t("Hisob yarating", "Create an account")}
       </h2>
       <p className="mt-2 text-[15px] text-muted">
         {mode === "login"
-          ? "Hisobingizga kiring va tayyorgarlikni davom ettiring."
-          : "CEFR darajangiz yo'lini bugundan kuzatib boring."}
+          ? t("Hisobingizga kiring va tayyorgarlikni davom ettiring.", "Log in to your account and continue preparing.")
+          : t("CEFR darajangiz yo'lini bugundan kuzatib boring.", "Start tracking your CEFR path today.")}
       </p>
 
       {/* Kirish / Ro'yxatdan o'tish — ikkalasi bir xil jarayon, hisob avtomatik yaratiladi */}
       <div
         role="tablist"
-        aria-label="Kirish turi"
+        aria-label={t("Kirish turi", "Sign-in type")}
         className="relative mt-8 grid grid-cols-2 rounded-full border border-line bg-ink-900 p-1"
       >
         <span
@@ -272,7 +278,7 @@ export function LoginForm({
               mode === m ? "text-ink-950" : "text-muted hover:text-fg",
             )}
           >
-            {m === "login" ? "Kirish" : "Ro'yxatdan o'tish"}
+            {m === "login" ? t("Kirish", "Log in") : t("Ro'yxatdan o'tish", "Sign up")}
           </button>
         ))}
       </div>
@@ -293,7 +299,7 @@ export function LoginForm({
         disabled={busy}
       >
         <GoogleIcon />
-        {loading === "google" ? "Ochilmoqda…" : "Google orqali davom etish"}
+        {loading === "google" ? t("Ochilmoqda…", "Opening…") : t("Google orqali davom etish", "Continue with Google")}
       </Button>
 
       {emailEnabled ? (
@@ -301,20 +307,20 @@ export function LoginForm({
           <div className="my-7 flex items-center gap-4">
             <span className="h-px flex-1 bg-line" />
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
-              yoki email orqali
+              {t("yoki email orqali", "or with email")}
             </span>
             <span className="h-px flex-1 bg-line" />
           </div>
 
           <form onSubmit={sendCode} className="space-y-6">
-            <Field label="Email manzil" htmlFor="email">
+            <Field label={t("Email manzil", "Email address")} htmlFor="email">
               <Input
                 id="email"
                 type="email"
                 name="email"
                 autoComplete="email"
                 inputMode="email"
-                placeholder="siz@example.com"
+                placeholder={t("siz@example.com", "you@example.com")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -324,28 +330,28 @@ export function LoginForm({
 
             <Button type="submit" size="lg" fullWidth disabled={busy}>
               {loading === "email"
-                ? "Yuborilmoqda…"
+                ? t("Yuborilmoqda…", "Sending…")
                 : mode === "login"
-                  ? "Kod yuborish"
-                  : "Hisob yaratish"}
+                  ? t("Kod yuborish", "Send code")
+                  : t("Hisob yaratish", "Create account")}
             </Button>
           </form>
         </>
       ) : null}
 
       <p className="mt-6 text-center text-[13px] leading-relaxed text-muted">
-        Davom etish orqali siz{" "}
+        {t("Davom etish orqali siz", "By continuing, you agree to the")}{" "}
         <Link href="/terms" className="text-fg underline underline-offset-2 hover:text-brand-400">
-          Foydalanish shartlari
+          {t("Foydalanish shartlari", "Terms of Use")}
         </Link>{" "}
-        va{" "}
+        {t("va", "and")}{" "}
         <Link href="/privacy" className="text-fg underline underline-offset-2 hover:text-brand-400">
-          Maxfiylik siyosati
+          {t("Maxfiylik siyosati", "Privacy Policy")}
         </Link>
-        ga rozilik bildirasiz.
+        {t("ga rozilik bildirasiz.", ".")}
       </p>
 
-      <Steps current={1} />
+      <Steps current={1} t={t} />
     </div>
   );
 }
@@ -359,12 +365,14 @@ function OtpInput({
   onComplete,
   disabled,
   invalid,
+  digitLabel,
 }: {
   value: string;
   onChange: (v: string) => void;
   onComplete: (v: string) => void;
   disabled?: boolean;
   invalid?: boolean;
+  digitLabel: (n: number) => string;
 }) {
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const digits = Array.from({ length: CODE_LENGTH }, (_, i) => (value[i] ?? " ").trim());
@@ -412,7 +420,7 @@ function OtpInput({
           type="text"
           inputMode="numeric"
           autoComplete={i === 0 ? "one-time-code" : "off"}
-          aria-label={`${i + 1}-raqam`}
+          aria-label={digitLabel(i + 1)}
           disabled={disabled}
           onFocus={(e) => e.target.select()}
           onPaste={(e) => {
@@ -458,10 +466,10 @@ function OtpInput({
 }
 
 /* ------------------------------------------------------ Qadamlar ko'rsatkichi */
-function Steps({ current }: { current: 1 | 2 }) {
-  const items = ["Kirish", "Tasdiqlash", "O'rganishni boshlash"];
+function Steps({ current, t }: { current: 1 | 2; t: T }) {
+  const items = [t("Kirish", "Log in"), t("Tasdiqlash", "Confirm"), t("O'rganishni boshlash", "Start learning")];
   return (
-    <ol className="mt-12 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-xs" aria-label="Qadamlar">
+    <ol className="mt-12 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-xs" aria-label={t("Qadamlar", "Steps")}>
       {items.map((label, idx) => {
         const n = idx + 1;
         const done = n < current;

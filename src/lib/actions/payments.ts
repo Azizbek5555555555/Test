@@ -1,5 +1,7 @@
 "use server";
 
+import { getT } from "@/i18n/server";
+
 import { headers } from "next/headers";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/auth";
@@ -35,15 +37,16 @@ export async function startPaymentAction(
   plan: string,
   provider: PaymentProvider,
 ): Promise<StartPaymentResult> {
+  const t = await getT();
   const profile = await getProfile();
   if (!profile) {
-    return { ok: false, message: "To'lov qilish uchun avval tizimga kiring." };
+    return { ok: false, message: t("To'lov qilish uchun avval tizimga kiring.", "Log in first to make a payment.") };
   }
 
   const payme = provider === "payme" ? getPaymeConfig() : null;
   const click = provider === "click" ? getClickConfig() : null;
   if (!payme && !click) {
-    return { ok: false, message: "Bu to'lov usuli hozircha ulanmagan." };
+    return { ok: false, message: t("Bu to'lov usuli hozircha ulanmagan.", "This payment method is not connected yet.") };
   }
 
   try {
@@ -57,8 +60,8 @@ export async function startPaymentAction(
       return {
         ok: false,
         message: error?.message?.includes("Juda ko'p")
-          ? "Juda ko'p urinish. Birozdan keyin qayta urinib ko'ring."
-          : "Buyurtma yaratib bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.",
+          ? t("Juda ko'p urinish. Birozdan keyin qayta urinib ko'ring.", "Too many attempts. Please try again in a little while.")
+          : t("Buyurtma yaratib bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.", "Could not create the order. Refresh the page and try again."),
       };
     }
 
@@ -71,6 +74,6 @@ export async function startPaymentAction(
 
     return { ok: true, url };
   } catch {
-    return { ok: false, message: "Xatolik yuz berdi. Qayta urinib ko'ring." };
+    return { ok: false, message: t("Xatolik yuz berdi. Qayta urinib ko'ring.", "Something went wrong. Please try again.") };
   }
 }

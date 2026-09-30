@@ -8,6 +8,7 @@ import { getContactSettings } from "@/lib/settings";
 import Image from "next/image";
 import { Calendar, Check, Clock, CreditCard, MapPin, Phone, Send, Users } from "react-feather";
 import { CourseApplyForm } from "@/components/forms/CourseApplyForm";
+import { getT } from "@/i18n/server";
 
 export async function generateMetadata({
   params,
@@ -15,9 +16,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const course = await getCourseBySlug(slug);
+  const [course, t] = await Promise.all([getCourseBySlug(slug), getT()]);
   return {
-    title: course?.title ?? "Kurs",
+    title: course?.title ?? t("Kurs", "Course"),
     description: course?.summary ?? undefined,
   };
 }
@@ -31,23 +32,24 @@ export default async function CoursePage({
   if (!COURSES_ENABLED) notFound();
   const { slug } = await params;
 
-  const [course, profile, contact] = await Promise.all([
+  const [course, profile, contact, t] = await Promise.all([
     getCourseBySlug(slug),
     getProfile(),
     getContactSettings(),
+    getT(),
   ]);
 
   if (!course || !course.published) notFound();
 
   const details = [
-    { label: "Davomiyligi", value: course.duration, icon: Clock },
-    { label: "Dars kunlari", value: course.days, icon: Calendar },
-    { label: "Vaqti", value: course.time_text, icon: Clock },
-    { label: "Narxi", value: course.price, icon: CreditCard },
-    { label: "Manzil", value: course.address ?? contact.address, icon: MapPin },
+    { label: t("Davomiyligi", "Duration"), value: course.duration, icon: Clock },
+    { label: t("Dars kunlari", "Class days"), value: course.days, icon: Calendar },
+    { label: t("Vaqti", "Time"), value: course.time_text, icon: Clock },
+    { label: t("Narxi", "Price"), value: course.price, icon: CreditCard },
+    { label: t("Manzil", "Address"), value: course.address ?? contact.address, icon: MapPin },
     {
-      label: "Guruhdagi o'quvchilar",
-      value: course.seats ? `${course.seats} nafargacha` : null,
+      label: t("Guruhdagi o'quvchilar", "Group size"),
+      value: course.seats ? t(`${course.seats} nafargacha`, `up to ${course.seats}`) : null,
       icon: Users,
     },
   ].filter((d) => d.value);
@@ -69,12 +71,12 @@ export default async function CoursePage({
             href="/courses"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg"
           >
-            ← Barcha kurslar
+            ← {t("Barcha kurslar", "All courses")}
           </Link>
           <div className="ph-copy mt-8 max-w-2xl">
             <p className="hero-pill">
               <i aria-hidden />
-              Offline kurs
+              {t("Offline kurs", "Offline course")}
             </p>
             <h1 className="display-title mt-5 text-[40px] sm:text-[52px]">{course.title}</h1>
             <p className="hero-hand">Face to face with your teacher</p>
@@ -110,7 +112,7 @@ export default async function CoursePage({
 
           {course.description ? (
             <div className="card rounded-2xl p-6 sm:p-8">
-              <h2 className="display-title text-2xl">Kurs haqida</h2>
+              <h2 className="display-title text-2xl">{t("Kurs haqida", "About the course")}</h2>
               <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-ink-200">
                 {course.description}
               </p>
@@ -118,14 +120,14 @@ export default async function CoursePage({
           ) : null}
 
           <div className="card rounded-2xl p-6 sm:p-8">
-            <h2 className="display-title text-2xl">Kursda nimalar bo&apos;ladi?</h2>
+            <h2 className="display-title text-2xl">{t("Kursda nimalar bo'ladi?", "What happens in the course?")}</h2>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                "Har darsda to'rt ko'nikma: Reading, Listening, Writing, Speaking",
-                "Har hafta mini-test, har oyda to'liq mock test",
-                "Yozma ishlar o'qituvchi tomonidan tekshiriladi",
-                "Platformadagi barcha onlayn materiallarga kirish",
-                "Imtihonga qadar individual maslahat",
+                t("Har darsda to'rt ko'nikma: Reading, Listening, Writing, Speaking", "All four skills in every lesson: Reading, Listening, Writing, Speaking"),
+                t("Har hafta mini-test, har oyda to'liq mock test", "A mini-test every week, a full mock test every month"),
+                t("Yozma ishlar o'qituvchi tomonidan tekshiriladi", "Written work is checked by the teacher"),
+                t("Platformadagi barcha onlayn materiallarga kirish", "Access to all online materials on the platform"),
+                t("Imtihonga qadar individual maslahat", "One-to-one advice right up to the exam"),
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2.5 text-fg">
                   <Check size={15} className="mt-0.5 shrink-0 text-success" aria-hidden />
@@ -139,9 +141,9 @@ export default async function CoursePage({
         {/* --------------------------------------------- Ariza formasi */}
         <aside className="h-fit space-y-4 lg:sticky lg:top-28">
           <div className="rounded-2xl border border-line bg-ink-800 p-6 sm:p-7">
-            <p className="display-title text-[26px]">Kursga yozilish</p>
+            <p className="display-title text-[26px]">{t("Kursga yozilish", "Enrol in the course")}</p>
             <p className="mb-5 mt-1.5 text-sm text-muted">
-              Ma&apos;lumotlaringizni qoldiring — administrator siz bilan bog&apos;lanadi.
+              {t("Ma'lumotlaringizni qoldiring — administrator siz bilan bog'lanadi.", "Leave your details — an administrator will contact you.")}
             </p>
 
             <CourseApplyForm
@@ -153,7 +155,7 @@ export default async function CoursePage({
           </div>
 
           <div className="card-glass rounded-2xl p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">Tezroq bog&apos;lanish</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">{t("Tezroq bog'lanish", "Quick contact")}</p>
             <div className="mt-3 space-y-2">
               <a
                 href={`tel:${contact.phone.replace(/\s/g, "")}`}

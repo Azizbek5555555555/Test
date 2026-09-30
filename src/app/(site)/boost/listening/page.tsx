@@ -9,12 +9,18 @@ import { ChipLink, ChipRow } from "@/components/ui/ChipLink";
 import { Reveal } from "@/components/motion/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { TestSetCard } from "@/components/test/TestSetCard";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Listening Practice",
-  description:
-    "Audio, transkript, gap filling, matching va comprehension savollari bilan listening mashg'ulotlari.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: "Listening Practice",
+    description: t(
+      "Audio, transkript, gap filling, matching va comprehension savollari bilan listening mashg'ulotlari.",
+      "Listening lessons with audio, transcripts, gap filling, matching and comprehension questions.",
+    ),
+  };
+}
 
 export default async function ListeningPracticePage({
   searchParams,
@@ -22,9 +28,10 @@ export default async function ListeningPracticePage({
   searchParams: Promise<{ level?: string }>;
 }) {
   const { level } = await searchParams;
-  const [profile, allSets] = await Promise.all([
+  const [profile, allSets, t] = await Promise.all([
     getProfile(),
     getTestSets({ category: "general_english", section: "listening" }),
+    getT(),
   ]);
 
   // Daraja bo'yicha filtr (A2, B1, B2, C1 ...)
@@ -35,7 +42,7 @@ export default async function ListeningPracticePage({
   const sets =
     activeLevel === "all" ? allSets : allSets.filter((s) => s.level === activeLevel);
   const levelTabs = [
-    { id: "all", label: "Barcha darajalar", href: "/boost/listening", count: allSets.length },
+    { id: "all", label: t("Barcha darajalar", "All levels"), href: "/boost/listening", count: allSets.length },
     ...levels.map((l) => ({
       id: l,
       label: l,
@@ -56,38 +63,41 @@ export default async function ListeningPracticePage({
         hand="Train your ears every day"
         words={["accent", "gap filling", "matching", "script"]}
       >
-        Har bir mashg&apos;ulotda audio hamda gap filling, multiple choice, matching va boshqa
-        savollar bo&apos;ladi. Audio skripti — Premium foydalanuvchilar uchun.{" "}
+        {t(
+          "Har bir mashg'ulotda audio hamda gap filling, multiple choice, matching va boshqa savollar bo'ladi. Audio skripti — Premium foydalanuvchilar uchun.",
+          "Every lesson has audio plus gap filling, multiple choice, matching and other questions. Audio transcripts are for Premium members.",
+        )}{" "}
         <Link href="/boost" className="text-brand-400 hover:text-brand-300">
-          ← Bo&apos;lim sahifasi
+          ← {t("Bo'lim sahifasi", "Section page")}
         </Link>
       </PageHero>
 
       <div className="container-page">
         {levels.length > 1 ? (
           <ChipRow className="mb-6">
-            {levelTabs.map((t) => (
-              <ChipLink key={t.id} href={t.href} active={activeLevel === t.id}>
-                {t.label} · {t.count}
+            {levelTabs.map((tab) => (
+              <ChipLink key={tab.id} href={tab.href} active={activeLevel === tab.id}>
+                {tab.label} · {tab.count}
               </ChipLink>
             ))}
           </ChipRow>
         ) : null}
 
         <div className="mb-8">
-          <Alert tone="info" title="Maslahat">
-            Avval audioni diqqat bilan tinglang va javob bering. Test tugagach natija
-            sahifasida audio <strong>skriptini</strong> o&apos;qib, qaysi so&apos;zni
-            eshitmaganingizni aniqlang (skript — Premium).
+          <Alert tone="info" title={t("Maslahat", "Tip")}>
+            {t(
+              "Avval audioni diqqat bilan tinglang va javob bering. Test tugagach natija sahifasida audio skriptini o'qib, qaysi so'zni eshitmaganingizni aniqlang (skript — Premium).",
+              "First listen carefully and answer. After the test, read the audio transcript on the results page to find the words you missed (transcripts are Premium).",
+            )}
           </Alert>
         </div>
 
         {sets.length === 0 ? (
           <EmptyState
             icon="🎧"
-            title="Mashg'ulotlar hali qo'shilmagan"
-            description="Admin panel orqali 'General English' turkumida Listening mashg'ulotlarini qo'shing."
-            action={<ButtonLink href="/boost">Orqaga</ButtonLink>}
+            title={t("Mashg'ulotlar hali qo'shilmagan", "No lessons yet")}
+            description={t("Tez orada yangi mashg'ulotlar qo'shiladi.", "New lessons are coming soon.")}
+            action={<ButtonLink href="/boost">{t("Orqaga", "Back")}</ButtonLink>}
           />
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,12 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getPublicOrigin } from "@/lib/request-origin";
+import { getT } from "@/i18n/server";
 
 /**
  * Google (OAuth) orqali kirgandan keyin foydalanuvchi shu manzilga qaytadi.
  * Bu yerda vaqtinchalik `code` haqiqiy sessiyaga almashtiriladi.
  */
 export async function GET(request: NextRequest) {
+  const t = await getT();
   const { searchParams } = new URL(request.url);
   const origin = getPublicOrigin(request);
   const code = searchParams.get("code");
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest) {
 
   if (!code) {
     return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent("Kirish kodi topilmadi. Qaytadan urinib ko'ring.")}`,
+      `${origin}/login?error=${encodeURIComponent(t("Kirish kodi topilmadi. Qaytadan urinib ko'ring.", "Login code not found. Please try again."))}`,
     );
   }
 
@@ -37,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
   } catch {
     return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent("Supabase sozlanmagan. SETUP.md ga qarang.")}`,
+      `${origin}/login?error=${encodeURIComponent(t("Supabase sozlanmagan. SETUP.md ga qarang.", "Login is temporarily unavailable. Please try again later."))}`,
     );
   }
 

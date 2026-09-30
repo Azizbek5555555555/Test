@@ -12,19 +12,26 @@ import { SectionIcon } from "@/components/ui/icons";
 import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/marketing/CtaBand";
 import { PageHero } from "@/components/marketing/PageHero";
+import { getT } from "@/i18n/server";
+import type { Bi, T } from "@/i18n";
 
-export const metadata: Metadata = {
-  title: "Oxirgi tushgan savollar",
-  description:
-    "Real Multilevel imtihonlarida tushgan va eslab qolingan savollar — yillar bo'yicha tartiblangan.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("Oxirgi tushgan savollar", "Latest exam questions"),
+    description: t(
+      "Real Multilevel imtihonlarida tushgan va eslab qolingan savollar — yillar bo'yicha tartiblangan.",
+      "Questions that appeared in real Multilevel exams — sorted by year.",
+    ),
+  };
+}
 
 /** Savollar soni birligi — bo'limga qarab */
-const UNIT: Record<SkillSection, string> = {
-  reading: "ta savol",
-  listening: "ta savol",
-  writing: "ta topshiriq",
-  speaking: "ta mavzu",
+const UNIT: Record<SkillSection, Bi> = {
+  reading: { uz: "ta savol", en: "questions" },
+  listening: { uz: "ta savol", en: "questions" },
+  writing: { uz: "ta topshiriq", en: "tasks" },
+  speaking: { uz: "ta mavzu", en: "topics" },
 };
 
 function href(year: string, section: SkillSection | "all"): string {
@@ -39,9 +46,10 @@ export default async function LatestQuestionsPage({
   searchParams: Promise<{ year?: string; section?: string }>;
 }) {
   const params = await searchParams;
-  const [profile, allSets] = await Promise.all([
+  const [profile, allSets, t] = await Promise.all([
     getProfile(),
     getTestSets({ category: "latest_questions" }),
+    getT(),
   ]);
   const unlocked = profileHasPremium(profile);
 
@@ -72,30 +80,31 @@ export default async function LatestQuestionsPage({
     <div>
       {/* ------------------------------------------------ Hero */}
       <PageHero
-        eyebrow="Haqiqiy imtihon banki"
-        title="Oxirgi tushgan savollar"
-        highlight="savollar"
+        eyebrow={t("Haqiqiy imtihon banki", "Real exam bank")}
+        title={t("Oxirgi tushgan savollar", "Latest exam questions")}
+        highlight={t("savollar", "questions")}
         hand="Real exam questions"
         words={["2025–2026", "Reading", "Writing", "Speaking"]}
         className="pb-16 sm:pb-20"
       >
-        Real imtihonlarda tushgan savollar bilan mashq qiling. Formatga ko&apos;niking,
-        tayyor bo&apos;ling. Savollar so&apos;nggi o&apos;quv yillaridagi imtihonlardan
-        to&apos;plangan.
+        {t(
+          "Real imtihonlarda tushgan savollar bilan mashq qiling. Formatga ko'niking, tayyor bo'ling. Savollar so'nggi o'quv yillaridagi imtihonlardan to'plangan.",
+          "Practise with questions from real exams. Get used to the format and be ready. The questions are collected from exams of recent academic years.",
+        )}
       </PageHero>
 
       <div className="container-page pb-20">
         {allSets.length === 0 ? (
           <EmptyState
             icon="🗂️"
-            title="Savollar hali qo'shilmagan"
-            description="Admin panel orqali yil va bo'limni tanlab test qo'shing."
-            action={<ButtonLink href="/full-mock">Full Mock testlarga</ButtonLink>}
+            title={t("Savollar hali qo'shilmagan", "No questions yet")}
+            description={t("Tez orada yangi savollar qo'shiladi.", "New questions are coming soon.")}
+            action={<ButtonLink href="/full-mock">{t("Full Mock testlarga", "Go to Full Mock tests")}</ButtonLink>}
           />
         ) : (
           <>
             {/* ------------------------------------------------ Filtrlar */}
-            <nav aria-label="Filtrlar" className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <nav aria-label={t("Filtrlar", "Filters")} className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap gap-2">
                 {years.map((y) => (
                   <Link
@@ -127,7 +136,7 @@ export default async function LatestQuestionsPage({
                         s === section ? "bg-brand-400 text-ink-950" : "text-muted hover:text-fg",
                       )}
                     >
-                      {s === "all" ? "Barchasi" : SECTION_LABEL[s]}
+                      {s === "all" ? t("Barchasi", "All") : SECTION_LABEL[s]}
                     </Link>
                   ))}
                 </div>
@@ -139,7 +148,7 @@ export default async function LatestQuestionsPage({
               <div className="space-y-3">
                 {shown.length === 0 ? (
                   <div className="card p-10 text-center text-sm text-muted">
-                    {year} uchun bu bo&apos;limda hali savollar yo&apos;q.
+                    {t(`${year} uchun bu bo'limda hali savollar yo'q.`, `No questions in this section for ${year} yet.`)}
                   </div>
                 ) : (
                   shown.map((set, i) => {
@@ -160,10 +169,10 @@ export default async function LatestQuestionsPage({
                             {set.title}
                           </span>
                           <span className="hidden text-[13px] text-muted sm:block">
-                            {count ? `${count} ${UNIT[sec]}` : ""}
+                            {count ? `${count} ${t(UNIT[sec])}` : ""}
                           </span>
                           <span className="hidden sm:block">
-                            <AccessPill premium={set.is_premium} />
+                            <AccessPill premium={set.is_premium} t={t} />
                           </span>
                           <span
                             className={cn(
@@ -173,12 +182,12 @@ export default async function LatestQuestionsPage({
                                 : "bg-brand-400 text-ink-950 group-hover:bg-brand-300",
                             )}
                           >
-                            {locked ? "Ochish" : "Mashq"}
+                            {locked ? t("Ochish", "Unlock") : t("Mashq", "Practise")}
                           </span>
                           {/* Mobil: ikkinchi qator */}
                           <span className="col-span-3 flex items-center gap-3 text-xs text-muted sm:hidden">
-                            <AccessPill premium={set.is_premium} />
-                            {count ? `${count} ${UNIT[sec]}` : null}
+                            <AccessPill premium={set.is_premium} t={t} />
+                            {count ? `${count} ${t(UNIT[sec])}` : null}
                           </span>
                         </Link>
                       </Reveal>
@@ -191,13 +200,13 @@ export default async function LatestQuestionsPage({
               <aside className="lg:sticky lg:top-28">
                 <div className="rounded-2xl border border-line bg-ink-800 p-6 sm:p-7">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-400">
-                    {year} xulosasi
+                    {t(`${year} xulosasi`, `${year} summary`)}
                   </p>
-                  <p className="display-title mt-3 text-[28px]">Savollar bazasi</p>
+                  <p className="display-title mt-3 text-[28px]">{t("Savollar bazasi", "Question bank")}</p>
                   <ul className="mt-5 divide-y divide-line">
                     {SECTIONS.map((s) => {
-                      const sets = yearSets.filter((t) => t.section === s);
-                      const total = sets.reduce((sum, t) => sum + (outlines[t.id]?.questions ?? 0), 0);
+                      const sets = yearSets.filter((x) => x.section === s);
+                      const total = sets.reduce((sum, x) => sum + (outlines[x.id]?.questions ?? 0), 0);
                       return (
                         <li key={s}>
                           <Link
@@ -210,7 +219,7 @@ export default async function LatestQuestionsPage({
                               {SECTION_LABEL[s]}
                             </span>
                             <span className="text-muted tabular-nums">
-                              {total ? `${total} ${UNIT[s]}` : `${sets.length} ta to'plam`}
+                              {total ? `${total} ${t(UNIT[s])}` : t(`${sets.length} ta to'plam`, `${sets.length} sets`)}
                             </span>
                           </Link>
                         </li>
@@ -226,7 +235,7 @@ export default async function LatestQuestionsPage({
 
       <Reveal className="container-page pb-16 text-center">
         <p className="font-display text-2xl italic text-brand-400 sm:text-[30px]">
-          “Haqiqiy savollar. Haqiqiy natija.”
+          “{t("Haqiqiy savollar. Haqiqiy natija.", "Real questions. Real results.")}”
         </p>
         <span aria-hidden className="mx-auto mt-5 block h-px w-16 bg-line" />
       </Reveal>
@@ -234,23 +243,26 @@ export default async function LatestQuestionsPage({
       {!unlocked ? (
         <CtaBand
           flushBottom
-          title="Barcha savollarni oching"
-          text="Premium bilan har yilning Listening, Writing va Speaking savollari, to'liq mock testlar va o'qituvchi tekshiruvi ochiladi."
-          action={<ButtonLink href="/premium" size="lg">Premiumga o&apos;tish</ButtonLink>}
+          title={t("Barcha savollarni oching", "Unlock every question")}
+          text={t(
+            "Premium bilan har yilning Listening, Writing va Speaking savollari, to'liq mock testlar va o'qituvchi tekshiruvi ochiladi.",
+            "Premium unlocks every year's Listening, Writing and Speaking questions, full mock tests and teacher reviews.",
+          )}
+          action={<ButtonLink href="/premium" size="lg">{t("Premiumga o'tish", "Go Premium")}</ButtonLink>}
         />
       ) : null}
     </div>
   );
 }
 
-function AccessPill({ premium }: { premium: boolean }) {
+function AccessPill({ premium, t }: { premium: boolean; t: T }) {
   return premium ? (
     <span className="inline-flex rounded-full bg-gold-400 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-950">
       Premium
     </span>
   ) : (
     <span className="inline-flex rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-950">
-      Bepul
+      {t("Bepul", "Free")}
     </span>
   );
 }

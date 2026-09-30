@@ -1,10 +1,11 @@
 import { DEFAULT_CEFR_BANDS } from "./defaults";
 import type { CefrBands } from "./types";
+import type { Locale } from "@/i18n";
 
 /** 99000 → "99 000 so'm" */
-export function formatSum(amount: number | null | undefined): string {
+export function formatSum(amount: number | null | undefined, locale: Locale = "uz"): string {
   if (amount == null) return "—";
-  return `${amount.toLocaleString("ru-RU").replace(/ /g, " ")} so'm`;
+  return `${amount.toLocaleString("ru-RU").replace(/ /g, " ")} ${locale === "en" ? "UZS" : "so'm"}`;
 }
 
 /** 8750 → "8,750" */
@@ -21,13 +22,14 @@ export function formatClock(totalSeconds: number): string {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-/** 180 → "3 soat" / 45 → "45 daqiqa" */
-export function formatDuration(minutes: number | null | undefined): string {
+/** 180 → "3 soat" / 45 → "45 daqiqa" (EN: "3 h" / "45 min") */
+export function formatDuration(minutes: number | null | undefined, locale: Locale = "uz"): string {
   if (!minutes) return "—";
-  if (minutes < 60) return `${minutes} daqiqa`;
+  const [h, m] = locale === "en" ? ["h", "min"] : ["soat", "daqiqa"];
+  if (minutes < 60) return `${minutes} ${m}`;
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
-  return rest ? `${hours} soat ${rest} daqiqa` : `${hours} soat`;
+  return rest ? `${hours} ${h} ${rest} ${m}` : `${hours} ${h}`;
 }
 
 const MONTHS_UZ = [
@@ -45,37 +47,41 @@ const MONTHS_UZ = [
   "dekabr",
 ];
 
-/** ISO sanani "12-mart, 2026" ko'rinishida chiqaradi */
-export function formatDate(iso: string | null | undefined): string {
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/** ISO sanani "12-mart, 2026" (EN: "12 March 2026") ko'rinishida chiqaradi */
+export function formatDate(iso: string | null | undefined, locale: Locale = "uz"): string {
   if (!iso) return "—";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
+  if (locale === "en") return `${date.getDate()} ${MONTHS_EN[date.getMonth()]} ${date.getFullYear()}`;
   return `${date.getDate()}-${MONTHS_UZ[date.getMonth()]}, ${date.getFullYear()}`;
 }
 
-export function formatDateTime(iso: string | null | undefined): string {
+export function formatDateTime(iso: string | null | undefined, locale: Locale = "uz"): string {
   if (!iso) return "—";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
   const time = `${String(date.getHours()).padStart(2, "0")}:${String(
     date.getMinutes(),
   ).padStart(2, "0")}`;
-  return `${formatDate(iso)} · ${time}`;
+  return `${formatDate(iso, locale)} · ${time}`;
 }
 
 /** Nisbiy vaqt: "5 daqiqa oldin", "2 soat oldin", "kecha", "3 kun oldin" */
-export function timeAgo(iso: string | null | undefined, now: number = Date.now()): string {
+export function timeAgo(iso: string | null | undefined, now: number = Date.now(), locale: Locale = "uz"): string {
   if (!iso) return "";
+  const en = locale === "en";
   const diff = Math.max(0, now - new Date(iso).getTime());
   const min = Math.floor(diff / 60000);
-  if (min < 1) return "hozirgina";
-  if (min < 60) return `${min} daqiqa oldin`;
+  if (min < 1) return en ? "just now" : "hozirgina";
+  if (min < 60) return en ? `${min} min ago` : `${min} daqiqa oldin`;
   const hours = Math.floor(min / 60);
-  if (hours < 24) return `${hours} soat oldin`;
+  if (hours < 24) return en ? `${hours} h ago` : `${hours} soat oldin`;
   const days = Math.floor(hours / 24);
-  if (days === 1) return "kecha";
-  if (days < 7) return `${days} kun oldin`;
-  return formatDate(iso);
+  if (days === 1) return en ? "yesterday" : "kecha";
+  if (days < 7) return en ? `${days} days ago` : `${days} kun oldin`;
+  return formatDate(iso, locale);
 }
 
 /** Ballga qarab CEFR darajasini hisoblaydi (server bilan bir xil mantiq) */

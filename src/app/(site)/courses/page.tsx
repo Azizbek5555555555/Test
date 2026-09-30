@@ -10,43 +10,52 @@ import { PageHero } from "@/components/marketing/PageHero";
 import { CourseCard } from "@/components/marketing/CourseCard";
 import { ContactSection } from "@/components/marketing/ContactSection";
 import { Reveal } from "@/components/motion/Reveal";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Offline kurslar",
-  description:
-    "Multilevel B1, B2 va Intensive tayyorlov kurslari — dars kunlari, vaqti, narxi va manzili.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return {
+    title: t("Offline kurslar", "Offline courses"),
+    description: t(
+      "Multilevel B1, B2 va Intensive tayyorlov kurslari — dars kunlari, vaqti, narxi va manzili.",
+      "Multilevel B1, B2 and Intensive preparation courses — class days, times, prices and address.",
+    ),
+  };
+}
 
 export default async function CoursesPage() {
   // Kurslar bo'limi o'chirilgan bo'lsa (constants.ts → COURSES_ENABLED)
   if (!COURSES_ENABLED) notFound();
 
-  const [courses, contact, profile] = await Promise.all([
+  const [courses, contact, profile, t] = await Promise.all([
     getCourses(),
     getContactSettings(),
     getProfile(),
+    getT(),
   ]);
 
   return (
     <div>
       <PageHero
-        eyebrow="Offline mashg'ulotlar"
-        title="Intensiv kurslar"
-        highlight="Intensiv"
+        eyebrow={t("Offline mashg'ulotlar", "Offline classes")}
+        title={t("Intensiv kurslar", "Intensive courses")}
+        highlight={t("Intensiv", "Intensive")}
         hand="Face to face with your teacher"
         words={["small groups", "speaking", "B2 → C1", "feedback"]}
       >
-        Multilevel tayyorlov kurslarimizga qo&apos;shiling. Har bir kurs sahifasida dars kunlari,
-        vaqti, narxi va manzil ko&apos;rsatilgan.
+        {t(
+          "Multilevel tayyorlov kurslarimizga qo'shiling. Har bir kurs sahifasida dars kunlari, vaqti, narxi va manzil ko'rsatilgan.",
+          "Join our Multilevel preparation courses. Each course page shows class days, times, price and address.",
+        )}
       </PageHero>
 
       <section className="container-page">
         {courses.length === 0 ? (
           <EmptyState
             icon="🏫"
-            title="Kurslar hali qo'shilmagan"
-            description="Admin panel orqali kurslarni qo'shishingiz mumkin."
-            action={<ButtonLink href="/contact">Biz bilan bog&apos;lanish</ButtonLink>}
+            title={t("Kurslar hali qo'shilmagan", "No courses yet")}
+            description={t("Tez orada yangi kurslar qo'shiladi.", "New courses are coming soon.")}
+            action={<ButtonLink href="/contact">{t("Biz bilan bog'lanish", "Contact us")}</ButtonLink>}
           />
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

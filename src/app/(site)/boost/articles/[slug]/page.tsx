@@ -9,6 +9,7 @@ import { AccessBadge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { ArticleQuiz } from "@/components/article/ArticleQuiz";
 import type { QuestionKind, VocabularyEntry } from "@/lib/types";
+import { getT } from "@/i18n/server";
 
 export async function generateMetadata({
   params,
@@ -16,9 +17,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const [article, t] = await Promise.all([getArticleBySlug(slug), getT()]);
   return {
-    title: article?.title ?? "Maqola",
+    title: article?.title ?? t("Maqola", "Article"),
     description: article?.excerpt ?? undefined,
   };
 }
@@ -29,7 +30,7 @@ export default async function ArticlePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const profile = await getProfile();
+  const [profile, t] = await Promise.all([getProfile(), getT()]);
   const unlocked = profileHasPremium(profile);
 
   const article = await getArticleBySlug(slug);
@@ -57,7 +58,7 @@ export default async function ArticlePage({
           href="/boost/articles"
           className="mb-8 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-fg"
         >
-          ← Barcha maqolalar
+          ← {t("Barcha maqolalar", "All articles")}
         </Link>
 
         <div className="grid items-start gap-8 lg:grid-cols-[1fr_400px]">
@@ -73,7 +74,7 @@ export default async function ArticlePage({
                   </span>
                 ) : null}
                 <AccessBadge isPremium={article.is_premium} unlocked={unlocked} />
-                <span className="text-xs text-muted">{article.read_minutes} daqiqa o&apos;qish</span>
+                <span className="text-xs text-muted">{article.read_minutes} {t("daqiqa o'qish", "min read")}</span>
               </div>
 
               <h1 className="display-title mt-3 text-[32px] leading-tight sm:text-[40px]">
@@ -107,7 +108,7 @@ export default async function ArticlePage({
             {vocabulary.length > 0 ? (
               <div className="rounded-2xl border border-line bg-ink-800 p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-400">
-                  Yangi so&apos;zlar · {vocabulary.length}
+                  {t("Yangi so'zlar", "New words")} · {vocabulary.length}
                 </p>
                 {/* 40 tagacha so'z — ro'yxat o'z ichida aylanadi, sahifa cho'zilmaydi */}
                 <ul className="-mx-2 mt-4 max-h-[52vh] space-y-3 overflow-y-auto px-2">
@@ -127,7 +128,7 @@ export default async function ArticlePage({
             {taskCounts.size > 0 ? (
               <div className="rounded-2xl border border-line bg-ink-800 p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-400">
-                  Mashq topshiriqlari
+                  {t("Mashq topshiriqlari", "Practice tasks")}
                 </p>
                 <ul className="mt-4 space-y-3">
                   {Array.from(taskCounts.entries()).map(([kind, n]) => (
@@ -135,8 +136,8 @@ export default async function ArticlePage({
                       key={kind}
                       className="flex items-center justify-between rounded-lg border border-line bg-ink-900 px-3 py-2.5 text-sm"
                     >
-                      <span className="text-fg">{KIND_LABEL[kind] ?? kind}</span>
-                      <span className="text-xs text-muted">{n} ta savol</span>
+                      <span className="text-fg">{KIND_LABEL[kind] ? t(KIND_LABEL[kind]) : kind}</span>
+                      <span className="text-xs text-muted">{n} {t("ta savol", "questions")}</span>
                     </li>
                   ))}
                 </ul>
@@ -144,12 +145,12 @@ export default async function ArticlePage({
             ) : null}
 
             <div className="card-glass rounded-2xl p-6">
-              <p className="display-title text-xl">So&apos;zlarni mustahkamlang</p>
+              <p className="display-title text-xl">{t("So'zlarni mustahkamlang", "Lock in the words")}</p>
               <p className="mt-2 text-[13px] leading-relaxed text-muted">
-                Yangi so&apos;zlarni Vocabulary Battle o&apos;yinida takrorlang va reytingga chiqing.
+                {t("Yangi so'zlarni Vocabulary Battle o'yinida takrorlang va reytingga chiqing.", "Review new words in the Vocabulary Battle game and climb the leaderboard.")}
               </p>
               <ButtonLink href="/vocabulary-battle" fullWidth size="sm" className="mt-4">
-                O&apos;ynash
+                {t("O'ynash", "Play")}
               </ButtonLink>
             </div>
           </aside>
@@ -159,13 +160,14 @@ export default async function ArticlePage({
   );
 }
 
-function LockedArticle({
+async function LockedArticle({
   slug,
   signedIn,
 }: {
   slug: string;
   signedIn: boolean;
 }) {
+  const t = await getT();
   return (
     <div className="container-page py-16">
       <div className="card-glass mx-auto max-w-lg rounded-2xl p-8 text-center">
@@ -173,28 +175,34 @@ function LockedArticle({
           <Lock size={24} strokeWidth={1.75} aria-hidden />
         </span>
         <h1 className="display-title text-[32px]">
-          Bu maqola faqat Premium uchun
+          {t("Bu maqola faqat Premium uchun", "This article is Premium only")}
         </h1>
         <p className="text-muted mt-3 leading-relaxed">
           {signedIn
-            ? "Bu maqola faqat Premium foydalanuvchilar uchun. Premiumga o'ting va barcha materiallarni oching."
-            : "Maqolani o'qish uchun tizimga kiring. Agar maqola Premium bo'lsa, Premium obuna kerak bo'ladi."}
+            ? t(
+                "Bu maqola faqat Premium foydalanuvchilar uchun. Premiumga o'ting va barcha materiallarni oching.",
+                "This article is for Premium members only. Go Premium to unlock all materials.",
+              )
+            : t(
+                "Maqolani o'qish uchun tizimga kiring. Agar maqola Premium bo'lsa, Premium obuna kerak bo'ladi.",
+                "Log in to read the article. If it is a Premium article, you will need a Premium subscription.",
+              )}
         </p>
         <div className="flex flex-wrap gap-3 justify-center mt-6">
           {signedIn ? (
             <ButtonLink href="/premium" variant="premium" size="lg">
-              Premiumga o&apos;tish
+              {t("Premiumga o'tish", "Go Premium")}
             </ButtonLink>
           ) : (
             <ButtonLink
               href={`/login?next=${encodeURIComponent(`/boost/articles/${slug}`)}`}
               size="lg"
             >
-              Kirish
+              {t("Kirish", "Log in")}
             </ButtonLink>
           )}
           <ButtonLink href="/boost/articles" variant="secondary" size="lg">
-            Bepul maqolalar
+            {t("Bepul maqolalar", "Free articles")}
           </ButtonLink>
         </div>
       </div>

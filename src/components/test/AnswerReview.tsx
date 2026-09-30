@@ -4,14 +4,16 @@ import { SECTION_LABEL } from "@/lib/constants";
 import { SectionIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
+import { getT } from "@/i18n/server";
+import type { T } from "@/i18n";
 
-function renderAnswer(value: unknown): string {
+function renderAnswer(value: unknown, t: T): string {
   if (value == null) return "—";
   if (typeof value === "string") return value.trim() || "—";
   if (typeof value === "number" || typeof value === "boolean")
     return String(value);
   if (Array.isArray(value)) {
-    const parts = value.map((v) => renderAnswer(v)).filter((v) => v !== "—");
+    const parts = value.map((v) => renderAnswer(v, t)).filter((v) => v !== "—");
     return parts.length ? parts.join(", ") : "—";
   }
   if (typeof value === "object") {
@@ -20,9 +22,10 @@ function renderAnswer(value: unknown): string {
     if ("text" in record || "audio" in record) {
       const text = typeof record.text === "string" ? record.text.trim() : "";
       const audio = typeof record.audio === "string" ? record.audio : "";
-      if (text && audio) return `${text}  ·  🎙️ audio yozilgan`;
+      const recorded = `🎙️ ${t("audio yozilgan", "audio recorded")}`;
+      if (text && audio) return `${text}  ·  ${recorded}`;
       if (text) return text;
-      if (audio) return "🎙️ audio yozilgan";
+      if (audio) return recorded;
       return "—";
     }
     const entries = Object.entries(record)
@@ -37,8 +40,9 @@ function formatPoints(value: number): string {
   return String(Math.round(value * 100) / 100);
 }
 
-export function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
+export async function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
   if (rows.length === 0) return null;
+  const t = await getT();
 
   // Bo'limlar bo'yicha guruhlash
   const bySection = new Map<SkillSection, AttemptReviewRow[]>();
@@ -73,16 +77,16 @@ export function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
               </h3>
               {auto.length > 0 ? (
                 <Badge tone={allCorrect ? "success" : "neutral"}>
-                  {formatPoints(earned)} / {formatPoints(max)} to&apos;g&apos;ri
+                  {formatPoints(earned)} / {formatPoints(max)} {t("to'g'ri", "correct")}
                 </Badge>
               ) : (
-                <Badge tone="warning">O&apos;qituvchi tekshiradi</Badge>
+                <Badge tone="warning">{t("O'qituvchi tekshiradi", "Teacher-marked")}</Badge>
               )}
             </div>
 
             <ol className="space-y-3">
               {list.map((row, i) => (
-                <ReviewItem key={row.question_id} row={row} number={numbers[i]} />
+                <ReviewItem key={row.question_id} row={row} number={numbers[i]} t={t} />
               ))}
             </ol>
           </section>
@@ -92,7 +96,7 @@ export function AnswerReview({ rows }: { rows: AttemptReviewRow[] }) {
   );
 }
 
-function ReviewItem({ row, number }: { row: AttemptReviewRow; number: number }) {
+function ReviewItem({ row, number, t }: { row: AttemptReviewRow; number: number; t: T }) {
   const manual = row.ratio == null;
   const isCorrect = !manual && (row.ratio ?? 0) >= 0.999;
   const isPartial = !manual && (row.ratio ?? 0) > 0 && (row.ratio ?? 0) < 0.999;
@@ -123,7 +127,7 @@ function ReviewItem({ row, number }: { row: AttemptReviewRow; number: number }) 
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-muted tabular-nums mb-1">
-            Savol {number}
+            {t("Savol", "Question")} {number}
           </p>
           <p className="font-semibold leading-relaxed whitespace-pre-line">
             {row.prompt}
@@ -131,7 +135,7 @@ function ReviewItem({ row, number }: { row: AttemptReviewRow; number: number }) 
 
           <dl className="mt-3 space-y-1.5 text-sm">
             <div className="flex flex-wrap gap-x-2">
-              <dt className="text-muted shrink-0">Sizning javobingiz:</dt>
+              <dt className="text-muted shrink-0">{t("Sizning javobingiz", "Your answer")}:</dt>
               <dd
                 className={cn(
                   "font-semibold min-w-0",
@@ -142,15 +146,15 @@ function ReviewItem({ row, number }: { row: AttemptReviewRow; number: number }) 
                       : "text-danger",
                 )}
               >
-                {renderAnswer(row.given_answer as AnswerValue)}
+                {renderAnswer(row.given_answer as AnswerValue, t)}
               </dd>
             </div>
 
             {!manual && !isCorrect ? (
               <div className="flex flex-wrap gap-x-2">
-                <dt className="text-muted shrink-0">To&apos;g&apos;ri javob:</dt>
+                <dt className="text-muted shrink-0">{t("To'g'ri javob", "Correct answer")}:</dt>
                 <dd className="font-semibold text-success min-w-0">
-                  {renderAnswer(row.correct_answer)}
+                  {renderAnswer(row.correct_answer, t)}
                 </dd>
               </div>
             ) : null}
@@ -164,7 +168,7 @@ function ReviewItem({ row, number }: { row: AttemptReviewRow; number: number }) 
 
           {manual ? (
             <p className="text-sm text-muted mt-2.5">
-              Bu javob o&apos;qituvchi tomonidan qo&apos;lda baholanadi.
+              {t("Bu javob o'qituvchi tomonidan qo'lda baholanadi.", "This answer is marked manually by a teacher.")}
             </p>
           ) : null}
         </div>

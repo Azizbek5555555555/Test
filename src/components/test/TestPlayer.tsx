@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/i18n/client";
+import type { T } from "@/i18n";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -49,6 +51,7 @@ export function TestPlayer({
   singlePlayAudio,
 }: TestPlayerProps) {
   const router = useRouter();
+  const t = useT();
 
   const [answers, setAnswers] = useState<AnswerMap>(initialAnswers);
   const [partIndex, setPartIndex] = useState(
@@ -161,12 +164,15 @@ export function TestPlayer({
         setSubmitError(
           result.message ??
             (auto
-              ? "Vaqt tugadi, lekin natijani saqlab bo'lmadi. Qaytadan urinib ko'ring."
-              : "Yakunlashda xatolik yuz berdi."),
+              ? t(
+                  "Vaqt tugadi, lekin natijani saqlab bo'lmadi. Qaytadan urinib ko'ring.",
+                  "Time is up, but the result could not be saved. Please try again.",
+                )
+              : t("Yakunlashda xatolik yuz berdi.", "Something went wrong while finishing.")),
         );
       }
     },
-    [attemptId, resultHref, router],
+    [attemptId, resultHref, router, t],
   );
 
   useEffect(() => {
@@ -199,8 +205,7 @@ export function TestPlayer({
     return (
       <div className="container-page py-16 text-center">
         <p className="text-muted">
-          Bu testda hali savollar qo&apos;shilmagan. Admin panel orqali
-          qo&apos;shing.
+          {t("Bu testda hali savollar qo'shilmagan.", "This test has no questions yet.")}
         </p>
       </div>
     );
@@ -224,7 +229,7 @@ export function TestPlayer({
             </div>
 
             <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-muted">
-              <SaveIndicator state={saveState} />
+              <SaveIndicator state={saveState} t={t} />
             </div>
 
             {totalMinutes > 0 ? (
@@ -247,7 +252,7 @@ export function TestPlayer({
               onClick={() => setConfirmOpen(true)}
               disabled={submitting}
             >
-              Yakunlash
+              {t("Yakunlash", "Finish")}
             </Button>
           </div>
 
@@ -312,7 +317,7 @@ export function TestPlayer({
               singlePlay={singlePlayAudio}
               label={
                 currentPart.audio_url && sharedAudioUrls.has(currentPart.audio_url)
-                  ? "Listening audio — barcha qismlar uchun bitta"
+                  ? t("Listening audio — barcha qismlar uchun bitta", "Listening audio — one for all parts")
                   : undefined
               }
             />
@@ -327,7 +332,7 @@ export function TestPlayer({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={currentPart.image_url}
-              alt={`${currentPart.title} — topshiriq rasmi`}
+              alt={`${currentPart.title} — ${t("topshiriq rasmi", "task image")}`}
               className="mx-auto max-h-[480px] w-auto rounded-lg"
             />
           </figure>
@@ -354,7 +359,7 @@ export function TestPlayer({
             <div className="card p-6 space-y-7">
               {currentQuestions.length === 0 ? (
                 <p className="text-sm text-muted">
-                  Bu bo&apos;limda hali savollar yo&apos;q.
+                  {t("Bu bo'limda hali savollar yo'q.", "This section has no questions yet.")}
                 </p>
               ) : (
                 currentQuestions.map((question, i) => (
@@ -384,7 +389,7 @@ export function TestPlayer({
                 onClick={() => goToPart(partIndex - 1)}
                 disabled={partIndex === 0 || sequential || submitting}
               >
-                ← Oldingi bo&apos;lim
+                ← {t("Oldingi bo'lim", "Previous section")}
               </Button>
 
               {partIndex < parts.length - 1 ? (
@@ -392,14 +397,14 @@ export function TestPlayer({
                   onClick={() => goToPart(partIndex + 1)}
                   disabled={submitting}
                 >
-                  Keyingi bo&apos;lim →
+                  {t("Keyingi bo'lim", "Next section")} →
                 </Button>
               ) : (
                 <Button
                   onClick={() => setConfirmOpen(true)}
                   disabled={submitting}
                 >
-                  Testni yakunlash
+                  {t("Testni yakunlash", "Finish the test")}
                 </Button>
               )}
             </div>
@@ -414,6 +419,7 @@ export function TestPlayer({
                 answers={answers}
                 answeredCount={answeredCount}
                 totalCount={allQuestions.length}
+                t={t}
               />
             </aside>
           ) : null}
@@ -428,6 +434,7 @@ export function TestPlayer({
               answeredCount={answeredCount}
               totalCount={allQuestions.length}
               horizontal
+              t={t}
             />
           </div>
         ) : null}
@@ -440,33 +447,36 @@ export function TestPlayer({
             type="button"
             className="absolute inset-0 bg-ink-950/60 backdrop-blur-sm"
             onClick={() => !submitting && setConfirmOpen(false)}
-            aria-label="Yopish"
+            aria-label={t("Yopish", "Close")}
           />
           <div
             className="relative card p-6 max-w-md w-full animate-pop"
             role="dialog"
             aria-modal="true"
           >
-            <h2 className="text-xl font-extrabold">Testni yakunlaysizmi?</h2>
+            <h2 className="text-xl font-extrabold">{t("Testni yakunlaysizmi?", "Finish the test?")}</h2>
             <p className="text-sm text-muted mt-2 leading-relaxed">
-              Yakunlagandan keyin javoblarni o&apos;zgartirib bo&apos;lmaydi.
+              {t("Yakunlagandan keyin javoblarni o'zgartirib bo'lmaydi.", "You cannot change your answers after finishing.")}
             </p>
 
             <div className="rounded-xl bg-[var(--bg-subtle)] border border-line p-4 mt-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted">Javob berilgan:</span>
+                <span className="text-muted">{t("Javob berilgan", "Answered")}:</span>
                 <span className="font-extrabold tabular-nums">
                   {answeredCount} / {allQuestions.length}
                 </span>
               </div>
               {answeredCount < allQuestions.length ? (
                 <p className="text-xs text-warning mt-2">
-                  ⚠️ {allQuestions.length - answeredCount} ta savol javobsiz
-                  qoldi.
+                  ⚠️{" "}
+                  {t(
+                    `${allQuestions.length - answeredCount} ta savol javobsiz qoldi.`,
+                    `${allQuestions.length - answeredCount} questions left unanswered.`,
+                  )}
                 </p>
               ) : (
                 <p className="text-xs text-success mt-2">
-                  ✅ Barcha savollarga javob berildi.
+                  ✅ {t("Barcha savollarga javob berildi.", "All questions answered.")}
                 </p>
               )}
             </div>
@@ -478,14 +488,14 @@ export function TestPlayer({
                 onClick={() => setConfirmOpen(false)}
                 disabled={submitting}
               >
-                Orqaga
+                {t("Orqaga", "Back")}
               </Button>
               <Button
                 fullWidth
                 onClick={() => handleSubmit(false)}
                 disabled={submitting}
               >
-                {submitting ? "Yuborilmoqda…" : "Ha, yakunlash"}
+                {submitting ? t("Yuborilmoqda…", "Submitting…") : t("Ha, yakunlash", "Yes, finish")}
               </Button>
             </div>
           </div>
@@ -509,12 +519,12 @@ function isAnswered(value: AnswerValue): boolean {
   return false;
 }
 
-function SaveIndicator({ state }: { state: SaveState }) {
+function SaveIndicator({ state, t }: { state: SaveState; t: T }) {
   const map = {
-    idle: { text: "Avtomatik saqlanadi", tone: "text-muted" },
-    saving: { text: "Saqlanmoqda…", tone: "text-muted" },
-    saved: { text: "✓ Saqlandi", tone: "text-success" },
-    error: { text: "⚠ Saqlanmadi", tone: "text-warning" },
+    idle: { text: t("Avtomatik saqlanadi", "Saved automatically"), tone: "text-muted" },
+    saving: { text: t("Saqlanmoqda…", "Saving…"), tone: "text-muted" },
+    saved: { text: `✓ ${t("Saqlandi", "Saved")}`, tone: "text-success" },
+    error: { text: `⚠ ${t("Saqlanmadi", "Not saved")}`, tone: "text-warning" },
   } as const;
   const item = map[state];
   return <span className={item.tone}>{item.text}</span>;
@@ -533,6 +543,7 @@ function QuestionPalette({
   answeredCount,
   totalCount,
   horizontal,
+  t,
 }: {
   questions: PublicQuestion[];
   numbers: Record<string, number>;
@@ -540,12 +551,13 @@ function QuestionPalette({
   answeredCount: number;
   totalCount: number;
   horizontal?: boolean;
+  t: T;
 }) {
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-bold uppercase tracking-wide text-muted">
-          Savollar
+          {t("Savollar", "Questions")}
         </p>
         <span className="text-xs font-bold tabular-nums text-muted">
           {answeredCount}/{totalCount}
@@ -582,11 +594,11 @@ function QuestionPalette({
       <div className="flex items-center gap-4 mt-3 text-[11px] text-muted">
         <span className="inline-flex items-center gap-1.5">
           <span className="w-3 h-3 rounded bg-brand-400" aria-hidden />
-          Javob berilgan
+          {t("Javob berilgan", "Answered")}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="w-3 h-3 rounded border border-line" aria-hidden />
-          Bo&apos;sh
+          {t("Bo'sh", "Empty")}
         </span>
       </div>
     </div>
