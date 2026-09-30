@@ -13,6 +13,7 @@ import { HomeStory } from "@/components/story/HomeStory";
 import { AmbientBackdrop } from "@/components/story/AmbientBackdrop";
 import { Spotlight } from "@/components/story/Spotlight";
 import { ResultReveal } from "@/components/story/ResultReveal";
+import { StatsReveal } from "@/components/home/StatsReveal";
 import {
   CompareTable,
   CoursesStrip,
@@ -22,7 +23,6 @@ import {
   SearchBar,
   SectionTitle,
   SkillModules,
-  StatsRibbon,
   featureItems,
 } from "@/components/home/Sections";
 
@@ -58,12 +58,13 @@ async function GuestHome() {
       <HomeStory stats={stats} handFontClass={hand.variable} />
       <AmbientBackdrop>
 
-      <StatsRibbon
+      <StatsReveal
+        eyebrow="Platforma raqamlarda"
         items={[
-          { value: String(stats.fullMocks || "—"), label: "Full Mock test" },
-          { value: String(stats.listeningSets || "—"), label: "Listening mashqi" },
-          { value: String(stats.articles || "—"), label: "Maqola" },
-          { value: stats.questions ? stats.questions.toLocaleString("ru-RU") : "—", label: "Savollar bazasi" },
+          { value: stats.fullMocks, label: "Full Mock test", icon: "mock" },
+          { value: stats.listeningSets, label: "Listening mashqi", icon: "listening" },
+          { value: stats.articles, label: "Maqola", icon: "article" },
+          { value: stats.questions, label: "Savollar bazasi", icon: "question" },
         ]}
       />
 

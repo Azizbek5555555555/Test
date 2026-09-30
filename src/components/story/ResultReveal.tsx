@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import {
   REVEAL_HEIGHT,
+  REVEAL_LEAD,
   REVEAL_KEYFRAMES,
   REVEAL_RESULT,
   REVEAL_TIMES,
@@ -13,12 +14,16 @@ import {
   type Range,
 } from "@/lib/home-story";
 import { cn } from "@/lib/format";
+import { LogoSeal } from "./LogoSeal";
 import { clamp01, rangeT, smooth, useMotionMode } from "./motion";
 
 const VB_W = 1440;
 const VB_H = 900;
 const CARD_W = 680;
 const CARD_H = 460;
+/** Yaltiroq chiziqlar to'liq chizilgandan keyin o'tadi */
+const SHINE_FROM = 0.56;
+const SHINE_TO = 0.84;
 
 /** JavaScript o'chiq bo'lsa: animatsiyasiz, tayyor ochilgan varaq */
 const NOSCRIPT_CSS = [
@@ -30,6 +35,7 @@ const NOSCRIPT_CSS = [
   "[data-rk=card]{transform:translateY(-4svh) rotate(-1deg) scale(.93)!important}",
   "[data-rk=shadow]{transform:translateY(-4svh) scale(.93)!important;opacity:.6!important}",
   "[data-rk=stamp]{opacity:1!important;transform:rotate(-10deg)!important}",
+  "[data-rk=rim]{opacity:1!important}",
   "[data-rreveal]{clip-path:none!important}",
   "@media (max-width:1023px){.rr-scaler{--card-scale:.8}}",
   "@media (max-width:767px){.rr-scaler{--card-scale:.52}}",
@@ -111,6 +117,8 @@ export function ResultReveal() {
     const signature = root.querySelector<SVGPathElement>("[data-rsign]");
     const ribbonGroups = RIBBONS.map((_, i) => Array.from(root.querySelectorAll<SVGPathElement>(`[data-ribbon="${i}"]`)));
     const heads = q("[data-head]");
+    const center = root.querySelector<HTMLElement>("[data-rcenter]");
+    const shines = RIBBONS.map((_, i) => root.querySelector<SVGPathElement>(`[data-shine="${i}"]`));
     const texts = q("[data-rtext]").map((el) => ({ el, key: el.dataset.rtext as "intro" | "outro" }));
 
     // Chiziq uzunliklari va uchqun joylari (SVG geometriyasidan)
@@ -167,17 +175,22 @@ export function ResultReveal() {
       scaler!.style.setProperty("--card-scale", String(cardScale));
     }
 
+    // Animatsiya bo'lim ekranga kira boshlaganda boshlanadi (yopishib qolishidan oldin),
+    // shuning uchun varaq tushayotganda tepada bo'sh sahna ko'rinmaydi
     function progress() {
       const rect = root!.getBoundingClientRect();
-      const total = rect.height - window.innerHeight;
-      return total > 0 ? clamp01(-rect.top / total) : 0;
+      const lead = window.innerHeight * REVEAL_LEAD;
+      const total = rect.height - window.innerHeight + lead;
+      return total > 0 ? clamp01((lead - rect.top) / total) : 0;
     }
 
     function apply(p: number) {
+      // varaq yuqoridan tushayotganda sahna chetida "kesilgandek" ko'rinmasin — asta paydo bo'ladi
+      if (center) center.style.opacity = isStatic ? "1" : String(Math.round(clamp01((p - 0.06) / 0.1) * 20) / 20);
       for (const { el, frames, basis } of kfEls) {
         const v = sample(frames, p);
         // varaq masshtablangan konteyner ichida — ekran bo'yicha siljishni qaytarib hisoblaymiz
-        const inScaler = el.dataset.rk === "card" || el.dataset.rk === "flash";
+        const inScaler = el.dataset.rk === "card" || el.dataset.rk === "flash" || el.dataset.rk === "rim";
         const bw = basis === "card" ? CARD_W : inScaler ? W / cardScale : W;
         const bh = basis === "card" ? CARD_H : inScaler ? H / cardScale : H;
         el.style.transform =
@@ -198,6 +211,14 @@ export function ResultReveal() {
         r.el.style.clipPath = `inset(-20% ${((1 - rangeT(p, r.range)) * 100).toFixed(2)}% -30% 0)`;
       }
       if (signature) signature.style.strokeDashoffset = (1 - smooth(rangeT(p, REVEAL_TIMES.signature))).toFixed(4);
+
+      // yaltiroq: har bir chiziq bo'ylab bir marta, navbatma-navbat (dash uzunligi 0.07)
+      shines.forEach((el, i) => {
+        if (!el) return;
+        const t = isStatic ? 0 : rangeT(p, [SHINE_FROM + i * 0.04, SHINE_TO + i * 0.04]);
+        el.style.opacity = t > 0 && t < 1 ? "0.95" : "0";
+        el.style.strokeDashoffset = (0.07 - 1.07 * t).toFixed(4);
+      });
 
       // Oltin chiziqlar chiziladi, uchlarida porlab turgan "kometa"
       RIBBONS.forEach((rb, i) => {
@@ -307,9 +328,13 @@ export function ResultReveal() {
           {RIBBONS.map((rb, i) => (
             <g key={i}>
               {/* porlash: keng va shaffof → ingichka va yorqin */}
-              <path data-ribbon={i} d={rb.d} className="rr-line" pathLength={1} style={{ strokeWidth: rb.width * 9, opacity: 0.07 }} />
-              <path data-ribbon={i} d={rb.d} className="rr-line" pathLength={1} style={{ strokeWidth: rb.width * 3.5, opacity: 0.22 }} />
-              <path data-ribbon={i} d={rb.d} className="rr-line" pathLength={1} style={{ strokeWidth: rb.width, opacity: 0.95 }} />
+              <path data-ribbon={i} d={rb.d} className="rr-line" pathLength={1} style={{ strokeWidth: rb.width * 10, opacity: 0.1 }} />
+              <path data-ribbon={i} d={rb.d} className="rr-line" pathLength={1} style={{ strokeWidth: rb.width * 3.6, opacity: 0.32 }} />
+              <path data-ribbon={i} d={rb.d} className="rr-line" pathLength={1} style={{ strokeWidth: rb.width, opacity: 1 }} />
+              {/* markazdagi oppoq "issiq" nur — chiziqqa hajm beradi */}
+              <path data-ribbon={i} d={rb.d} className="rr-line rr-core" pathLength={1} style={{ strokeWidth: rb.width * 0.38 }} />
+              {/* chizilib bo'lgach skroll bilan chiziq bo'ylab yugurib o'tadigan yaltiroq */}
+              <path data-shine={i} d={rb.d} className="rr-shine" pathLength={1} style={{ strokeWidth: rb.width * 1.7 }} />
               {rb.twins.map((dy) => (
                 <path
                   key={dy}
@@ -345,9 +370,11 @@ export function ResultReveal() {
         </div>
 
         {/* Varaq */}
-        <div className="rr-center">
+        <div className="rr-center" data-rcenter>
           <div data-rscaler className="rr-scaler">
             <div data-rk="shadow" data-basis="card" className="rr-shadow" aria-hidden />
+            {/* varaq atrofidagi oltin nur: 3D varaqdan tashqarida, alohida qatlam (bir marta chiziladi) */}
+            <div data-rk="rim" className="rr-rim" style={{ opacity: 0 }} aria-hidden />
             <div data-rk="flash" className="rr-flash" aria-hidden />
             <div
               data-rk="card"
@@ -379,7 +406,7 @@ function CardBack() {
           <ellipse key={i} cx="340" cy="230" rx={60 + i * 16} ry={34 + i * 11} transform={`rotate(${i * 9} 340 230)`} />
         ))}
       </svg>
-      <div className="rr-monogram">LX</div>
+      <LogoSeal size={124} className="rr-monogram" />
       <p className="rr-back-title">{REVEAL_RESULT.brand}</p>
       <p className="rr-back-sub">{REVEAL_RESULT.form} · {REVEAL_RESULT.exam}</p>
     </div>

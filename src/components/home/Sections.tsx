@@ -3,7 +3,10 @@ import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
 import {
   ArrowRight,
+  ArrowUpRight,
   BookOpen,
+  Calendar,
+  Clock,
   Download,
   Edit,
   FileText,
@@ -12,6 +15,7 @@ import {
   Search,
   Star,
   TrendingUp,
+  Users,
   Volume2,
   Zap,
 } from "react-feather";
@@ -56,28 +60,6 @@ export function SectionTitle({
         {action}
       </div>
     </Reveal>
-  );
-}
-
-/* ----------------------------------------------------------------------------
-   Statistika lentasi (Figma: stats-glass-strip)
-   ---------------------------------------------------------------------------- */
-export function StatsRibbon({ items }: { items: { value: string; label: string }[] }) {
-  return (
-    <section className="container-page pt-12 pb-16 lg:pb-20">
-      <Reveal className="card-glass grid grid-cols-2 lg:grid-cols-4 gap-y-8 px-6 sm:px-12 py-8">
-        {items.map((item) => (
-          <div key={item.label} className="flex flex-col items-center gap-1.5 text-center">
-            <p className="font-display font-semibold text-[32px] leading-none text-brand-400 tabular-nums">
-              {item.value}
-            </p>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-faint">
-              {item.label}
-            </p>
-          </div>
-        ))}
-      </Reveal>
-    </section>
   );
 }
 
@@ -266,7 +248,7 @@ const COURSE_IMAGES = ["/design/course-1.jpg", "/design/course-2.jpg", "/design/
 export function CoursesStrip({ courses }: { courses: Course[] }) {
   if (courses.length === 0) return null;
   return (
-    <section className="container-page pt-20 pb-24 lg:pb-28">
+    <section className="container-page pt-20 pb-28 lg:pb-36">
       <SectionTitle
         align="left"
         eyebrow="Offline mashg'ulotlar"
@@ -280,42 +262,74 @@ export function CoursesStrip({ courses }: { courses: Course[] }) {
           </Link>
         }
       />
-      <div className="grid gap-6 md:grid-cols-3">
+      <p className="course-hand">Ustoz bilan yuzma-yuz — kichik guruhlarda</p>
+      <div className="grid gap-6 lg:gap-7 md:grid-cols-3">
         {courses.slice(0, 3).map((course, i) => (
-          <Reveal key={course.id} delay={i * 100}>
-            <article className="card overflow-hidden h-full flex flex-col lift">
-              <div className="relative h-[180px] overflow-hidden">
-                <Image
-                  src={course.image_url || COURSE_IMAGES[i % COURSE_IMAGES.length]}
-                  alt=""
-                  fill
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  className="object-cover transition-transform duration-700 hover:scale-105"
-                />
-              </div>
-              <div className="flex flex-1 flex-col gap-4 p-6">
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-semibold uppercase tracking-[0.08em] text-gold-400">
-                    {course.level ?? "Multilevel"}
+          <Reveal key={course.id} delay={i * 120} className="h-full">
+            {/* o'rtadagi karta biroz pastda — shablon "qatori" taassurotini buzadi */}
+            <div className={cn("h-full", i === 1 && "md:translate-y-10")}>
+              <article data-spot className="course-card spot group">
+                <div className="course-media">
+                  <Image
+                    src={course.image_url || COURSE_IMAGES[i % COURSE_IMAGES.length]}
+                    alt=""
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="object-cover"
+                  />
+                  <span className="course-chip course-chip-level">{course.level ?? "Multilevel"}</span>
+                  {course.duration ? (
+                    <span className="course-chip course-chip-time">
+                      <Clock size={12} aria-hidden />
+                      {course.duration}
+                    </span>
+                  ) : null}
+                  <span className="course-num" aria-hidden>
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                  {course.duration ? <span className="text-xs text-faint">{course.duration}</span> : null}
                 </div>
-                <h3 className="display-title text-2xl font-semibold">{course.title}</h3>
-                {course.summary ? (
-                  <p className="text-sm leading-normal text-muted flex-1">{course.summary}</p>
-                ) : (
-                  <span className="flex-1" />
-                )}
-                <div className="pt-2">
-                  <Link
-                    href={`/courses/${course.slug}`}
-                    className="inline-flex items-center justify-center rounded-full border-[1.5px] border-brand-400 px-6 py-3 text-sm font-semibold text-fg transition-colors hover:bg-brand-400 hover:text-ink-950"
-                  >
-                    Batafsil
-                  </Link>
+                <div className="course-body">
+                  <h3 className="display-title text-[26px] font-semibold leading-tight">{course.title}</h3>
+                  {course.summary ? <p className="text-sm leading-relaxed text-muted">{course.summary}</p> : null}
+                  {course.days || course.time_text || course.seats ? (
+                    <ul className="course-meta">
+                      {course.days ? (
+                        <li>
+                          <Calendar size={13} aria-hidden />
+                          {course.days}
+                        </li>
+                      ) : null}
+                      {course.time_text ? (
+                        <li>
+                          <Clock size={13} aria-hidden />
+                          {course.time_text}
+                        </li>
+                      ) : null}
+                      {course.seats ? (
+                        <li>
+                          <Users size={13} aria-hidden />
+                          {course.seats} o&apos;rin
+                        </li>
+                      ) : null}
+                    </ul>
+                  ) : null}
+                  <div className="course-foot">
+                    {course.price ? (
+                      <p className="course-price">
+                        <small>Narxi</small>
+                        {course.price}
+                      </p>
+                    ) : (
+                      <span />
+                    )}
+                    <Link href={`/courses/${course.slug}`} className="course-cta">
+                      Batafsil
+                      <ArrowUpRight size={16} aria-hidden />
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </article>
+              </article>
+            </div>
           </Reveal>
         ))}
       </div>
