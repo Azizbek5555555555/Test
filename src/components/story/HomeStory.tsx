@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
-import { BookOpen, Edit3, Headphones, Mic, Zap } from "react-feather";
+import { useEffect, useMemo, useRef } from "react";
+import { ArrowRight, BookOpen, Check, Edit3, Headphones, Mic, Star, Zap } from "react-feather";
 import type { SiteStats } from "@/lib/home";
 import {
   COUNTS,
@@ -16,6 +16,7 @@ import {
   STORY_AURORA,
   glowBackground,
   storyChapters,
+  heroProof,
   type Floater,
   type Keyframe,
   type Range,
@@ -23,6 +24,7 @@ import {
 } from "@/lib/home-story";
 import { cn } from "@/lib/format";
 import { StorySheet } from "./StorySheet";
+import { useMotionMode } from "./motion";
 
 /* ============================================================================
    Yordamchi matematika
@@ -77,38 +79,14 @@ function countValue(p: number, segments: { range: Range; from: number; to: numbe
 }
 
 /* ============================================================================
-   Zaxira holatni aniqlash: animatsiya o'rniga harakatsiz variant
-   ============================================================================ */
-type Mode = "anim" | "static";
-
-function readMode(): Mode {
-  const nav = navigator as Navigator & {
-    connection?: { saveData?: boolean; effectiveType?: string };
-    deviceMemory?: number;
-  };
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const slow =
-    Boolean(nav.connection?.saveData) ||
-    ["2g", "slow-2g"].includes(nav.connection?.effectiveType ?? "");
-  const lowMemory = typeof nav.deviceMemory === "number" && nav.deviceMemory < 4;
-  const noCanvasTransforms = typeof CSS !== "undefined" && !CSS.supports("transform-style", "preserve-3d");
-  return reduced || slow || lowMemory || noCanvasTransforms ? "static" : "anim";
-}
-
-function subscribeMotion(onChange: () => void) {
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mq.addEventListener("change", onChange);
-  return () => mq.removeEventListener("change", onChange);
-}
-
-/* ============================================================================
    Komponent
    ============================================================================ */
 export function HomeStory({ stats, handFontClass }: { stats: SiteStats; handFontClass: string }) {
   const chapters = useMemo(() => storyChapters(stats), [stats]);
+  const proof = useMemo(() => heroProof(stats), [stats]);
   const rootRef = useRef<HTMLElement>(null);
   // "static" — harakatsiz variant (reduced motion, sekin internet, kam xotira)
-  const mode = useSyncExternalStore(subscribeMotion, readMode, () => "anim" as const);
+  const mode = useMotionMode();
 
   // Animatsiya dvigateli
   useEffect(() => {
@@ -340,7 +318,7 @@ export function HomeStory({ stats, handFontClass }: { stats: SiteStats; handFont
           {/* ------------------------------------------------ Matn */}
           <div className="story-text">
             {chapters.map((ch, i) => (
-              <ChapterBlock key={ch.id} chapter={ch} index={i} />
+              <ChapterBlock key={ch.id} chapter={ch} index={i} proof={proof} />
             ))}
           </div>
 
@@ -379,8 +357,8 @@ export function HomeStory({ stats, handFontClass }: { stats: SiteStats; handFont
 /* ============================================================================
    Qismlar
    ============================================================================ */
-function ChapterBlock({ chapter, index }: { chapter: StoryChapter; index: number }) {
-  const Title = chapter.hero ? "h1" : "h2";
+function ChapterBlock({ chapter, index, proof }: { chapter: StoryChapter; index: number; proof: string[] }) {
+  if (chapter.hero) return <HeroBlock chapter={chapter} proof={proof} />;
   return (
     <div
       data-chapter={index}
@@ -391,21 +369,65 @@ function ChapterBlock({ chapter, index }: { chapter: StoryChapter; index: number
         <span className="h-px w-6 bg-brand-400" aria-hidden />
         {chapter.eyebrow}
       </p>
-      <Title className={cn("display-title story-title", chapter.hero && "story-title-hero")}>{chapter.title}</Title>
-      {chapter.hero ? <p className="story-tagline">“Push Past Your Limits”</p> : null}
+      <h2 className="display-title story-title">{chapter.title}</h2>
       <p className="story-body">{chapter.body}</p>
-      {chapter.cta ? (
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href={chapter.cta.primary.href} className="story-btn story-btn-primary">
-            {chapter.cta.primary.label}
-          </Link>
-          {chapter.cta.secondary ? (
-            <Link href={chapter.cta.secondary.href} className="story-btn story-btn-ghost">
-              {chapter.cta.secondary.label}
-            </Link>
-          ) : null}
-        </div>
+      {chapter.cta ? <ChapterButtons cta={chapter.cta} /> : null}
+    </div>
+  );
+}
+
+function ChapterButtons({ cta }: { cta: NonNullable<StoryChapter["cta"]> }) {
+  return (
+    <div className="mt-8 flex flex-wrap gap-3">
+      <Link href={cta.primary.href} className="story-btn story-btn-primary group">
+        {cta.primary.label}
+        <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" aria-hidden />
+      </Link>
+      {cta.secondary ? (
+        <Link href={cta.secondary.href} className="story-btn story-btn-ghost">
+          <Star size={15} aria-hidden />
+          {cta.secondary.label}
+        </Link>
       ) : null}
+    </div>
+  );
+}
+
+/** Hero: nishon, ajratilgan so'zli sarlavha, qo'lyozma shior, tugmalar va haqiqiy sonlar */
+function HeroBlock({ chapter, proof }: { chapter: StoryChapter; proof: string[] }) {
+  const hl = chapter.highlight;
+  const at = hl ? chapter.title.indexOf(hl) : -1;
+  const before = at >= 0 ? chapter.title.slice(0, at) : chapter.title;
+  const after = at >= 0 ? chapter.title.slice(at + hl!.length) : "";
+  return (
+    <div data-chapter={0} className="story-chapter story-hero">
+      <span className="hero-pill">
+        <i aria-hidden />
+        {chapter.eyebrow}
+      </span>
+      <h1 className="display-title story-title story-title-hero">
+        {before}
+        {at >= 0 ? (
+          <em className="hero-em">
+            {hl}
+            <svg viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden>
+              <path d="M4 16 C 60 6, 130 20, 190 10 S 280 8, 296 14" pathLength={1} />
+            </svg>
+          </em>
+        ) : null}
+        {after}
+      </h1>
+      <p className="hero-hand">Push Past Your Limits</p>
+      <p className="story-body">{chapter.body}</p>
+      {chapter.cta ? <ChapterButtons cta={chapter.cta} /> : null}
+      <ul className="hero-proof" aria-label="Platforma haqida">
+        {proof.map((item) => (
+          <li key={item}>
+            <Check size={13} strokeWidth={2.5} aria-hidden />
+            {item}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -418,7 +440,12 @@ function FloaterEl({ floater: f, index }: { floater: Floater; index: number }) {
   return (
     <div
       data-float={index}
-      className={cn("story-float", `story-float-${f.kind}`, !f.mobile && "story-desktop-only")}
+      className={cn(
+        "story-float",
+        `story-float-${f.kind}`,
+        !f.mobile && "story-desktop-only",
+        f.minWidth && `story-float-min${f.minWidth}`,
+      )}
       style={
         {
           left: `${f.at[0]}%`,
@@ -451,6 +478,13 @@ function FloaterEl({ floater: f, index }: { floater: Floater; index: number }) {
           <>
             <b>{f.text}</b>
             <small>{f.sub}</small>
+          </>
+        ) : f.kind === "word" ? (
+          <>
+            {f.text}
+            <svg viewBox="0 0 120 12" preserveAspectRatio="none" aria-hidden>
+              <path d="M2 8 C 30 3, 60 11, 118 5" />
+            </svg>
           </>
         ) : (
           f.text

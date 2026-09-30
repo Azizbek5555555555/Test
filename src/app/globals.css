@@ -597,6 +597,111 @@ input[type="number"]::-webkit-inner-spin-button {
   color: var(--color-ink-950);
 }
 
+/* Hero bloki */
+.hero-pill {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(217, 179, 130, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 7px 14px 7px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #e9dccb;
+}
+.hero-pill i {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+.hero-pill i::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid var(--color-success);
+  animation: hero-ping 2.2s ease-out infinite;
+}
+@keyframes hero-ping {
+  from {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+.story-hero .story-title-hero {
+  margin-top: 1.4rem;
+}
+.hero-em {
+  position: relative;
+  display: inline-block;
+  padding-right: 0.06em;
+  font-style: italic;
+  background: linear-gradient(100deg, #f2c7bd, #e3a79b 40%, #d9b382);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-em svg {
+  position: absolute;
+  right: 0;
+  bottom: -0.08em;
+  left: 0;
+  width: 100%;
+  height: 0.28em;
+  overflow: visible;
+}
+.hero-em path {
+  fill: none;
+  stroke: #d9b382;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+  stroke-width: 4;
+  animation: hero-draw 1.2s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+}
+@keyframes hero-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.hero-hand {
+  margin-top: 0.9rem;
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(30px, 2.6vw, 40px);
+  font-weight: 600;
+  line-height: 1;
+  color: #e7c48d;
+  transform: rotate(-2deg);
+  transform-origin: left;
+}
+.hero-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 1.6rem;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+.hero-proof li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-proof svg {
+  color: var(--color-success);
+}
+.story-btn {
+  gap: 10px;
+}
+
 /* Sahna va varaqa */
 .story-scene {
   position: relative;
@@ -695,17 +800,11 @@ input[type="number"]::-webkit-inner-spin-button {
   bottom: 2px;
   left: 0;
   white-space: nowrap;
-  font-family: cursive;
+  font-family: var(--font-hand), cursive;
   line-height: 1;
   will-change: clip-path;
 }
-/* Qo'lyozma shrifti sahifa interaktiv bo'lgandan keyin yuklanadi (LCP'ga xalaqit bermaydi) */
-.story[data-ready] .story-hand,
-.story[data-ready] .story-float-note b,
-.story[data-ready] .story-float-note small,
-.story[data-ready] .story-float-card small {
-  font-family: var(--font-hand), cursive;
-}
+
 .story-hand-blue {
   font-size: 36px;
   font-weight: 600;
@@ -885,15 +984,30 @@ input[type="number"]::-webkit-inner-spin-button {
   color: rgba(242, 237, 233, 0.07);
 }
 .story-float-word .story-bob {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  background: rgba(26, 36, 56, 0.78);
-  padding: 8px 18px;
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-style: italic;
-  color: var(--fg);
-  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.8);
+  position: relative;
+  padding: 0 6px 10px;
+  font-family: var(--font-hand), cursive;
+  font-size: 46px;
+  font-weight: 600;
+  line-height: 1;
+  color: #f4ece2;
+  text-shadow: 0 0 24px rgba(227, 167, 155, 0.35), 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+.story-float-word svg {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  overflow: visible;
+}
+.story-float-word path {
+  fill: none;
+  stroke: #d9b382;
+  stroke-linecap: round;
+  stroke-width: 3;
+  opacity: 0.85;
 }
 .story-float-note .story-bob,
 .story-float-card .story-bob {
@@ -903,7 +1017,7 @@ input[type="number"]::-webkit-inner-spin-button {
   box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.85);
 }
 .story-float-note .story-bob {
-  width: 150px;
+  width: 190px;
   border-radius: 3px;
   background: linear-gradient(180deg, #f6dfae, #efcf8f);
   padding: 14px;
@@ -912,18 +1026,18 @@ input[type="number"]::-webkit-inner-spin-button {
 .story-float-note b,
 .story-float-note small,
 .story-float-card small {
-  font-family: cursive;
+  font-family: var(--font-hand), cursive;
   font-weight: 600;
 }
 .story-float-note b {
-  font-size: 26px;
+  font-size: 34px;
   line-height: 1;
 }
 .story-float-note small {
-  font-size: 17px;
+  font-size: 21px;
 }
 .story-float-card .story-bob {
-  width: 176px;
+  width: 214px;
   border-radius: 12px;
   background: #f4efe7;
   padding: 14px 16px;
@@ -931,38 +1045,41 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 .story-float-card b {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 600;
 }
 .story-float-card small {
-  font-size: 19px;
+  font-size: 24px;
   color: #c8463b;
 }
 .story-float-chip .story-bob {
   display: flex;
   align-items: center;
-  gap: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background: rgba(18, 27, 43, 0.82);
-  padding: 9px 14px 9px 9px;
+  gap: 12px;
+  border: 1px solid rgba(217, 179, 130, 0.22);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(30, 42, 66, 0.92), rgba(16, 24, 40, 0.92));
+  padding: 12px 20px 12px 12px;
   color: var(--fg);
   box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.85);
 }
 .story-float-chip b {
   display: block;
-  font-size: 13px;
+  font-family: var(--font-hand), cursive;
+  font-size: 28px;
   font-weight: 600;
+  line-height: 1;
 }
 .story-float-chip small {
   display: block;
-  font-size: 11px;
+  margin-top: 2px;
+  font-size: 12px;
   color: var(--fg-muted);
 }
 .story-chip-icon {
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
   place-items: center;
   border-radius: 10px;
   background: rgba(227, 167, 155, 0.16);
@@ -1009,6 +1126,17 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 /* Header lg dan pastda 72px */
+/* Tor kompyuter ekranlarida chetdagi so'zlar varaqqa yoki ekran chetiga tegmasin */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .story-float-min1200 {
+    display: none;
+  }
+}
+@media (min-width: 768px) and (max-width: 1399.98px) {
+  .story-float-min1400 {
+    display: none;
+  }
+}
 @media (max-width: 1023px) {
   .story {
     margin-top: -72px;
@@ -1047,6 +1175,20 @@ input[type="number"]::-webkit-inner-spin-button {
   .story-title-hero {
     font-size: 38px;
   }
+  .story-hero .story-title-hero {
+    margin-top: 0.8rem;
+  }
+  .hero-pill {
+    font-size: 11px;
+    padding: 5px 11px 5px 8px;
+  }
+  .hero-hand {
+    margin-top: 0.5rem;
+    font-size: 26px;
+  }
+  .hero-proof {
+    display: none;
+  }
   .story-tagline {
     margin-top: 0.6rem;
     font-size: 1.15rem;
@@ -1071,15 +1213,27 @@ input[type="number"]::-webkit-inner-spin-button {
     display: none;
   }
   .story-float-word .story-bob {
-    font-size: 17px;
-    padding: 6px 13px;
+    font-size: 30px;
   }
   .story-float-chip .story-bob {
-    padding: 6px 10px 6px 6px;
+    padding: 7px 12px 7px 7px;
+  }
+  .story-float-chip b {
+    font-size: 21px;
+  }
+  .story-chip-icon {
+    width: 32px;
+    height: 32px;
   }
   .story-float-card .story-bob {
-    width: 140px;
+    width: 150px;
     padding: 10px 12px;
+  }
+  .story-float-card b {
+    font-size: 22px;
+  }
+  .story-float-card small {
+    font-size: 18px;
   }
   .story-hint {
     display: none;
@@ -1149,4 +1303,514 @@ input[type="number"]::-webkit-inner-spin-button {
 /* Sarlavha shriftidagi raqamlar doim "to'g'ri" (1 — I emas) */
 .font-display {
   font-variant-numeric: lining-nums;
+}
+
+/* ==========================================================================
+   2-bo'lim: varaq aylanadi + oltin chiziqlar (components/story/ResultReveal)
+   ========================================================================== */
+.rr {
+  position: relative;
+  height: var(--rr-h-d, 320vh);
+}
+.rr[data-mode="static"] {
+  height: auto;
+}
+.rr-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+.rr[data-mode="static"] .rr-stage {
+  position: relative;
+}
+.rr-ribbons {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+.rr-line {
+  fill: none;
+  stroke: url(#rr-gold);
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  vector-effect: non-scaling-stroke;
+}
+.rr-sparks {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.rr-spark {
+  position: absolute;
+  width: var(--sz);
+  height: var(--sz);
+  margin: calc(var(--sz) / -2) 0 0 calc(var(--sz) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6d8 0%, #f2c46b 35%, rgba(242, 196, 107, 0) 70%);
+  will-change: opacity;
+}
+.rr-spark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: rr-twinkle var(--tw, 2.4s) ease-in-out var(--td, 0s) infinite;
+  animation-play-state: paused;
+}
+.rr-live .rr-spark::after {
+  animation-play-state: running;
+}
+.rr-spark-star {
+  border-radius: 0;
+  background: none;
+}
+.rr-spark-star::before,
+.rr-spark-star::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, #fffaf0 0%, #f6d27f 30%, transparent 70%);
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+  transform: scale(2.4);
+}
+@keyframes rr-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+.rr-spark-star::after {
+  animation-name: rr-twinkle-star;
+}
+@keyframes rr-twinkle-star {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1.6) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(2.8) rotate(20deg);
+  }
+}
+.rr-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 90px;
+  height: 90px;
+  margin: -45px 0 0 -45px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 248, 225, 1) 0%, rgba(247, 206, 120, 0.75) 12%, rgba(231, 170, 70, 0.22) 36%, transparent 68%);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.rr-text {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 4;
+  padding-inline: 1rem;
+  text-align: center;
+  will-change: opacity, transform;
+}
+.rr-text-top {
+  top: calc(84px + 3svh);
+}
+.rr-text-bottom {
+  bottom: 6svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.rr-hand-title {
+  font-family: var(--font-hand), cursive;
+  font-size: clamp(34px, 3.4vw, 48px);
+  font-weight: 600;
+  line-height: 1;
+  color: #f6d9a0;
+  text-shadow: 0 0 30px rgba(231, 170, 70, 0.35);
+}
+
+.rr-center {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 40px;
+}
+.rr-scaler {
+  position: relative;
+  flex-shrink: 0;
+  width: 680px;
+  height: 460px;
+  transform: scale(var(--card-scale, 1));
+  perspective: 1600px;
+}
+.rr-shadow {
+  position: absolute;
+  inset: 4% -8% -16% -4%;
+  background: radial-gradient(ellipse 50% 46% at 52% 58%, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+  will-change: transform, opacity;
+}
+.rr-flash {
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle, rgba(255, 238, 190, 0.85) 0%, rgba(240, 190, 90, 0.35) 22%, transparent 55%);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.rr-card {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.rr-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Orqa tomoni: to'q ko'k, oltin ramka va monogramma */
+.rr-back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotateY(180deg);
+  background:
+    radial-gradient(120% 90% at 30% 10%, #22304d, transparent 60%),
+    linear-gradient(160deg, #18233a, #0d1526);
+  box-shadow: inset 0 0 0 1px rgba(217, 179, 130, 0.35);
+}
+.rr-back-frame {
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(217, 179, 130, 0.55);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 4px rgba(13, 21, 38, 1), inset 0 0 0 5px rgba(217, 179, 130, 0.3);
+}
+.rr-guilloche {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgba(120, 96, 60, 0.12);
+  stroke-width: 0.8;
+}
+.rr-guilloche-gold {
+  stroke: rgba(217, 179, 130, 0.14);
+}
+.rr-monogram {
+  position: relative;
+  display: grid;
+  width: 118px;
+  height: 118px;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f6e2b5, #caa05a 55%, #8a6428);
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 255, 255, 0.25),
+    0 10px 30px rgba(0, 0, 0, 0.45);
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  color: #4d3713;
+}
+.rr-back-title {
+  position: relative;
+  margin-top: 22px;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 600;
+  color: #f2ede9;
+}
+.rr-back-sub {
+  position: relative;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #d9b382;
+}
+
+/* Old tomoni: sertifikat uslubidagi natija varaqasi */
+.rr-front {
+  padding: 26px 30px;
+  color: #1b2233;
+  background:
+    radial-gradient(120% 80% at 10% 0%, rgba(255, 255, 255, 0.75), transparent 60%),
+    linear-gradient(180deg, #f8f4ed, #eee7da);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    inset 0 0 0 8px #f8f4ed,
+    inset 0 0 0 9px rgba(184, 136, 63, 0.35);
+}
+.rr-front > *:not(.rr-guilloche) {
+  position: relative;
+}
+.rr-brand {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+}
+.rr-brand span {
+  color: #c07a6c;
+}
+.rr-caps {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+.rr-small {
+  font-size: 10px;
+  color: #8a8f9b;
+}
+.rr-rule {
+  height: 1px;
+  background: linear-gradient(90deg, #c8463b, #d9b382 40%, #d9d1c3);
+}
+.rr-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a8f9b;
+}
+.rr-value {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.rr-field {
+  position: relative;
+  height: 40px;
+  border-bottom: 1px dashed #c9c0b0;
+}
+.rr-field-note {
+  height: 34px;
+}
+.rr-hand {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  white-space: nowrap;
+  font-family: var(--font-hand), cursive;
+  font-weight: 600;
+  line-height: 1;
+  will-change: clip-path;
+}
+.rr-hand-blue {
+  font-size: 34px;
+  color: #2b3f8f;
+}
+.rr-hand-red {
+  font-size: 22px;
+  color: #c8463b;
+}
+.rr-scores {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) 1.05fr 1.05fr;
+  overflow: hidden;
+  border: 1px solid #d6ccba;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.45);
+}
+.rr-box {
+  display: flex;
+  height: 92px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-left: 1px solid #e0d7c6;
+}
+.rr-box:first-child {
+  border-left: 0;
+}
+.rr-box-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7a7f8c;
+}
+.rr-box-value {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.rr-box-overall {
+  background: rgba(227, 167, 155, 0.14);
+}
+.rr-box-level {
+  position: relative;
+  background: rgba(217, 179, 130, 0.16);
+}
+.rr-stamp {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border: 3px double #b8883f;
+  border-radius: 50%;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #b8883f;
+  font-variant-numeric: lining-nums;
+  mix-blend-mode: multiply;
+  will-change: transform, opacity;
+}
+.rr-sign {
+  width: 150px;
+  height: 44px;
+  overflow: visible;
+}
+.rr-sign path {
+  fill: none;
+  stroke: #2b3f8f;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+@media (max-width: 1023px) {
+  .rr-text-top {
+    top: calc(72px + 2svh);
+  }
+}
+@media (max-width: 767px) {
+  .rr {
+    height: var(--rr-h-m, 260vh);
+  }
+  .rr-center {
+    padding-top: 0;
+  }
+  .rr-head {
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
+  }
+  .rr-text-bottom {
+    bottom: 8svh;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rr-spark::after,
+  .rr-spark-star::before {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Sichqoncha ortidan yuruvchi ikki doira (components/motion/CursorFollower)
+   ========================================================================== */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+.cursor-on .cursor-dot,
+.cursor-on .cursor-ring {
+  opacity: 1;
+}
+.cursor-dot span {
+  display: block;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: #f2c7bd;
+  box-shadow: 0 0 12px rgba(227, 167, 155, 0.9);
+}
+.cursor-ring span {
+  display: block;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 1.5px solid rgba(217, 179, 130, 0.75);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(227, 167, 155, 0.08), transparent 70%);
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 0.25s,
+    border-color 0.25s,
+    border-radius 0.25s;
+}
+.cursor-ring[data-state="link"] span {
+  transform: scale(1.7);
+  border-color: rgba(227, 167, 155, 0.9);
+  background-color: rgba(227, 167, 155, 0.12);
+}
+.cursor-ring[data-state="text"] span {
+  transform: scale(0.55);
+  opacity: 0.6;
+}
+.cursor-ring.is-down span {
+  transform: scale(0.75);
+}
+
+/* ==========================================================================
+   Skroll chizig'i — dizayn ranglarida
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-track {
+  background: #0b1220;
+}
+::-webkit-scrollbar-thumb {
+  border: 3px solid #0b1220;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #e3a79b, #d9b382);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #efbdb2, #e7c48d);
+}
+::-webkit-scrollbar-corner {
+  background: #0b1220;
+}
+/* Firefox (u gradientni qo'llamaydi — bir rangli) */
+@supports (-moz-appearance: none) {
+  html {
+    scrollbar-color: #c9927f #0b1220;
+    scrollbar-width: thin;
+  }
 }

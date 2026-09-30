@@ -12,6 +12,7 @@ import { Caveat } from "next/font/google";
 import { HomeStory } from "@/components/story/HomeStory";
 import { AmbientBackdrop } from "@/components/story/AmbientBackdrop";
 import { Spotlight } from "@/components/story/Spotlight";
+import { ResultReveal } from "@/components/story/ResultReveal";
 import {
   CompareTable,
   CoursesStrip,
@@ -25,12 +26,11 @@ import {
   featureItems,
 } from "@/components/home/Sections";
 
-// Qo'lyozma shrifti — faqat natija varaqasidagi yozuvlar uchun (birinchi ekranga ta'sir qilmaydi)
+// Qo'lyozma shrifti — hero shiori, suzuvchi so'zlar va natija varaqalaridagi yozuvlar uchun
 const hand = Caveat({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   weight: ["600"],
   display: "swap",
-  preload: false,
   variable: "--font-hand",
 });
 
@@ -54,6 +54,7 @@ async function GuestHome() {
   return (
     <>
       <Spotlight />
+      <div className={hand.variable}>
       <HomeStory stats={stats} handFontClass={hand.variable} />
       <AmbientBackdrop>
 
@@ -65,6 +66,9 @@ async function GuestHome() {
           { value: stats.questions ? stats.questions.toLocaleString("ru-RU") : "—", label: "Savollar bazasi" },
         ]}
       />
+
+      {/* 3D natija varaqasi + oltin chiziqlar */}
+      <ResultReveal />
 
       {/* ------------------------------------------------------- VOSITALAR */}
       <section className="container-page py-20">
@@ -83,6 +87,7 @@ async function GuestHome() {
 
       {COURSES_ENABLED ? <CoursesStrip courses={courses} /> : null}
       </AmbientBackdrop>
+      </div>
     </>
   );
 }
