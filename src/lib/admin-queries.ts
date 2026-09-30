@@ -319,24 +319,42 @@ export async function listAllResults(search?: string): Promise<ResultRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const supabase = await createServerSupabase();
+    const select = "*, profiles!attempts_user_id_fkey(full_name, email), test_sets(title, slug)";
+    const term = search?.trim();
+
+    if (!term) {
+      const { data } = await supabase
+        .from("attempts")
+        .select(select)
+        .in("status", ["submitted", "graded"])
+        .order("submitted_at", { ascending: false, nullsFirst: false })
+        .limit(300);
+      return (data ?? []) as unknown as ResultRow[];
+    }
+
+    // Qidiruv butun baza bo'yicha: avval mos o'quvchilar va testlar topiladi,
+    // keyin ularning natijalari (faqat oxirgi 300 ta ichidan emas)
+    const like = `%${term.replace(/[%_,()]/g, " ")}%`;
+    const [{ data: people }, { data: tests }] = await Promise.all([
+      supabase.from("profiles").select("id").or(`full_name.ilike.${like},email.ilike.${like}`).limit(200),
+      supabase.from("test_sets").select("id").ilike("title", like).limit(200),
+    ]);
+    const userIds = (people ?? []).map((p: { id: string }) => p.id);
+    const testIds = (tests ?? []).map((t: { id: string }) => t.id);
+    if (userIds.length === 0 && testIds.length === 0) return [];
+
+    const filters = [
+      userIds.length ? `user_id.in.(${userIds.join(",")})` : null,
+      testIds.length ? `test_set_id.in.(${testIds.join(",")})` : null,
+    ].filter(Boolean);
     const { data } = await supabase
       .from("attempts")
-      .select(
-        "*, profiles!attempts_user_id_fkey(full_name, email), test_sets(title, slug)",
-      )
+      .select(select)
       .in("status", ["submitted", "graded"])
+      .or(filters.join(","))
       .order("submitted_at", { ascending: false, nullsFirst: false })
       .limit(300);
-
-    const rows = (data ?? []) as unknown as ResultRow[];
-    const term = search?.trim().toLowerCase();
-    if (!term) return rows;
-
-    return rows.filter((row) =>
-      [row.profiles?.full_name, row.profiles?.email, row.test_sets?.title]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(term)),
-    );
+    return (data ?? []) as unknown as ResultRow[];
   } catch {
     return [];
   }

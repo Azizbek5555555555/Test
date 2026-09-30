@@ -906,6 +906,82 @@ export async function updateSettingAction(
   return { ok: true, message: "Sozlama saqlandi." };
 }
 
+/**
+ * Sozlamani oddiy forma maydonlaridan yig'adi (JSON yozish shart emas).
+ * Kalitlar: contact, payment, cefr_bands, premium_plans.
+ */
+export async function updateSettingFieldsAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const denied = await requireAdminAction();
+  if (denied) return denied;
+
+  const key = str(formData, "key");
+  let value: unknown;
+
+  if (key === "contact") {
+    const fields = [
+      "telegram",
+      "telegram_label",
+      "telegram_admin",
+      "telegram_admin_label",
+      "instagram",
+      "instagram_label",
+      "phone",
+      "phone_2",
+      "email",
+      "address",
+      "map_url",
+    ];
+    value = Object.fromEntries(fields.map((f) => [f, str(formData, f)]));
+  } else if (key === "payment") {
+    const card = str(formData, "card_number").replace(/[^\d ]/g, "");
+    if (card.replace(/\s/g, "").length < 16) return { ok: false, message: "Karta raqami 16 ta raqamdan iborat bo'lsin." };
+    value = { card_number: card, card_owner: str(formData, "card_owner"), instruction: str(formData, "instruction") };
+  } else if (key === "cefr_bands") {
+    const bands = { C1: num(formData, "C1", -1), B2: num(formData, "B2", -1), B1: num(formData, "B1", -1), A2: num(formData, "A2", -1) };
+    if (Object.values(bands).some((v) => v < 0 || v > 100)) return { ok: false, message: "Har bir chegara 0–100 oralig'ida bo'lsin." };
+    if (!(bands.C1 > bands.B2 && bands.B2 > bands.B1 && bands.B1 > bands.A2))
+      return { ok: false, message: "Tartib: C1 > B2 > B1 > A2 bo'lishi kerak." };
+    value = bands;
+  } else if (key === "premium_plans") {
+    const count = num(formData, "plan_count", 0);
+    const popular = str(formData, "popular_index");
+    const plans: { id: string; title: string; months: number; amount: number; note?: string; popular?: boolean }[] = [];
+    for (let i = 0; i < count; i++) {
+      const title = str(formData, `plan_${i}_title`);
+      if (!title) continue; // bo'sh qator — tarif o'chirilgan yoki qo'shilmagan
+      const months = num(formData, `plan_${i}_months`, 0);
+      const amount = num(formData, `plan_${i}_amount`, 0);
+      if (!Number.isInteger(months) || months < 1 || months > 60)
+        return { ok: false, message: `"${title}": muddat 1–60 oy oralig'ida bo'lsin.` };
+      if (!Number.isInteger(amount) || amount < 1000)
+        return { ok: false, message: `"${title}": narx kamida 1 000 so'm bo'lsin.` };
+      let id = str(formData, `plan_${i}_id`) || `m${months}`;
+      while (plans.some((p) => p.id === id)) id += "x";
+      const note = str(formData, `plan_${i}_note`);
+      plans.push({ id, title, months, amount, ...(note ? { note } : {}), ...(popular === String(i) ? { popular: true } : {}) });
+    }
+    if (plans.length === 0) return { ok: false, message: "Kamida bitta tarif bo'lishi kerak." };
+    value = plans;
+  } else {
+    return { ok: false, message: "Noma'lum sozlama." };
+  }
+
+  try {
+    const supabase = await createServerSupabase();
+    const { error } = await supabase.from("site_settings").upsert({ key, value }, { onConflict: "key" });
+    if (error) return { ok: false, message: error.message };
+  } catch (error) {
+    return { ok: false, message: describeError(error) };
+  }
+
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/settings");
+  return { ok: true, message: "Sozlama saqlandi." };
+}
+
 /* ------------------------------------------------------------------------- */
 
 function describeError(error: unknown): string {
