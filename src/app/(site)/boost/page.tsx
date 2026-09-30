@@ -98,7 +98,13 @@ export default async function BoostPage() {
 
   return (
     <div>
-      <PageHero eyebrow="CEFR mashq to'plami" title="Boost Your General English">
+      <PageHero
+        eyebrow="CEFR mashq to'plami"
+        title="Boost Your General English"
+        highlight="General English"
+        hand="A little better every day"
+        words={["vocabulary", "fluent", "listening", "reading"]}
+      >
         Har kungi ko&apos;nikmalarni rivojlantiring — yanada ishonchli bo&apos;ling. Kontekst,
         tushunish va ifodani tizimli egallang.
       </PageHero>
@@ -107,7 +113,7 @@ export default async function BoostPage() {
       <section className="container-page grid gap-6 md:grid-cols-3">
         {categories.map((c, i) => (
           <Reveal key={c.href} delay={i * 80}>
-            <Link href={c.href} className="group card-glass lift flex h-full flex-col rounded-2xl p-8 hover:border-brand-400/40">
+            <Link href={c.href} data-spot className="spot group card-glass lift relative flex h-full flex-col rounded-2xl p-8 hover:border-brand-400/40">
               <span className="grid size-10 place-items-center rounded-lg border border-line bg-ink-800 text-brand-400">
                 <c.icon size={20} strokeWidth={1.75} aria-hidden />
               </span>

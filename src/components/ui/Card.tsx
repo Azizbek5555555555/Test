@@ -77,10 +77,10 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="mb-10 animate-fade-up">
+    <header className="ph-copy mb-10">
       {eyebrow ? (
-        <p className="eyebrow mb-4">
-          <span className="h-px w-6 bg-brand-400" aria-hidden />
+        <p className="hero-pill mb-5">
+          <i aria-hidden />
           {eyebrow}
         </p>
       ) : null}

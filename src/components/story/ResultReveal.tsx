@@ -10,12 +10,11 @@ import {
   REVEAL_TIMES,
   RIBBONS,
   STORY_EASE,
-  type Keyframe,
   type Range,
 } from "@/lib/home-story";
 import { cn } from "@/lib/format";
 import { LogoSeal } from "./LogoSeal";
-import { clamp01, rangeT, smooth, useMotionMode } from "./motion";
+import { clamp01, rangeT, sample, seeded, smooth, useMotionMode } from "./motion";
 
 const VB_W = 1440;
 const VB_H = 900;
@@ -41,28 +40,6 @@ const NOSCRIPT_CSS = [
   "@media (max-width:767px){.rr-scaler{--card-scale:.52}}",
 ].join("");
 
-/** Kalit kadrlar orasida silliq qiymat */
-function sample(frames: Keyframe[], p: number) {
-  const out: Partial<Record<keyof Keyframe, number>> = {};
-  for (const k of ["x", "y", "r", "rx", "ry", "s", "o"] as const) {
-    let prev: Keyframe | undefined;
-    let next: Keyframe | undefined;
-    for (const f of frames) {
-      if (f[k] === undefined) continue;
-      if (f.p <= p) prev = f;
-      else {
-        next = f;
-        break;
-      }
-    }
-    if (!prev && !next) continue;
-    if (!prev) out[k] = next![k];
-    else if (!next) out[k] = prev[k];
-    else out[k] = prev[k]! + (next[k]! - prev[k]!) * smooth((p - prev.p) / (next.p - prev.p));
-  }
-  return out;
-}
-
 function windowOpacity(p: number, [a, b]: Range, openStart: boolean, openEnd: boolean) {
   const e = (b - a) * 0.2;
   if (p < a) return openStart ? 1 : 0;
@@ -77,15 +54,6 @@ function scoreRange(i: number): Range {
   const [a, b] = REVEAL_TIMES.scores;
   const step = (b - a) / (REVEAL_RESULT.scores.length + 1);
   return [a + i * step, a + i * step + step * 2];
-}
-
-/** Takrorlanadigan "tasodifiy" son (har yuklashda bir xil joylashuv) */
-function seeded(seed: number) {
-  let s = seed;
-  return () => {
-    s = (s * 16807) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
 }
 
 export function ResultReveal() {

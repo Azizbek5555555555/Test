@@ -11,6 +11,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { SectionIcon } from "@/components/ui/icons";
 import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/marketing/CtaBand";
+import { PageHero } from "@/components/marketing/PageHero";
 
 export const metadata: Metadata = {
   title: "Oxirgi tushgan savollar",
@@ -70,22 +71,18 @@ export default async function LatestQuestionsPage({
   return (
     <div>
       {/* ------------------------------------------------ Hero */}
-      <section className="bg-gradient-to-b from-[#16213a] to-ink-950">
-        <div className="container-page pb-16 pt-14 sm:pb-24 sm:pt-20">
-          <div className="max-w-2xl animate-fade-up">
-            <p className="eyebrow">
-              <span className="h-px w-6 bg-brand-400" aria-hidden />
-              Haqiqiy imtihon banki
-            </p>
-            <h1 className="display-title mt-4 text-[44px] sm:text-[56px]">Oxirgi tushgan savollar</h1>
-            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted">
-              Real imtihonlarda tushgan savollar bilan mashq qiling. Formatga ko&apos;niking,
-              tayyor bo&apos;ling. Savollar so&apos;nggi o&apos;quv yillaridagi imtihonlardan
-              to&apos;plangan.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Haqiqiy imtihon banki"
+        title="Oxirgi tushgan savollar"
+        highlight="savollar"
+        hand="Real exam questions"
+        words={["2025–2026", "Reading", "Writing", "Speaking"]}
+        className="pb-16 sm:pb-20"
+      >
+        Real imtihonlarda tushgan savollar bilan mashq qiling. Formatga ko&apos;niking,
+        tayyor bo&apos;ling. Savollar so&apos;nggi o&apos;quv yillaridagi imtihonlardan
+        to&apos;plangan.
+      </PageHero>
 
       <div className="container-page pb-20">
         {allSets.length === 0 ? (

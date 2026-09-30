@@ -2,6 +2,7 @@ import { Instagram, Mail, MapPin, Phone, Send } from "react-feather";
 import type { ContactSettings } from "@/lib/types";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Reveal } from "@/components/motion/Reveal";
+import { Highlight } from "@/components/motion/Highlight";
 
 /**
  * Figma 10: "We are here to guide your ascent" — chapda aloqa kanallari,
@@ -37,10 +38,25 @@ export function ContactSection({
   return (
     <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
       <Reveal>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-400">Savollaringiz bormi?</p>
-        <Heading className="display-title mt-3 text-[34px] leading-tight sm:text-[40px]">
-          Cho&apos;qqi sari yo&apos;lda yoningizdamiz
+        {Heading === "h1" ? (
+          <p className="hero-pill">
+            <i aria-hidden />
+            Savollaringiz bormi?
+          </p>
+        ) : (
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-400">Savollaringiz bormi?</p>
+        )}
+        <Heading
+          className={
+            Heading === "h1"
+              ? "display-title mt-5 text-[40px] leading-tight sm:text-[52px]"
+              : "display-title mt-3 text-[34px] leading-tight sm:text-[40px]"
+          }
+        >
+          Cho&apos;qqi sari yo&apos;lda{" "}
+          {Heading === "h1" ? <Highlight text="yoningizdamiz" word="yoningizdamiz" /> : "yoningizdamiz"}
         </Heading>
+        {Heading === "h1" ? <p className="hero-hand">We&apos;re here to help</p> : null}
         <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted">
           Jamoamiz bilan bog&apos;laning — Premium, to&apos;lov, kurslar yoki natijalar bo&apos;yicha
           savollaringizga javob beramiz.

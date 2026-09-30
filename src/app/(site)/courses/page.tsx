@@ -29,7 +29,13 @@ export default async function CoursesPage() {
 
   return (
     <div>
-      <PageHero eyebrow="Offline mashg'ulotlar" title="Intensiv kurslar">
+      <PageHero
+        eyebrow="Offline mashg'ulotlar"
+        title="Intensiv kurslar"
+        highlight="Intensiv"
+        hand="Face to face with your teacher"
+        words={["small groups", "speaking", "B2 → C1", "feedback"]}
+      >
         Multilevel tayyorlov kurslarimizga qo&apos;shiling. Har bir kurs sahifasida dars kunlari,
         vaqti, narxi va manzil ko&apos;rsatilgan.
       </PageHero>

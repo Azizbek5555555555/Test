@@ -8,7 +8,7 @@ const COURSE_IMAGES = ["/design/course-1.jpg", "/design/course-2.jpg", "/design/
 /** Figma 10: "Intensive On-Site Programs" kartasi */
 export function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
   return (
-    <article className="card lift flex h-full flex-col overflow-hidden rounded-2xl">
+    <article data-spot className="spot card lift relative flex h-full flex-col overflow-hidden rounded-2xl">
       <div className="relative h-[180px] overflow-hidden">
         <Image
           src={course.image_url || COURSE_IMAGES[index % COURSE_IMAGES.length]}

@@ -13,8 +13,9 @@ export default async function ContactPage() {
   const [contact, profile] = await Promise.all([getContactSettings(), getProfile()]);
 
   return (
-    <div className="bg-gradient-to-b from-[#16213a] to-ink-950 to-50%">
-      <section className="container-page pt-14 sm:pt-20">
+    <div className="ph">
+      <div className="ph-bg" aria-hidden />
+      <section className="container-page pb-20 pt-14 sm:pt-20">
         <ContactSection
           as="h1"
           contact={contact}

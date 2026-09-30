@@ -81,7 +81,7 @@ function countValue(p: number, segments: { range: Range; from: number; to: numbe
 /* ============================================================================
    Komponent
    ============================================================================ */
-export function HomeStory({ stats, handFontClass }: { stats: SiteStats; handFontClass: string }) {
+export function HomeStory({ stats }: { stats: SiteStats }) {
   const chapters = useMemo(() => storyChapters(stats), [stats]);
   const proof = useMemo(() => heroProof(stats), [stats]);
   const rootRef = useRef<HTMLElement>(null);
@@ -296,7 +296,7 @@ export function HomeStory({ stats, handFontClass }: { stats: SiteStats; handFont
   return (
     <section
       ref={rootRef}
-      className={cn("story", handFontClass)}
+      className="story"
       data-mode={mode}
       aria-label="LevelX English — natija varaqasi"
       style={

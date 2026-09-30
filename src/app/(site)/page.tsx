@@ -8,10 +8,8 @@ import { FlameIcon } from "@/components/ui/icons";
 import { COURSES_ENABLED, SITE_TAGLINE } from "@/lib/constants";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/motion/Reveal";
-import { Caveat } from "next/font/google";
 import { HomeStory } from "@/components/story/HomeStory";
 import { AmbientBackdrop } from "@/components/story/AmbientBackdrop";
-import { Spotlight } from "@/components/story/Spotlight";
 import { ResultReveal } from "@/components/story/ResultReveal";
 import { StatsReveal } from "@/components/home/StatsReveal";
 import {
@@ -25,14 +23,6 @@ import {
   SkillModules,
   featureItems,
 } from "@/components/home/Sections";
-
-// Qo'lyozma shrifti — hero shiori, suzuvchi so'zlar va natija varaqalaridagi yozuvlar uchun
-const hand = Caveat({
-  subsets: ["latin"],
-  weight: ["600"],
-  display: "swap",
-  variable: "--font-hand",
-});
 
 /**
  * Bosh sahifa — Figma: 01-homepage-before-login va 03-homepage-after-login.
@@ -53,9 +43,7 @@ async function GuestHome() {
 
   return (
     <>
-      <Spotlight />
-      <div className={hand.variable}>
-      <HomeStory stats={stats} handFontClass={hand.variable} />
+      <HomeStory stats={stats} />
       <AmbientBackdrop>
 
       <StatsReveal
@@ -88,7 +76,6 @@ async function GuestHome() {
 
       {COURSES_ENABLED ? <CoursesStrip courses={courses} /> : null}
       </AmbientBackdrop>
-      </div>
     </>
   );
 }

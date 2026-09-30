@@ -71,14 +71,15 @@ export default async function CoursePage({
           >
             ← Barcha kurslar
           </Link>
-          <div className="mt-8 max-w-2xl animate-fade-up">
-            <p className="eyebrow">
-              <span className="h-px w-6 bg-brand-400" aria-hidden />
+          <div className="ph-copy mt-8 max-w-2xl">
+            <p className="hero-pill">
+              <i aria-hidden />
               Offline kurs
             </p>
-            <h1 className="display-title mt-4 text-[40px] sm:text-[52px]">{course.title}</h1>
+            <h1 className="display-title mt-5 text-[40px] sm:text-[52px]">{course.title}</h1>
+            <p className="hero-hand">Face to face with your teacher</p>
             {course.level ? (
-              <span className="mt-4 inline-flex rounded-full border border-gold-400/70 px-3 py-0.5 text-xs font-semibold text-gold-400">
+              <span className="mt-4 inline-flex w-fit rounded-full border border-gold-400/70 px-3 py-0.5 text-xs font-semibold text-gold-400">
                 {course.level}
               </span>
             ) : null}

@@ -67,7 +67,7 @@ export default async function ExamIntroPage({
 
   return (
     <div>
-      <PageHero eyebrow="Imtihon simulyatori" title={exam.title} className="pb-10">
+      <PageHero eyebrow="Imtihon simulyatori" title={exam.title} hand="Real exam. Real result." className="pb-10">
         {exam.description ?? "Real Multilevel kompyuter imtihoni simulyatsiyasi."}{" "}
         <Link href="/exam-checking" className="text-brand-400 hover:text-brand-300">
           ← Exam Full Checking

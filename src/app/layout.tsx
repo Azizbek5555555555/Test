@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Caveat, Cormorant_Garamond, Inter } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { CursorFollower } from "@/components/motion/CursorFollower";
 import "./globals.css";
@@ -17,6 +17,14 @@ const cormorant = Cormorant_Garamond({
   style: ["normal", "italic"],
   display: "swap",
   variable: "--font-cormorant",
+});
+
+// Qo'lyozma shrifti — shiorlar, suzuvchi so'zlar va natija varaqalaridagi yozuvlar (butun saytda)
+const hand = Caveat({
+  subsets: ["latin"],
+  weight: ["600"],
+  display: "swap",
+  variable: "--font-hand",
 });
 
 export const metadata: Metadata = {
@@ -59,7 +67,7 @@ export default function RootLayout({
   return (
     <html
       lang="uz"
-      className={`dark ${inter.variable} ${cormorant.variable}`}
+      className={`dark ${inter.variable} ${cormorant.variable} ${hand.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

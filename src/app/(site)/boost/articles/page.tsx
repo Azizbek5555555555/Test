@@ -56,7 +56,13 @@ export default async function ArticlesPage({
 
   return (
     <div>
-      <PageHero eyebrow="Boost Your General English" title="Maqolalar o'qish zali">
+      <PageHero
+        eyebrow="Boost Your General English"
+        title="Maqolalar o'qish zali"
+        highlight="o'qish zali"
+        hand="Read. Learn. Grow."
+        words={["context", "summary", "True / False", "paraphrase"]}
+      >
         Har bir maqolada: matn, yangi so&apos;zlar va Reading savollari (True/False/Not Given,
         Multiple Choice, Gap Filling).{" "}
         <Link href="/boost" className="text-brand-400 hover:text-brand-300">

@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 import { Footer } from "@/components/layout/Footer";
 import { SetupBanner } from "@/components/layout/SetupBanner";
+import { Spotlight } from "@/components/story/Spotlight";
 
 /** Saytning odatiy ko'rinishi: yuqori panel + kontent + pastki panel */
 export default function SiteLayout({
@@ -16,6 +17,8 @@ export default function SiteLayout({
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
+      {/* kartalar ustida kursor ortidan yuradigan nur (butun saytda) */}
+      <Spotlight />
     </div>
   );
 }

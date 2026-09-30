@@ -17,7 +17,8 @@ export function ArticleCard({
   return (
     <Link
       href={locked ? "/premium?reason=locked" : `/boost/articles/${article.slug}`}
-      className="group card lift flex h-full flex-col p-7 hover:border-brand-400/40"
+      data-spot
+      className="spot group card lift relative flex h-full flex-col p-7 hover:border-brand-400/40"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">

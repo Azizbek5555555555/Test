@@ -10,6 +10,8 @@ import { PremiumSideCard } from "@/components/marketing/PremiumSideCard";
 import { FaqSection, QuoteLine } from "@/components/marketing/Faq";
 import { Reveal } from "@/components/motion/Reveal";
 import { cn } from "@/lib/format";
+import { PageHero } from "@/components/marketing/PageHero";
+import { MockBooklets } from "@/components/story/MockBooklets";
 
 export const metadata: Metadata = {
   title: "Full Mock",
@@ -77,25 +79,21 @@ export default async function FullMockPage({
 
   return (
     <div>
-      {/* ------------------------------------------------ Hero */}
-      <section className="bg-gradient-to-b from-[#16213a] to-ink-950">
-        <div className="container-page pb-14 pt-14 sm:pt-20">
-          <div className="max-w-2xl animate-fade-up">
-            <p className="eyebrow">
-              <span className="h-px w-6 bg-brand-400" aria-hidden />
-              Real imtihon simulyatori
-            </p>
-            <h1 className="display-title mt-4 text-[44px] sm:text-[56px]">Full Mock testlar</h1>
-            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted">
-              Real imtihonni his qiling. Ishonch hosil qiling. O&apos;sishingizni kuzating.
-              Har bir test Reading, Listening, Writing va Speaking bo&apos;limlarini
-              imtihon sharoitida takrorlaydi.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* ------------------------------------------------ Hero: 3D daftarchalar */}
+      <PageHero
+        eyebrow="Real imtihon simulyatori"
+        title="Full Mock testlar"
+        highlight="Full Mock"
+        hand="Feel the real exam"
+        aside={<MockBooklets />}
+        className="pb-10 sm:pb-12"
+      >
+        Real imtihonni his qiling. Ishonch hosil qiling. O&apos;sishingizni kuzating.
+        Har bir test Reading, Listening, Writing va Speaking bo&apos;limlarini
+        imtihon sharoitida takrorlaydi.
+      </PageHero>
 
-      <div className="container-page pb-6">
+      <div className="container-page pb-6 pt-10">
         {!profile ? (
           <div className="mb-8">
             <Alert tone="info" title="Natijalar saqlanishi uchun">

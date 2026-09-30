@@ -52,6 +52,9 @@ export default async function LeaderboardPage({
       <PageHero
         eyebrow="Vocabulary Battle"
         title="Top Climbers"
+        highlight="Climbers"
+        hand="Climb to the top"
+        words={["weekly", "+250 XP", "streak", "rank #1"]}
         className="pb-10"
         bare
       >
