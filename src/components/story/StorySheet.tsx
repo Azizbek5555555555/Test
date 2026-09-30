@@ -1,4 +1,5 @@
 import { SHEET, SHEET_SKILLS } from "@/lib/home-story";
+import { LogoSeal } from "./LogoSeal";
 
 /**
  * "Natija varaqasi" — 440×620 o'lchamda chizilgan, tashqaridan scale qilinadi.
@@ -140,7 +141,7 @@ export function StorySheet() {
           <div className="story-rule w-[150px]" />
           <p className="story-mini mt-1">{SHEET.signatureLabel}</p>
         </div>
-        <div className="story-seal">LX</div>
+        <LogoSeal size={62} />
       </div>
     </div>
   );

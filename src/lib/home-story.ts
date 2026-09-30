@@ -393,6 +393,8 @@ export const glowBackground = (glows: Glow[]) =>
    oltin chiziqlar bilan birga aylanib, natijalar yoziladi
    ========================================================================= */
 export const REVEAL_HEIGHT = { desktop: 320, mobile: 260 } as const;
+/** Bo'lim ekranga qancha kirganda (ekran balandligi ulushi) animatsiya boshlanadi */
+export const REVEAL_LEAD = 0.75;
 
 export const REVEAL_RESULT = {
   brand: "LevelX English",
@@ -416,7 +418,7 @@ export const REVEAL_RESULT = {
 
 /** Vaqtlar (0..1 — shu bo'lim ichidagi skroll ulushi) */
 export const REVEAL_TIMES = {
-  intro: [0, 0.3] as Range,
+  intro: [0, 0.12] as Range,
   outro: [0.84, 1] as Range,
   name: [0.5, 0.6] as Range,
   scores: [0.55, 0.76] as Range,
@@ -426,15 +428,15 @@ export const REVEAL_TIMES = {
 };
 
 export const REVEAL_KEYFRAMES: Record<string, Keyframe[]> = {
-  // Varaq: yuqoridan teskari tushadi (ry=180 — orqa tomoni), keyin aylanadi
+  // Varaq: bo'lim ekranga kirayotganda yuqoridan teskari tushib paydo bo'ladi (ry=180 — orqa tomoni), keyin aylanadi
   card: [
-    { p: 0, y: -1.05, rx: 42, ry: 180, r: -16, s: 0.74 },
-    { p: 0.08, y: -0.7, rx: 36, ry: 180, r: -13, s: 0.78 },
-    { p: 0.2, y: -0.04, rx: 18, ry: 180, r: -7, s: 0.9 },
-    { p: 0.3, y: 0, rx: 12, ry: 176, r: -5, s: 0.94 },
-    { p: 0.5, y: 0, rx: 0, ry: 0, r: -2, s: 1 },
-    { p: 0.52, s: 1.02 },
-    { p: 0.56, s: 1 },
+    { p: 0, y: -0.42, rx: 40, ry: 180, r: -14, s: 0.76 },
+    { p: 0.14, y: -0.2, rx: 30, ry: 180, r: -10, s: 0.84 },
+    { p: 0.24, y: -0.03, rx: 16, ry: 180, r: -6, s: 0.9 },
+    { p: 0.3, y: 0, rx: 10, ry: 172, r: -4, s: 0.94 },
+    { p: 0.48, y: 0, rx: 0, ry: 0, r: -2, s: 1 },
+    { p: 0.5, s: 1.02 },
+    { p: 0.54, s: 1 },
     { p: 0.84, y: 0, rx: 0, ry: 0, r: -1, s: 1 },
     // Yakun: varaq biroz yuqoriga ko'tariladi — pastdagi shior va tugmaga joy
     { p: 0.94, y: -0.07, rx: 0, ry: 0, r: -1, s: 0.93 },
@@ -443,16 +445,27 @@ export const REVEAL_KEYFRAMES: Record<string, Keyframe[]> = {
   shadow: [
     { p: 0, y: 0.1, s: 0.5, o: 0 },
     { p: 0.22, y: 0.04, s: 0.85, o: 0.5 },
-    { p: 0.5, y: 0.02, s: 1, o: 0.65 },
+    { p: 0.48, y: 0.02, s: 1, o: 0.65 },
     { p: 0.84, y: 0.02, s: 1, o: 0.6 },
     { p: 0.94, y: -0.09, s: 0.93, o: 0.6 },
     { p: 1, y: -0.09, s: 0.93, o: 0.6 },
   ],
   // Aylanish o'rtasida oltin chaqnash
   flash: [
-    { p: 0.34, o: 0, s: 0.5 },
-    { p: 0.42, o: 1, s: 1 },
-    { p: 0.58, o: 0, s: 1.6 },
+    { p: 0.32, o: 0, s: 0.5 },
+    { p: 0.4, o: 1, s: 1 },
+    { p: 0.55, o: 0, s: 1.6 },
+  ],
+  // Varaq atrofidagi oltin nur: old tomoni ochilganda yonadi
+  // (2D qatlam: varaq tekis bo'lgandagi harakatini takrorlaydi)
+  rim: [
+    { p: 0.47, y: 0, r: -2, s: 1, o: 0 },
+    { p: 0.5, s: 1.02 },
+    { p: 0.54, s: 1 },
+    { p: 0.56, o: 1 },
+    { p: 0.84, y: 0, r: -1, s: 1 },
+    { p: 0.94, y: -0.07, r: -1, s: 0.93 },
+    { p: 1, y: -0.07, r: -1, s: 0.93 },
   ],
   // Muhr "zarbi"
   stamp: [
@@ -479,23 +492,23 @@ export interface Ribbon {
 export const RIBBONS: Ribbon[] = [
   {
     d: "M -60 830 C 180 790, 280 600, 410 540 S 640 640, 800 600 S 1010 300, 1160 250 S 1390 170, 1520 110",
-    draw: [0.03, 0.45],
-    width: 2.6,
+    draw: [0.02, 0.42],
+    width: 3.2,
     twins: [-10, 12],
-    sparks: 22,
+    sparks: 30,
   },
   {
     d: "M -80 640 C 120 690, 240 430, 380 370 S 560 160, 760 190 S 990 430, 1130 390 S 1360 170, 1520 210",
-    draw: [0.1, 0.52],
-    width: 2,
+    draw: [0.08, 0.48],
+    width: 2.5,
     twins: [9],
-    sparks: 18,
+    sparks: 24,
   },
   {
     d: "M 80 940 C 300 850, 400 720, 560 740 S 900 850, 1050 720 S 1250 440, 1520 380",
-    draw: [0.18, 0.6],
-    width: 1.6,
+    draw: [0.14, 0.55],
+    width: 2,
     twins: [-8],
-    sparks: 14,
+    sparks: 19,
   },
 ];
