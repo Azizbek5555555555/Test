@@ -49,7 +49,13 @@ export default async function ListeningPracticePage({
 
   return (
     <div>
-      <PageHero eyebrow="Boost Your General English" title="Listening Practice">
+      <PageHero
+        eyebrow="Boost Your General English"
+        title="Listening Practice"
+        highlight="Practice"
+        hand="Train your ears every day"
+        words={["accent", "gap filling", "matching", "script"]}
+      >
         Har bir mashg&apos;ulotda audio hamda gap filling, multiple choice, matching va boshqa
         savollar bo&apos;ladi. Audio skripti — Premium foydalanuvchilar uchun.{" "}
         <Link href="/boost" className="text-brand-400 hover:text-brand-300">

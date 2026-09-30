@@ -69,7 +69,15 @@ export default async function VocabularyBattlePage({
 
   return (
     <div className="bg-gradient-to-b from-[#221d2e] via-[#141a2c] via-40% to-ink-950">
-      <PageHero eyebrow="Jonli so'z maydoni" title="Vocabulary Battle" className="pb-10" bare>
+      <PageHero
+        eyebrow="Jonli so'z maydoni"
+        title="Vocabulary Battle"
+        highlight="Battle"
+        hand="Learn words. Win points."
+        words={["eloquent", "resilient", "+100 XP", "coherent"]}
+        className="pb-10"
+        bare
+      >
         O&apos;rgan. O&apos;yna. Bellash. O&apos;s. Akademik so&apos;zlarni vaqt bosimi ostida
         mustahkamlang.
       </PageHero>

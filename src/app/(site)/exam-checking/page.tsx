@@ -5,7 +5,7 @@ import { getTestOutlines } from "@/lib/test-outlines";
 import type { Attempt } from "@/lib/types";
 import { EmptyState } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
-import { PageHero } from "@/components/marketing/PageHero";
+import { CertReveal } from "@/components/story/CertReveal";
 import { TestSetCard } from "@/components/test/TestSetCard";
 import { FeedbackCards, ResultCard } from "@/components/test/ResultCard";
 import { ExamGateHeader, ExamRules, ExamSequence } from "@/components/exam/ExamGate";
@@ -63,10 +63,27 @@ export default async function ExamCheckingPage() {
 
   return (
     <div>
-      <PageHero eyebrow="Imtihon simulyatori" title="Bosqichma-bosqich natija tizimi">
+      {/* 3D CEFR sertifikati: skroll bilan aylanadi, atrofida oltin halqalar */}
+      <CertReveal
+        eyebrow="Exam Full Checking · imtihon simulyatori"
+        title="Natijangiz CEFR darajasida"
+        highlight="CEFR"
+        hand="Real exam. Real level."
+        actions={
+          <>
+            <ButtonLink href={startHref} size="lg" variant={unlocked ? "primary" : "premium"}>
+              {unlocked ? "Imtihonni boshlash" : "Premium bilan ochish"}
+            </ButtonLink>
+            <ButtonLink href="#natija" size="lg" variant="secondary">
+              Natija namunasi
+            </ButtonLink>
+          </>
+        }
+      >
         Uch bosqichli imtihon muhiti: tayyorgarlik va vaqt rejasi, real kompyuter
-        imtihonidek ishlash oynasi va har bir ko&apos;nikma bo&apos;yicha batafsil natija.
-      </PageHero>
+        imtihonidek ishlash oynasi va har bir ko&apos;nikma bo&apos;yicha batafsil natija —
+        umumiy ball va CEFR darajasi bilan.
+      </CertReveal>
 
       {/* ------------------------------------------------ 1-bosqich: kirish */}
       <section className="border-y border-line bg-ink-900/40">
@@ -128,7 +145,7 @@ export default async function ExamCheckingPage() {
       </section>
 
       {/* ------------------------------------------------ 3-bosqich: natija namunasi */}
-      <section className="border-t border-line bg-gradient-to-b from-[#16213a] to-ink-950">
+      <section id="natija" className="scroll-mt-20 border-t border-line bg-gradient-to-b from-[#16213a] to-ink-950">
         <div className="container-page py-16">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-success">

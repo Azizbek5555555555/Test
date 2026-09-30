@@ -15,6 +15,8 @@ import { CourseCard } from "@/components/marketing/CourseCard";
 import { ContactSection } from "@/components/marketing/ContactSection";
 import { PremiumRequestForm } from "@/components/forms/PremiumRequestForm";
 import { OnlinePayment } from "@/components/forms/OnlinePayment";
+import { PageHero } from "@/components/marketing/PageHero";
+import { PremiumCard3D } from "@/components/story/PremiumCard3D";
 import { getEnabledProviders } from "@/lib/payments/config";
 
 export const metadata: Metadata = {
@@ -65,9 +67,28 @@ export default async function PremiumPage({
 
   return (
     <div>
+      {/* ------------------------------------------------ Hero: 3D Premium kartasi */}
+      <PageHero
+        eyebrow="Kelajagingizga sarmoya"
+        title={isPremium ? "Sizda Premium faol" : "Cho'qqingiz uchun qulay tariflar"}
+        highlight={isPremium ? "Premium" : "qulay tariflar"}
+        hand="Invest in your future"
+        actions={
+          <ButtonLink href="#tariflar" size="lg" variant="premium">
+            {isPremium ? "Imkoniyatlarim" : "Tariflarni ko'rish"}
+          </ButtonLink>
+        }
+        aside={<PremiumCard3D active={isPremium} />}
+        className="pb-10 sm:pb-12"
+      >
+        {isPremium
+          ? "Barcha imkoniyatlar siz uchun ochiq. Rahmat!"
+          : "Haqiqiy imtihon savollari arxivi, mock testlar va aniq diagnostik tekshiruvni oching."}
+      </PageHero>
+
       {/* ------------------------------------------------ Tariflar */}
-      <section className="bg-gradient-to-b from-[#16213a] to-ink-950">
-        <div className="container-page pb-20 pt-14 sm:pt-20">
+      <section id="tariflar" className="scroll-mt-20">
+        <div className="container-page pb-20 pt-12">
           {reason === "locked" ? (
             <div className="mx-auto mb-10 max-w-3xl">
               <Alert tone="warning" title="Bu kontent qulflangan">
@@ -77,23 +98,9 @@ export default async function PremiumPage({
             </div>
           ) : null}
 
-          <div className="mx-auto max-w-2xl animate-fade-up text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-400">
-              Kelajagingizga sarmoya
-            </p>
-            <h1 className="display-title mt-3 text-[40px] sm:text-[52px]">
-              {isPremium ? "Sizda Premium faol" : "Cho'qqingiz uchun qulay tariflar"}
-            </h1>
-            <p className="mt-4 text-[15px] leading-relaxed text-muted">
-              {isPremium
-                ? "Barcha imkoniyatlar siz uchun ochiq. Rahmat!"
-                : "Haqiqiy imtihon savollari arxivi, mock testlar va aniq diagnostik tekshiruvni oching."}
-            </p>
-          </div>
-
-          <div className="mx-auto mt-12 grid max-w-[880px] items-center gap-6 md:grid-cols-2">
+          <div className="mx-auto grid max-w-[880px] items-center gap-6 md:grid-cols-2">
             {/* Free */}
-            <Reveal className="card rounded-2xl p-8">
+            <Reveal className="spot card relative rounded-2xl p-8">
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">Standart</p>
               <h2 className="display-title mt-2 text-[30px]">Bepul kirish</h2>
               <p className="mt-2 text-[13px] text-muted">CEFR yo&apos;lingizni bugundan to&apos;lovsiz kuzating.</p>
