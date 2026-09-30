@@ -3959,3 +3959,129 @@ a.ag-row:hover {
     font-size: 19px;
   }
 }
+
+/* ==========================================================================
+   Yuklanish belgisi (Loader) va kirish ekrani (splash)
+   ========================================================================== */
+.lx-loader {
+  position: relative;
+  display: grid;
+  width: var(--sz, 132px);
+  height: var(--sz, 132px);
+  place-items: center;
+}
+/* markazdagi yumshoq nur */
+.lx-loader::before {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(227, 167, 155, 0.16), transparent 70%);
+}
+.lx-ring {
+  position: absolute;
+  inset: 0;
+  animation: lx-spin 1.15s linear infinite;
+  will-change: transform;
+}
+.lx-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--d) * var(--k, 1) * 1px);
+  height: calc(var(--d) * var(--k, 1) * 1px);
+  margin: calc(var(--d) * var(--k, 1) * -0.5px) 0 0 calc(var(--d) * var(--k, 1) * -0.5px);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff4e8 0%, #efbdb2 38%, #e3a79b 60%, rgba(217, 179, 130, 0) 75%);
+  opacity: var(--o);
+  transform: rotate(var(--a)) translateY(calc(var(--sz, 132px) / -2 + 10px));
+}
+.lx-dot.is-glow {
+  box-shadow:
+    0 0 10px 1px rgba(239, 189, 178, 0.55),
+    0 0 22px 4px rgba(227, 167, 155, 0.22);
+}
+@keyframes lx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.lx-loader-text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.lx-loader-text b {
+  font-family: var(--font-display);
+  font-size: calc(var(--sz, 132px) * 0.1);
+  font-weight: 600;
+  line-height: 1;
+  color: #f2ede9;
+}
+.lx-loader-text b span {
+  color: var(--color-brand-400);
+}
+.lx-loader-text small {
+  margin-top: 5px;
+  font-size: calc(var(--sz, 132px) * 0.048);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #efbdb2;
+  text-shadow: 0 0 12px rgba(227, 167, 155, 0.6);
+  animation: lx-pulse 1.6s ease-in-out infinite;
+}
+@keyframes lx-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+/* kirish ekrani */
+.lx-splash {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: none;
+  place-items: center;
+  background:
+    radial-gradient(50% 45% at 50% 50%, rgba(92, 107, 255, 0.14), transparent 70%),
+    radial-gradient(35% 30% at 50% 52%, rgba(227, 167, 155, 0.1), transparent 70%),
+    #070c17;
+  transition:
+    opacity 0.6s ease,
+    visibility 0.6s ease;
+}
+html.lx-splashing .lx-splash {
+  display: grid;
+}
+html.lx-splash-done .lx-splash {
+  visibility: hidden;
+  opacity: 0;
+}
+html.lx-splash-done .lx-splash .lx-loader {
+  transform: scale(1.08);
+  transition: transform 0.6s ease;
+}
+/* sahifa ichidagi loader: tez sahifalarda miltillamasin — biroz kechikib chiqadi */
+.lx-page-loader {
+  display: grid;
+  min-height: 62vh;
+  place-items: center;
+  animation: lx-appear 0.35s ease 0.18s both;
+}
+.lx-page-loader-full {
+  min-height: 100dvh;
+}
+@keyframes lx-appear {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lx-ring {
+    animation-duration: 3s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

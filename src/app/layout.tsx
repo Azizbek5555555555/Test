@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Caveat, Cormorant_Garamond, Inter } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { CursorFollower } from "@/components/motion/CursorFollower";
+import { Splash } from "@/components/motion/Loader";
 import "./globals.css";
 
 const inter = Inter({
@@ -72,6 +73,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh">
+        {/* saytga kirishda yuklanish ekrani (sessiyada bir marta) */}
+        <Splash />
         {children}
         <CursorFollower />
       </body>
