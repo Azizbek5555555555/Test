@@ -493,3 +493,660 @@ input[type="number"]::-webkit-inner-spin-button {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   Bosh sahifa: skroll-hikoya "Natija varaqasi" (components/story)
+   ========================================================================== */
+.story {
+  position: relative;
+  height: var(--story-h-d, 620vh);
+  /* header ostidan boshlanadi — birinchi kadr aynan "qotgan" holat bilan bir xil */
+  margin-top: -84px;
+}
+.story[data-mode="static"] {
+  height: auto;
+}
+.story-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+.story[data-mode="static"] .story-stage {
+  position: relative;
+  height: auto;
+  min-height: 100svh;
+}
+.story-grid {
+  display: grid;
+  height: 100svh;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  align-items: center;
+  gap: 2.5rem;
+  padding-top: 84px;
+}
+.story-text {
+  position: relative;
+  height: 100%;
+}
+.story-chapter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  max-width: 35rem;
+  flex-direction: column;
+  justify-content: center;
+  will-change: opacity, transform;
+}
+.story-title {
+  margin-top: 1.25rem;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 1.04;
+  text-wrap: balance;
+}
+.story-title-hero {
+  font-size: clamp(44px, 5.4vw, 82px);
+  font-weight: 600;
+  line-height: 1;
+}
+.story-tagline {
+  margin-top: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--accent);
+}
+.story-body {
+  margin-top: 1.1rem;
+  max-width: 31rem;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--fg-muted);
+}
+.story-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.95rem 1.9rem;
+  font-size: 15px;
+  font-weight: 600;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+.story-btn:active {
+  transform: scale(0.98);
+}
+.story-btn-primary {
+  background: var(--color-brand-400);
+  color: var(--color-ink-950);
+  box-shadow: 0 12px 40px -12px rgba(227, 167, 155, 0.6);
+}
+.story-btn-primary:hover {
+  background: var(--color-brand-300);
+}
+.story-btn-ghost {
+  border: 1.5px solid var(--color-brand-400);
+  color: var(--fg);
+}
+.story-btn-ghost:hover {
+  background: var(--color-brand-400);
+  color: var(--color-ink-950);
+}
+
+/* Sahna va varaqa */
+.story-scene {
+  position: relative;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+}
+.story-scaler {
+  position: relative;
+  flex-shrink: 0;
+  width: 440px;
+  transform: scale(var(--sheet-scale, 0.92));
+  /* perspektiva shu yerda: varaqa 3D buriladi, soya esa tekis qatlamda qoladi */
+  perspective: 1400px;
+}
+.story-sheet {
+  position: relative;
+  will-change: transform;
+}
+.story-shadow {
+  position: absolute;
+  inset: -2% -14% -14% -6%;
+  /* blur filtri o'rniga tayyor yumshoq soya — har kadrda qayta hisoblanmaydi */
+  background: radial-gradient(ellipse 50% 48% at 54% 56%, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.35) 55%, transparent 100%);
+  will-change: transform, opacity;
+}
+.story-paper {
+  position: relative;
+  width: 440px;
+  padding: 30px 36px 26px;
+  border-radius: 6px;
+  color: #1b2233;
+  background:
+    radial-gradient(120% 80% at 10% 0%, rgba(255, 255, 255, 0.7), transparent 60%),
+    linear-gradient(180deg, #f7f3ec, #eee7da);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+    inset 0 -40px 60px -40px rgba(120, 96, 60, 0.18),
+    0 2px 0 rgba(0, 0, 0, 0.08);
+}
+.story-clip {
+  position: absolute;
+  top: -22px;
+  left: 12px;
+}
+.story-brand {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+}
+.story-brand span {
+  color: #c07a6c;
+}
+.story-mini {
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a7f8c;
+}
+.story-sample {
+  display: inline-block;
+  margin-top: 6px;
+  border: 1px solid rgba(200, 70, 59, 0.45);
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c8463b;
+}
+.story-rule {
+  height: 1px;
+  background: #d9d1c3;
+}
+.story-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a8f9b;
+}
+.story-value {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.story-line {
+  border-bottom: 1px dashed #c9c0b0;
+}
+.story-hand {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  white-space: nowrap;
+  font-family: cursive;
+  line-height: 1;
+  will-change: clip-path;
+}
+/* Qo'lyozma shrifti sahifa interaktiv bo'lgandan keyin yuklanadi (LCP'ga xalaqit bermaydi) */
+.story[data-ready] .story-hand,
+.story[data-ready] .story-float-note b,
+.story[data-ready] .story-float-note small,
+.story[data-ready] .story-float-card small {
+  font-family: var(--font-hand), cursive;
+}
+.story-hand-blue {
+  font-size: 36px;
+  font-weight: 600;
+  color: #2b3f8f;
+}
+.story-hand-red {
+  top: 2px;
+  bottom: auto;
+  font-size: 21px;
+  font-weight: 600;
+  color: #c8463b;
+}
+.story-pen {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  width: 0;
+  height: 0;
+  will-change: transform, opacity;
+  z-index: 2;
+}
+.story-pen-note {
+  top: 24px;
+  bottom: auto;
+}
+.story-pen-svg {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  transform: rotate(-38deg);
+  transform-origin: 0 10px;
+  filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.28));
+}
+.story-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 84px 1fr 74px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 6px;
+  padding: 7px 10px;
+}
+.story-row-hl {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: rgba(227, 167, 155, 0.26);
+  box-shadow: inset 3px 0 0 #d98f80;
+}
+.story-row-label {
+  position: relative;
+  font-size: 13px;
+  font-weight: 600;
+}
+.story-bar {
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e3dccf;
+}
+.story-bar-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d98f80, #b8883f);
+  transform-origin: left center;
+}
+.story-score {
+  position: relative;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.story-score small,
+.story-overall small {
+  margin-left: 2px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  color: #8a8f9b;
+}
+.story-underline {
+  position: absolute;
+  right: 6px;
+  bottom: -1px;
+  width: 74px;
+  height: 10px;
+  overflow: visible;
+}
+.story-underline path,
+.story-circle path {
+  fill: none;
+  stroke: #c8463b;
+  stroke-linecap: round;
+  stroke-width: 2.2;
+}
+.story-overall {
+  font-family: var(--font-display);
+  font-size: 62px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.story-overall small {
+  font-size: 13px;
+}
+.story-circle {
+  position: absolute;
+  top: 4px;
+  left: -22px;
+  width: 176px;
+  height: 96px;
+  overflow: visible;
+}
+.story-stamp {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: multiply;
+  will-change: transform, opacity;
+}
+.story-note {
+  border: 1px solid #e1d9ca;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 9px 12px 6px;
+}
+.story-signature {
+  width: 150px;
+  height: 44px;
+  overflow: visible;
+}
+.story-signature path {
+  fill: none;
+  stroke: #2b3f8f;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+.story-seal {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f3dfb2, #c49a55 60%, #8f6a2e);
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.35),
+    0 4px 10px rgba(0, 0, 0, 0.18);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: #5c4218;
+}
+
+/* Suzuvchi elementlar */
+.story-float {
+  position: absolute;
+  z-index: 3;
+  /* ko'rinayotganlari alohida qatlam — soyasi har kadrda qayta chizilmaydi */
+  will-change: transform, opacity;
+}
+.story-bob {
+  animation: ml-float 7s ease-in-out infinite;
+}
+.story-float-letter {
+  z-index: 0;
+}
+.story-float-letter .story-bob {
+  font-family: var(--font-display);
+  font-size: 190px;
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(242, 237, 233, 0.07);
+}
+.story-float-word .story-bob {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(26, 36, 56, 0.78);
+  padding: 8px 18px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-style: italic;
+  color: var(--fg);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.8);
+}
+.story-float-note .story-bob,
+.story-float-card .story-bob {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.85);
+}
+.story-float-note .story-bob {
+  width: 150px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #f6dfae, #efcf8f);
+  padding: 14px;
+  color: #3b2f1a;
+}
+.story-float-note b,
+.story-float-note small,
+.story-float-card small {
+  font-family: cursive;
+  font-weight: 600;
+}
+.story-float-note b {
+  font-size: 26px;
+  line-height: 1;
+}
+.story-float-note small {
+  font-size: 17px;
+}
+.story-float-card .story-bob {
+  width: 176px;
+  border-radius: 12px;
+  background: #f4efe7;
+  padding: 14px 16px;
+  color: #1b2233;
+}
+.story-float-card b {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+}
+.story-float-card small {
+  font-size: 19px;
+  color: #c8463b;
+}
+.story-float-chip .story-bob {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(18, 27, 43, 0.82);
+  padding: 9px 14px 9px 9px;
+  color: var(--fg);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.85);
+}
+.story-float-chip b {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+.story-float-chip small {
+  display: block;
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+.story-chip-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(227, 167, 155, 0.16);
+  color: var(--color-brand-400);
+}
+
+/* "Pastga suring" */
+.story-hint {
+  position: absolute;
+  right: 0;
+  bottom: 26px;
+  left: 0;
+  display: flex;
+  width: max-content;
+  margin-inline: auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.story-hint i {
+  display: block;
+  width: 1px;
+  height: 38px;
+  background: linear-gradient(var(--color-brand-400), transparent);
+  animation: ml-hint 1.8s ease-in-out infinite;
+  transform-origin: top;
+}
+@keyframes ml-hint {
+  0% {
+    transform: scaleY(0);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+
+/* Header lg dan pastda 72px */
+@media (max-width: 1023px) {
+  .story {
+    margin-top: -72px;
+  }
+  .story-grid {
+    padding-top: 72px;
+  }
+}
+
+/* Telefon: varaqa tepada, matn pastda */
+@media (max-width: 767px) {
+  .story {
+    height: var(--story-h-m, 440vh);
+    margin-top: -72px;
+  }
+  .story-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 50fr) minmax(0, 50fr);
+    gap: 0.25rem;
+    padding-top: 72px;
+  }
+  .story-scene {
+    order: -1;
+  }
+  .story-scaler {
+    transform: scale(var(--sheet-scale, 0.56));
+  }
+  .story-chapter {
+    justify-content: flex-start;
+    padding-top: 0.5rem;
+  }
+  .story-title {
+    margin-top: 0.75rem;
+    font-size: 30px;
+  }
+  .story-title-hero {
+    font-size: 38px;
+  }
+  .story-tagline {
+    margin-top: 0.6rem;
+    font-size: 1.15rem;
+  }
+  .story-body {
+    margin-top: 0.7rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .story-chapter .mt-8 {
+    margin-top: 1.1rem;
+  }
+  .story-btn {
+    padding: 0.8rem 1.4rem;
+    font-size: 14px;
+  }
+  .story-float {
+    left: var(--mx) !important;
+    top: var(--my) !important;
+  }
+  .story-desktop-only {
+    display: none;
+  }
+  .story-float-word .story-bob {
+    font-size: 17px;
+    padding: 6px 13px;
+  }
+  .story-float-chip .story-bob {
+    padding: 6px 10px 6px 6px;
+  }
+  .story-float-card .story-bob {
+    width: 140px;
+    padding: 10px 12px;
+  }
+  .story-hint {
+    display: none;
+  }
+}
+
+/* Hikoya ortidagi ranglar (sahna ichida, skroll bilan almashadi) */
+.story-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  will-change: opacity;
+}
+.story-stage {
+  isolation: isolate;
+}
+
+/* Hikoyadan keyingi bo'limlar foni */
+.page-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-bob,
+  .story-hint i {
+    animation: none;
+  }
+}
+
+/* Kursor nuri (Spotlight) — kartalar ustida yumshoq porlash */
+.spot::before,
+.spot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.spot::before {
+  background: radial-gradient(420px circle at var(--sx, 50%) var(--sy, 50%), rgba(227, 167, 155, 0.14), transparent 60%);
+}
+.spot::after {
+  padding: 1px;
+  background: radial-gradient(260px circle at var(--sx, 50%) var(--sy, 50%), rgba(217, 179, 130, 0.7), transparent 70%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.spot:hover::before,
+.spot:hover::after {
+  opacity: 1;
+}
+.spot > * {
+  position: relative;
+}
+
+/* Sarlavha shriftidagi raqamlar doim "to'g'ri" (1 — I emas) */
+.font-display {
+  font-variant-numeric: lining-nums;
+}

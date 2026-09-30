@@ -8,7 +8,12 @@ import { FlameIcon } from "@/components/ui/icons";
 import { COURSES_ENABLED, SITE_TAGLINE } from "@/lib/constants";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/motion/Reveal";
+import { Caveat } from "next/font/google";
+import { HomeStory } from "@/components/story/HomeStory";
+import { AmbientBackdrop } from "@/components/story/AmbientBackdrop";
+import { Spotlight } from "@/components/story/Spotlight";
 import {
+  CompareTable,
   CoursesStrip,
   FeatureGrid,
   PullQuote,
@@ -19,6 +24,15 @@ import {
   StatsRibbon,
   featureItems,
 } from "@/components/home/Sections";
+
+// Qo'lyozma shrifti — faqat natija varaqasidagi yozuvlar uchun (birinchi ekranga ta'sir qilmaydi)
+const hand = Caveat({
+  subsets: ["latin", "latin-ext"],
+  weight: ["600"],
+  display: "swap",
+  preload: false,
+  variable: "--font-hand",
+});
 
 /**
  * Bosh sahifa — Figma: 01-homepage-before-login va 03-homepage-after-login.
@@ -39,94 +53,16 @@ async function GuestHome() {
 
   return (
     <>
-      {/* ------------------------------------------------------------ HERO */}
-      <section className="relative isolate overflow-hidden">
-        <div
-          className="absolute inset-0 -z-20 bg-gradient-to-b from-[#212d44] via-[#121b2c] via-55% to-ink-950"
-          aria-hidden
-        />
-        <div
-          className="absolute inset-y-0 right-0 -z-10 w-full lg:w-[62%] opacity-30 [mask-image:linear-gradient(to_right,transparent,black_35%)]"
-          aria-hidden
-        >
-          <Image
-            src="/design/summit-hut.jpg"
-            alt=""
-            fill
-            priority
-            sizes="(min-width: 1024px) 58vw, 100vw"
-            className="object-cover object-center animate-ken-burns"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-transparent" />
-        </div>
-
-        <div className="container-page flex min-h-[calc(100svh-84px)] max-h-[900px] flex-col justify-center py-20">
-          <div className="max-w-3xl">
-            <p className="eyebrow animate-fade-up">
-              <span className="h-px w-6 bg-brand-400" aria-hidden />
-              Multilevel · CEFR B1–C1
-            </p>
-            <h1
-              className="display-title mt-6 text-5xl sm:text-6xl lg:text-[72px] font-semibold leading-[1.05] tracking-[-0.01em] text-balance-title animate-fade-up"
-              style={{ animationDelay: "80ms" }}
-            >
-              Cho&apos;qqingiz shu yerdan boshlanadi
-            </h1>
-            <p
-              className="mt-6 font-display italic text-2xl text-brand-400 animate-fade-up"
-              style={{ animationDelay: "160ms" }}
-            >
-              “{SITE_TAGLINE}”
-            </p>
-            <p
-              className="mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-muted animate-fade-up"
-              style={{ animationDelay: "240ms" }}
-            >
-              Multilevel imtihoniga real formatda tayyorlaning: to&apos;liq mock testlar,
-              oxirgi tushgan savollar, General English materiallari va Writing/Speaking
-              bo&apos;yicha o&apos;qituvchi tekshiruvi — barchasi bitta platformada.
-            </p>
-            <div
-              className="mt-10 flex flex-wrap items-center gap-4 animate-fade-up"
-              style={{ animationDelay: "320ms" }}
-            >
-              <ButtonLink href="/login" size="lg">
-                Bepul boshlash
-              </ButtonLink>
-              <ButtonLink href="/full-mock" variant="secondary" size="lg">
-                Full Mock testlar
-              </ButtonLink>
-            </div>
-            <div
-              className="mt-14 flex items-center gap-4 animate-fade-up"
-              style={{ animationDelay: "400ms" }}
-            >
-              <div className="flex" aria-hidden>
-                {["L", "R", "W", "S"].map((letter, i) => (
-                  <span
-                    key={letter}
-                    className="-mr-3 grid size-8 place-items-center rounded-full border-2 border-line bg-ink-800 font-display text-sm font-semibold text-brand-400"
-                    style={{ zIndex: 4 - i }}
-                  >
-                    {letter}
-                  </span>
-                ))}
-              </div>
-              <p className="pl-3 text-xs text-faint">
-                <span className="font-semibold text-fg">4 ko&apos;nikma</span> — Listening,
-                Reading, Writing va Speaking bitta tizimda.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Spotlight />
+      <HomeStory stats={stats} handFontClass={hand.variable} />
+      <AmbientBackdrop>
 
       <StatsRibbon
         items={[
           { value: String(stats.fullMocks || "—"), label: "Full Mock test" },
           { value: String(stats.listeningSets || "—"), label: "Listening mashqi" },
           { value: String(stats.articles || "—"), label: "Maqola" },
-          { value: "100%", label: "Real imtihon formati" },
+          { value: stats.questions ? stats.questions.toLocaleString("ru-RU") : "—", label: "Savollar bazasi" },
         ]}
       />
 
@@ -136,6 +72,8 @@ async function GuestHome() {
         <FeatureGrid items={featureItems({ coursesEnabled: COURSES_ENABLED, icons: "stars" })} />
       </section>
 
+      <CompareTable />
+
       <PullQuote>Davom eting. Siz yorqinroq kelajakni qurayapsiz.</PullQuote>
 
       <Roadmap />
@@ -144,6 +82,7 @@ async function GuestHome() {
       <AboutSection />
 
       {COURSES_ENABLED ? <CoursesStrip courses={courses} /> : null}
+      </AmbientBackdrop>
     </>
   );
 }

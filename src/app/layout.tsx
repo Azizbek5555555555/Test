@@ -11,7 +11,7 @@ const inter = Inter({
 
 // Sarlavhalar uchun — Figma dizayni (Cinematic Editorial)
 const cormorant = Cormorant_Garamond({
-  subsets: ["latin", "latin-ext", "cyrillic"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",

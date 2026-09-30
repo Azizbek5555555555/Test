@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServerSupabase } from "./supabase/server";
+import { createAdminSupabase } from "./supabase/admin";
 import { isSupabaseConfigured } from "./supabase/env";
 import { countQuestionsByTestSet, getMyAttemptsWithTests, type AttemptWithTest } from "./queries";
 import { SECTIONS } from "./constants";
@@ -11,10 +12,12 @@ export interface SiteStats {
   fullMocks: number;
   listeningSets: number;
   articles: number;
+  /** Bazadagi jami savollar (Premium testlar ham) */
+  questions: number;
 }
 
 export async function getSiteStats(): Promise<SiteStats> {
-  const empty = { fullMocks: 0, listeningSets: 0, articles: 0 };
+  const empty = { fullMocks: 0, listeningSets: 0, articles: 0, questions: 0 };
   if (!isSupabaseConfigured()) return empty;
   try {
     const supabase = await createServerSupabase();
@@ -42,9 +45,28 @@ export async function getSiteStats(): Promise<SiteStats> {
           .eq("published", true),
       ),
     ]);
-    return { fullMocks, listeningSets, articles };
+    return { fullMocks, listeningSets, articles, questions: await countAllQuestions() };
   } catch {
     return empty;
+  }
+}
+
+/**
+ * Jami savollar soni. Premium savollar mehmonga RLS tufayli ko'rinmaydi,
+ * shuning uchun faqat SONI serverda service_role orqali olinadi (matn qaytmaydi).
+ */
+async function countAllQuestions(): Promise<number> {
+  try {
+    let supabase;
+    try {
+      supabase = createAdminSupabase();
+    } catch {
+      supabase = await createServerSupabase();
+    }
+    const { count } = await supabase.from("questions").select("id", { count: "exact", head: true });
+    return count ?? 0;
+  } catch {
+    return 0;
   }
 }
 
