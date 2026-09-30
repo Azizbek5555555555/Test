@@ -32,6 +32,18 @@ export interface StoryChapter {
   cta?: { primary: { label: string; href: string }; secondary?: { label: string; href: string } };
   /** Hero sarlavhasi H1 bo'ladi */
   hero?: boolean;
+  /** Sarlavhadagi ajratib ko'rsatiladigan so'z (qo'lda chizilgan chiziq bilan) */
+  highlight?: string;
+}
+
+/** Hero ostidagi kichik "isbot" qatori — faqat bazadagi haqiqiy sonlar */
+export function heroProof(stats: SiteStats): string[] {
+  const items: string[] = [];
+  if (stats.fullMocks > 0) items.push(`${stats.fullMocks} ta Full Mock`);
+  if (stats.questions > 0) items.push(`${stats.questions.toLocaleString("ru-RU")} ta savol`);
+  items.push("4 ko'nikma");
+  items.push("O'qituvchi tekshiruvi");
+  return items;
 }
 
 /** Son bo'lsa — matnga qo'yiladi, bo'lmasa (baza bo'sh) muqobil matn */
@@ -44,8 +56,9 @@ export function storyChapters(stats: SiteStats): StoryChapter[] {
       id: "hero",
       range: [0, 0.12],
       hero: true,
-      eyebrow: "LevelX English · Multilevel",
+      eyebrow: "Multilevel imtihoniga tayyorlov platformasi",
       title: "Natijangizni o'zingiz yozasiz",
+      highlight: "o'zingiz",
       body: "O'rganing. Mashq qiling. Imtihon topshiring. O'sing. Multilevel imtihoniga kerak bo'lgan hamma narsa — bitta platformada.",
       cta: {
         primary: { label: "Bepul boshlash", href: "/login" },
@@ -315,13 +328,15 @@ export interface Floater {
   show: Range;
   /** Mobil ekranda ko'rsatilsinmi */
   mobile?: boolean;
+  /** Kompyuterda faqat shu kenglikdan boshlab (tor ekranda varaqqa tegib qoladi) */
+  minWidth?: 1200 | 1400;
 }
 
 export const FLOATERS: Floater[] = [
   { id: "w-fluent", kind: "word", text: "fluent", at: [-6, 10], depth: 0.35, rot: -8, show: [0, 0.3], mobile: true, atMobile: [2, 4] },
-  { id: "w-coherent", kind: "word", text: "coherent", at: [86, 6], depth: 0.5, rot: 6, show: [0, 0.45], mobile: true, atMobile: [70, 2] },
+  { id: "w-coherent", kind: "word", text: "coherent", at: [80, 6], depth: 0.5, rot: 6, show: [0, 0.45], mobile: true, atMobile: [70, 2], minWidth: 1400 },
   { id: "l-aa", kind: "letter", text: "Aa", at: [-20, 56], depth: 0.7, rot: -6, show: [0, 1] },
-  { id: "w-paraphrase", kind: "word", text: "paraphrase", at: [92, 36], depth: 0.25, rot: -4, show: [0, 0.24] },
+  { id: "w-paraphrase", kind: "word", text: "paraphrase", at: [-14, 44], depth: 0.25, rot: -4, show: [0, 0.24], minWidth: 1200 },
   { id: "c-listening", kind: "chip", icon: "headphones", text: "Listening", sub: "audio · skript", at: [84, 24], depth: 0.3, rot: 4, show: [0.26, 0.345], mobile: true, atMobile: [66, 10] },
   { id: "c-reading", kind: "chip", icon: "book", text: "Reading", sub: "matn · savollar", at: [-18, 34], depth: 0.3, rot: -4, show: [0.335, 0.42], mobile: true, atMobile: [0, 12] },
   { id: "c-writing", kind: "chip", icon: "pen", text: "Writing", sub: "Task 1 · Task 2", at: [86, 44], depth: 0.3, rot: 3, show: [0.41, 0.495], mobile: true, atMobile: [66, 18] },
@@ -372,3 +387,115 @@ export const PAGE_GLOWS: Glow[] = [
 
 export const glowBackground = (glows: Glow[]) =>
   glows.map((g) => `radial-gradient(circle at ${g.at[0]}% ${g.at[1]}%, ${g.color}, transparent ${g.radius}%)`).join(", ");
+
+/* =========================================================================
+   2-bo'lim: "Varaq aylanadi" — natija varaqasi teskari holda tushadi,
+   oltin chiziqlar bilan birga aylanib, natijalar yoziladi
+   ========================================================================= */
+export const REVEAL_HEIGHT = { desktop: 320, mobile: 260 } as const;
+
+export const REVEAL_RESULT = {
+  brand: "LevelX English",
+  form: "Test Report Form",
+  exam: "Multilevel · CEFR",
+  ref: "№ LX-2026-0079",
+  name: "Sizning ismingiz",
+  date: "2026",
+  centre: "LevelX Online",
+  scores: [
+    { key: "listening", label: "Listening", value: 79 },
+    { key: "reading", label: "Reading", value: 82 },
+    { key: "writing", label: "Writing", value: 76 },
+    { key: "speaking", label: "Speaking", value: 77 },
+  ],
+  overall: 79,
+  level: "C1",
+  comment: "Ajoyib natija! Keyingi maqsad — C1 dan ham yuqori.",
+  sample: "Namuna",
+} as const;
+
+/** Vaqtlar (0..1 — shu bo'lim ichidagi skroll ulushi) */
+export const REVEAL_TIMES = {
+  intro: [0, 0.3] as Range,
+  outro: [0.84, 1] as Range,
+  name: [0.5, 0.6] as Range,
+  scores: [0.55, 0.76] as Range,
+  overall: [0.72, 0.8] as Range,
+  comment: [0.8, 0.9] as Range,
+  signature: [0.88, 0.96] as Range,
+};
+
+export const REVEAL_KEYFRAMES: Record<string, Keyframe[]> = {
+  // Varaq: yuqoridan teskari tushadi (ry=180 — orqa tomoni), keyin aylanadi
+  card: [
+    { p: 0, y: -1.05, rx: 42, ry: 180, r: -16, s: 0.74 },
+    { p: 0.08, y: -0.7, rx: 36, ry: 180, r: -13, s: 0.78 },
+    { p: 0.2, y: -0.04, rx: 18, ry: 180, r: -7, s: 0.9 },
+    { p: 0.3, y: 0, rx: 12, ry: 176, r: -5, s: 0.94 },
+    { p: 0.5, y: 0, rx: 0, ry: 0, r: -2, s: 1 },
+    { p: 0.52, s: 1.02 },
+    { p: 0.56, s: 1 },
+    { p: 0.84, y: 0, rx: 0, ry: 0, r: -1, s: 1 },
+    // Yakun: varaq biroz yuqoriga ko'tariladi — pastdagi shior va tugmaga joy
+    { p: 0.94, y: -0.07, rx: 0, ry: 0, r: -1, s: 0.93 },
+    { p: 1, y: -0.07, rx: 0, ry: 0, r: -1, s: 0.93 },
+  ],
+  shadow: [
+    { p: 0, y: 0.1, s: 0.5, o: 0 },
+    { p: 0.22, y: 0.04, s: 0.85, o: 0.5 },
+    { p: 0.5, y: 0.02, s: 1, o: 0.65 },
+    { p: 0.84, y: 0.02, s: 1, o: 0.6 },
+    { p: 0.94, y: -0.09, s: 0.93, o: 0.6 },
+    { p: 1, y: -0.09, s: 0.93, o: 0.6 },
+  ],
+  // Aylanish o'rtasida oltin chaqnash
+  flash: [
+    { p: 0.34, o: 0, s: 0.5 },
+    { p: 0.42, o: 1, s: 1 },
+    { p: 0.58, o: 0, s: 1.6 },
+  ],
+  // Muhr "zarbi"
+  stamp: [
+    { p: 0.8, o: 0, s: 2.4, r: -30 },
+    { p: 0.84, o: 1, s: 0.94, r: -10 },
+    { p: 0.86, o: 1, s: 1, r: -10 },
+  ],
+};
+
+/**
+ * Oltin "sehrli" chiziqlar: SVG yo'llari (1440×900 koordinatada, ekranga cho'ziladi).
+ * `draw` — qaysi oraliqda chizilib ochiladi. `width` — asosiy chiziq qalinligi.
+ */
+export interface Ribbon {
+  d: string;
+  draw: Range;
+  width: number;
+  /** Qo'shimcha ingichka "egizak" chiziqlar siljishi (px) */
+  twins: number[];
+  /** Atrofidagi uchqunlar soni */
+  sparks: number;
+}
+
+export const RIBBONS: Ribbon[] = [
+  {
+    d: "M -60 830 C 180 790, 280 600, 410 540 S 640 640, 800 600 S 1010 300, 1160 250 S 1390 170, 1520 110",
+    draw: [0.03, 0.45],
+    width: 2.6,
+    twins: [-10, 12],
+    sparks: 22,
+  },
+  {
+    d: "M -80 640 C 120 690, 240 430, 380 370 S 560 160, 760 190 S 990 430, 1130 390 S 1360 170, 1520 210",
+    draw: [0.1, 0.52],
+    width: 2,
+    twins: [9],
+    sparks: 18,
+  },
+  {
+    d: "M 80 940 C 300 850, 400 720, 560 740 S 900 850, 1050 720 S 1250 440, 1520 380",
+    draw: [0.18, 0.6],
+    width: 1.6,
+    twins: [-8],
+    sparks: 14,
+  },
+];
