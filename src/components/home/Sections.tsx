@@ -108,8 +108,9 @@ export function FeatureGrid({ items, glass = true }: { items: FeatureItem[]; gla
           <Reveal key={item.href} delay={(i % 3) * 90}>
             <Link
               href={item.href}
+              data-spot
               className={cn(
-                "group flex h-full flex-col gap-5 p-8 lift",
+                "spot group relative flex h-full flex-col gap-5 overflow-hidden p-8 lift",
                 glass ? "card-glass" : "card",
               )}
             >
@@ -388,6 +389,82 @@ export function SearchBar() {
           aria-label="Qidirish"
         />
       </form>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+   Bepul va Premium — taqqoslash jadvali
+   ---------------------------------------------------------------------------- */
+const COMPARE: { label: string; free: boolean | string; premium: boolean | string }[] = [
+  { label: "Bepul Full Mock testlar", free: true, premium: true },
+  { label: "Barcha Full Mock testlar", free: false, premium: true },
+  { label: "Oxirgi tushgan savollar arxivi", free: "qisman", premium: "to'liq" },
+  { label: "Maqolalar va listening mashqlari", free: "bepullari", premium: "hammasi" },
+  { label: "Listening skriptlari", free: false, premium: true },
+  { label: "Writing va Speaking — o'qituvchi tekshiruvi", free: false, premium: true },
+  { label: "Exam Full Checking (real imtihon simulyatsiyasi)", free: false, premium: true },
+  { label: "Vocabulary Battle va reyting", free: true, premium: true },
+  { label: "Natijalar tarixi va CEFR daraja", free: true, premium: true },
+];
+
+function CompareCell({ value, gold }: { value: boolean | string; gold?: boolean }) {
+  if (typeof value === "string") {
+    return <span className={cn("text-[13px] font-semibold", gold ? "text-gold-400" : "text-muted")}>{value}</span>;
+  }
+  return value ? (
+    <span
+      className={cn(
+        "inline-grid size-6 place-items-center rounded-full text-[13px] font-bold",
+        gold ? "bg-gold-400 text-ink-950" : "bg-success/20 text-success",
+      )}
+      aria-label="bor"
+    >
+      ✓
+    </span>
+  ) : (
+    <span className="text-faint" aria-label="yo'q">
+      —
+    </span>
+  );
+}
+
+export function CompareTable() {
+  return (
+    <section className="container-page py-20">
+      <SectionTitle align="center" eyebrow="Tariflar" title="Bepul va Premium" />
+      <Reveal className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-line bg-ink-900/70">
+        <div className="grid grid-cols-[1fr_88px_104px] items-center border-b border-line px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] sm:grid-cols-[1fr_140px_160px] sm:px-8">
+          <span className="text-muted">Imkoniyat</span>
+          <span className="text-center text-muted">Bepul</span>
+          <span className="text-center text-gold-400">Premium</span>
+        </div>
+        <ul>
+          {COMPARE.map((row) => (
+            <li
+              key={row.label}
+              className="grid grid-cols-[1fr_88px_104px] items-center border-b border-line/60 px-5 py-3.5 text-sm transition-colors last:border-0 hover:bg-white/[0.02] sm:grid-cols-[1fr_140px_160px] sm:px-8"
+            >
+              <span className="pr-3 text-fg">{row.label}</span>
+              <span className="text-center">
+                <CompareCell value={row.free} />
+              </span>
+              <span className="relative text-center">
+                <CompareCell value={row.premium} gold />
+              </span>
+            </li>
+          ))}
+        </ul>
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-line bg-gradient-to-r from-gold-400/10 to-transparent px-5 py-5 sm:flex-row sm:px-8">
+          <p className="text-sm text-muted">Ro&apos;yxatdan o&apos;tish bepul — Premiumni istalgan payt yoqasiz.</p>
+          <Link
+            href="/premium"
+            className="inline-flex items-center gap-2 rounded-full bg-gold-400 px-6 py-3 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold-300"
+          >
+            Premiumni ko&apos;rish <ArrowRight size={15} />
+          </Link>
+        </div>
+      </Reveal>
     </section>
   );
 }
