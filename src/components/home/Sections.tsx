@@ -4,19 +4,14 @@ import type { ComponentType, ReactNode } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
-  BookOpen,
   Calendar,
   Clock,
   Download,
-  Edit,
   FileText,
-  Headphones,
   Lock,
-  Search,
   Star,
   TrendingUp,
   Users,
-  Volume2,
   Zap,
 } from "react-feather";
 import { cn } from "@/lib/format";
@@ -326,78 +321,6 @@ export async function CoursesStrip({ courses }: { courses: Course[] }) {
           </Reveal>
         ))}
       </div>
-    </section>
-  );
-}
-
-/* ----------------------------------------------------------------------------
-   To'rt asosiy ko'nikma (Figma: skills-section)
-   ---------------------------------------------------------------------------- */
-const SKILLS: { title: string; text: Bi; href: string; icon: IconType; tone: string }[] = [
-  { title: "Reading", text: { uz: "Matn tuzilishi va tushunib o'qish", en: "Text structure and reading comprehension" }, href: "/latest-questions", icon: BookOpen, tone: "text-brand-400" },
-  { title: "Listening", text: { uz: "Kundalik suhbatlar va turli talaffuzlar", en: "Everyday conversations and a range of accents" }, href: "/boost/listening", icon: Headphones, tone: "text-gold-400" },
-  { title: "Writing", text: { uz: "Esse va xat yozish ko'nikmasi", en: "Essay and letter writing skills" }, href: "/latest-questions", icon: Edit, tone: "text-success" },
-  { title: "Speaking", text: { uz: "Savollarga ravon va aniq javob berish", en: "Answering questions fluently and accurately" }, href: "/latest-questions", icon: Volume2, tone: "text-warning" },
-];
-
-export async function SkillModules() {
-  const t = await getT();
-  return (
-    <section className="container-page pt-5 pb-10">
-      <Reveal>
-        <p className="eyebrow mb-6">
-          <span className="h-px w-5 bg-brand-400" aria-hidden />
-          {t("To'rt asosiy ko'nikma", "Four core skills")}
-        </p>
-      </Reveal>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {SKILLS.map((skill, i) => {
-          const Icon = skill.icon;
-          return (
-            <Reveal key={skill.title} delay={i * 80}>
-              <Link href={skill.href} className="card group flex h-full flex-col gap-4 p-7 lift">
-                <div className="flex items-center justify-between">
-                  <span className="grid place-items-center rounded-full bg-ink-800 p-3">
-                    <Icon size={22} strokeWidth={1.75} className="text-brand-400" />
-                  </span>
-                  <span className="text-xs font-semibold text-faint">CEFR B1–C1</span>
-                </div>
-                <h3 className="display-title text-[26px] font-semibold">{skill.title}</h3>
-                <p className="text-sm leading-normal text-muted flex-1">{t(skill.text)}</p>
-                <span className={cn("inline-flex items-center gap-1.5 text-[13px] font-semibold", skill.tone)}>
-                  {t("Mashq qilish", "Practise")}
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
-            </Reveal>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-/* ----------------------------------------------------------------------------
-   Qidiruv (Figma: search-bar)
-   ---------------------------------------------------------------------------- */
-export async function SearchBar() {
-  const t = await getT();
-  return (
-    <section className="container-page pt-5 pb-10">
-      <form
-        action="/search"
-        className="flex items-center gap-4 rounded-full border border-line bg-surface px-6 py-4 transition-colors focus-within:border-brand-400"
-        role="search"
-      >
-        <Search size={20} strokeWidth={1.75} className="shrink-0 text-faint" aria-hidden />
-        <input
-          type="search"
-          name="q"
-          placeholder={t("Mock testlar, maqolalar yoki mavzularni qidiring…", "Search mock tests, articles or topics…")}
-          className="min-w-0 flex-1 bg-transparent text-[15px] text-fg placeholder:text-faint focus:outline-none"
-          aria-label={t("Qidirish", "Search")}
-        />
-      </form>
     </section>
   );
 }

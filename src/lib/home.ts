@@ -4,7 +4,7 @@ import type { T } from "@/i18n";
 import { createServerSupabase } from "./supabase/server";
 import { createAdminSupabase } from "./supabase/admin";
 import { isSupabaseConfigured } from "./supabase/env";
-import { countQuestionsByTestSet, getMyAttemptsWithTests, type AttemptWithTest } from "./queries";
+import { getMyAttemptsWithTests, type AttemptWithTest } from "./queries";
 import { SECTIONS } from "./constants";
 import type { SkillSection } from "./types";
 
@@ -69,48 +69,6 @@ async function countAllQuestions(): Promise<number> {
   } catch {
     return 0;
   }
-}
-
-/** "Davom ettirish" kartasi — oxirgi tugallanmagan test */
-export interface ContinueCard {
-  attemptId: string;
-  title: string;
-  percent: number;
-  href: string;
-}
-
-/** Kirgan foydalanuvchining bosh sahifasi uchun ma'lumotlar */
-export async function getLearnerSnapshot(): Promise<{
-  continueCard: ContinueCard | null;
-  streakDays: number;
-}> {
-  const attempts = await getMyAttemptsWithTests(60);
-
-  const open = attempts.find(
-    (a) =>
-      a.status === "in_progress" &&
-      (!a.expires_at || new Date(a.expires_at).getTime() > Date.now()),
-  );
-
-  let continueCard: ContinueCard | null = null;
-  if (open) {
-    const totals = await countQuestionsByTestSet([open.test_set_id]);
-    const total = totals[open.test_set_id] ?? 0;
-    const answered = Object.values(open.answers ?? {}).filter(
-      (v) => v !== null && v !== "" && !(Array.isArray(v) && v.length === 0),
-    ).length;
-    continueCard = {
-      attemptId: open.id,
-      title: open.test_sets?.title ?? "Test",
-      percent: total > 0 ? Math.min(100, Math.round((answered / total) * 100)) : 0,
-      href:
-        open.test_sets?.category === "exam_checking"
-          ? `/exam/${open.id}`
-          : `/test/${open.id}`,
-    };
-  }
-
-  return { continueCard, streakDays: studyStreak(attempts.map((a) => a.started_at)) };
 }
 
 /** Ketma-ket faol kunlar soni (Toshkent vaqti bo'yicha, bugun yoki kechadan boshlab) */

@@ -4770,3 +4770,1411 @@ html:not([lang="en"]) .i18n-en {
   color: #10bfa6;
   font-weight: inherit;
 }
+
+/* ==========================================================================
+   Kirgan o'quvchi — "oyna" hero (lh-*), panellar (lp-*), ball grafigi (lt-*)
+   ========================================================================== */
+.lh {
+  position: relative;
+  isolation: isolate;
+  padding: 18px 0 8px;
+}
+@media (min-width: 1024px) {
+  .lh {
+    padding: 28px 0 12px;
+  }
+}
+/* Ramka ortidagi xira, oqartirilgan manzara */
+.lh-backdrop {
+  position: absolute;
+  inset: -60px 0 auto;
+  height: calc(100% + 160px);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.2;
+  filter: grayscale(0.85) blur(5px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%);
+}
+
+.lh-frame {
+  --tx: 0;
+  --ty: 0;
+  --sp: 0;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border-radius: 28px;
+  background: #0b1220;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 50px 100px -50px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  animation: lh-frame-in 1s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+@media (min-width: 1024px) {
+  .lh-frame {
+    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto;
+    gap: 18px 26px;
+    padding: 22px;
+    border-radius: 40px;
+    min-height: clamp(660px, calc(100vh - 130px), 780px);
+  }
+}
+
+.lh-bg {
+  position: absolute;
+  inset: -3%;
+  z-index: -3;
+  transform: translate3d(calc(var(--tx) * -14px), calc(var(--ty) * -10px + var(--sp) * 70px), 0)
+    scale(calc(1.05 + var(--sp) * 0.06));
+  will-change: transform;
+}
+.lh-bg img {
+  animation: lh-zoom 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.lh-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(11, 18, 32, 0.6) 0%, rgba(11, 18, 32, 0.05) 26%, rgba(11, 18, 32, 0.12) 52%, rgba(11, 18, 32, 0.86) 100%),
+    radial-gradient(120% 90% at 50% 38%, transparent 45%, rgba(11, 18, 32, 0.6) 100%);
+}
+.lh-glow {
+  position: absolute;
+  inset: -20%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 30% at 32% 42%, rgba(227, 167, 155, 0.22), transparent 70%),
+    radial-gradient(34% 26% at 70% 30%, rgba(217, 179, 130, 0.18), transparent 70%);
+  mix-blend-mode: screen;
+  animation: lh-drift 18s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.lh.is-live .lh-glow,
+.lh.is-live .lh-badge-ring {
+  animation-play-state: running;
+}
+
+/* ---------- Shisha ---------- */
+.lh-glass,
+.lh-pill,
+.lh-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 20px 44px -26px rgba(0, 0, 0, 0.7);
+}
+
+/* ---------- Yuqori qator ---------- */
+.lh-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+@media (min-width: 1024px) {
+  .lh-top {
+    grid-column: 1 / -1;
+    flex-wrap: nowrap;
+  }
+}
+.lh-top > * {
+  animation: lh-rise 0.9s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  animation-delay: calc(0.2s + var(--d, 0) * 0.09s);
+}
+.lh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+.lh-hello {
+  flex: 1 1 0;
+}
+@media (min-width: 768px) {
+  .lh-hello {
+    flex: 0 1 auto;
+  }
+}
+.lh-cta {
+  flex-shrink: 0;
+  background: #f6efe9;
+  border-color: transparent;
+  color: #0b1220;
+  transition: background 0.25s, translate 0.25s;
+}
+.lh-cta:hover,
+.lh-cta:focus-visible {
+  background: #fff;
+  translate: 0 -2px;
+}
+.lh-cta svg {
+  transition: rotate 0.3s;
+}
+.lh-cta-short {
+  display: none;
+}
+@media (max-width: 479px) {
+  .lh-pill {
+    padding: 0 16px;
+  }
+  .lh-cta-long {
+    display: none;
+  }
+  .lh-cta-short {
+    display: inline;
+  }
+}
+.lh-cta:hover svg {
+  rotate: 45deg;
+}
+.lh-stats {
+  order: 3;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 6px;
+  border-radius: 24px;
+}
+@media (min-width: 768px) {
+  .lh-stats {
+    order: 0;
+    width: auto;
+    border-radius: 999px;
+  }
+}
+.lh-stats > div {
+  min-width: 0;
+  padding: 4px 10px;
+}
+@media (min-width: 768px) {
+  .lh-stats > div {
+    padding: 3px 22px;
+  }
+  .lh-stats dt {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+}
+.lh-stats > div + div {
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+.lh-stats dt {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lh-stats dd {
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.lh-stats dd small {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ---------- Chap panel ---------- */
+.lh-rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+  margin: -2px;
+}
+.lh-rail::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .lh-rail {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    flex-direction: column;
+    align-self: center;
+    overflow: visible;
+    z-index: 2;
+  }
+}
+.lh-rail-group {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+@media (min-width: 1024px) {
+  .lh-rail-group {
+    flex-direction: column;
+  }
+}
+/* Mobil sarlavhada avatar bor — panelda takrorlanmaydi */
+@media (max-width: 1023px) {
+  .lh-rail {
+    justify-content: center;
+  }
+  .lh-rail-me {
+    display: none;
+  }
+}
+.lh-rail-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.86);
+  transition: background 0.2s, color 0.2s;
+  animation: lh-pop 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  animation-delay: calc(0.45s + var(--i, 0) * 0.06s);
+}
+.lh-rail-btn:hover,
+.lh-rail-btn:focus-visible {
+  background: #f6efe9;
+  color: #0b1220;
+}
+.lh-tip {
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  translate: -4px -50%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(11, 18, 32, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, translate 0.2s;
+}
+.lh-rail-btn:hover .lh-tip,
+.lh-rail-btn:focus-visible .lh-tip {
+  opacity: 1;
+  translate: 0 -50%;
+}
+@media (max-width: 1023px) {
+  .lh-tip {
+    display: none;
+  }
+}
+.lh-avatar img,
+.lh-avatar > span:first-child {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  object-fit: cover;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #0b1220;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ---------- Shior ---------- */
+.lh-title {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 30px 2px 10px;
+}
+@media (min-width: 1024px) {
+  .lh-title {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+    padding: 0;
+    translate: calc(var(--tx) * -8px) calc(var(--ty) * -6px + var(--sp) * -40px);
+  }
+}
+.lh-title h1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: clamp(44px, 10.5vw, 128px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  color: rgba(255, 248, 242, 0.88);
+  /* soya h1 ga — so'z qutilari (overflow: hidden) uni kesmasin */
+  filter: drop-shadow(0 14px 34px rgba(0, 0, 0, 0.35));
+}
+.lh-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.24em;
+}
+.lh-word {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0 0.02em 0.08em;
+}
+.lh-word > span {
+  display: inline-block;
+  animation: lh-word 1.1s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+  animation-delay: calc(0.35s + var(--w, 0) * 0.09s);
+}
+.lh-lead {
+  max-width: 340px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  animation: lh-rise 0.9s 0.75s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+@media (min-width: 1024px) {
+  .lh-lead {
+    margin: 6px 0 0;
+    text-align: left;
+  }
+}
+
+/* ---------- Kartalar ---------- */
+.lh-cards {
+  display: grid;
+  gap: 14px;
+}
+@media (min-width: 768px) {
+  .lh-cards {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: end;
+  }
+}
+@media (min-width: 1024px) {
+  .lh-cards {
+    grid-column: 2;
+    grid-row: 3;
+    gap: 22px;
+  }
+}
+@media (min-width: 1280px) {
+  .lh-cards {
+    grid-template-columns: minmax(0, 560px) minmax(120px, 1fr) minmax(0, 360px);
+  }
+}
+.lh-card {
+  position: relative;
+  min-width: 0;
+  padding: 18px;
+  border-radius: 26px;
+  color: #fff;
+  animation: lh-rise 1s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  animation-delay: calc(0.2s + var(--d, 0) * 0.09s);
+}
+@media (min-width: 1024px) {
+  .lh-card {
+    padding: 22px;
+    border-radius: 30px;
+  }
+  .lh-cal {
+    translate: calc(var(--tx) * 8px) calc(var(--ty) * 6px);
+  }
+  .lh-next {
+    translate: calc(var(--tx) * 12px) calc(var(--ty) * 8px);
+  }
+}
+.lh-k {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Kalendar */
+.lh-cal {
+  display: grid;
+  gap: 16px;
+}
+.lh-cal-side,
+.lh-cal-main {
+  min-width: 0;
+}
+@media (min-width: 480px) {
+  .lh-cal {
+    grid-template-columns: 168px minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .lh-cal {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .lh-cal {
+    grid-template-columns: 168px minmax(0, 1fr);
+  }
+}
+.lh-cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  margin-left: -6px;
+}
+.lh-cal-nav button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.2s, opacity 0.2s;
+}
+.lh-cal-nav button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+.lh-cal-nav button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.lh-cal-month {
+  min-width: 0;
+  white-space: nowrap;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+.lh-big {
+  margin-top: 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.lh-big span {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.74);
+}
+.lh-cal-facts {
+  margin-top: 12px;
+  display: grid;
+  gap: 4px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.74);
+}
+.lh-cal-facts b {
+  color: #fff;
+}
+.lh-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+.lh-cal-wd {
+  padding-bottom: 2px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.56);
+}
+.lh-day,
+.lh-cal-legend i {
+  background: rgba(255, 255, 255, 0.07);
+}
+.lh-day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1.25 / 1;
+  border-radius: 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.84);
+  font-variant-numeric: tabular-nums;
+  animation: lh-cell 0.5s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  animation-delay: calc(0.75s + var(--c, 0) * 0.016s);
+}
+.lh-cal-grid[data-switched] .lh-day {
+  animation-delay: calc(var(--c, 0) * 0.008s);
+}
+.lh-day[data-level="1"],
+.lh-cal-legend i[data-level="1"] {
+  background: rgba(227, 167, 155, 0.36);
+}
+.lh-day[data-level="2"],
+.lh-cal-legend i[data-level="2"] {
+  background: rgba(227, 167, 155, 0.66);
+  color: #fff;
+}
+.lh-day[data-level="3"],
+.lh-cal-legend i[data-level="3"] {
+  background: #e3a79b;
+  color: #0b1220;
+}
+.lh-day[data-future] {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+.lh-day[data-today] {
+  box-shadow: 0 0 0 2px #f6efe9;
+}
+.lh-day[data-today]::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 12px;
+  border: 1px solid rgba(246, 239, 233, 0.6);
+  animation: lh-ping 2.4s ease-out infinite;
+}
+.lh-cal-legend {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.62);
+}
+.lh-cal-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.lh-cal-legend i.lh-legend-today {
+  margin-left: 8px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px #f6efe9;
+}
+
+/* Keyingi qadam */
+.lh-next-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lh-round {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: #f6efe9;
+  color: #0b1220;
+  transition: rotate 0.3s, background 0.2s;
+}
+.lh-round:hover,
+.lh-round:focus-visible {
+  rotate: 45deg;
+  background: #fff;
+}
+.lh-next-title {
+  margin-top: 10px;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.lh-next-sub {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.76);
+}
+.lh-progress {
+  margin-top: 12px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+.lh-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #e3a79b, #efbdb2);
+  transform-origin: left;
+  animation: lh-grow 1.4s 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.lh-skills {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.lh-skills li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.lh-skills li[data-weak] {
+  background: rgba(227, 167, 155, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(227, 167, 155, 0.5);
+}
+.lh-skill-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lh-skills li b {
+  margin-left: auto;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 14px;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Brend muhri (kartalar orasida) */
+.lh-badge {
+  display: none;
+}
+@media (min-width: 1280px) {
+  .lh-badge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    justify-self: center;
+    align-self: end;
+    width: 112px;
+    height: 112px;
+    margin-bottom: 8px;
+    translate: calc(var(--tx) * 14px) calc(var(--ty) * 10px);
+    animation: lh-badge-in 1.2s 0.9s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  }
+}
+.lh-badge-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: lh-spin 26s linear infinite;
+  animation-play-state: paused;
+}
+.lh-badge-ring text {
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 9.4px;
+  font-weight: 600;
+  letter-spacing: 2.1px;
+  fill: rgba(255, 255, 255, 0.82);
+}
+.lh-badge-core {
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 25%, #164a7a, #0b2a4a 70%);
+  box-shadow:
+    0 16px 40px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 6px rgba(255, 255, 255, 0.08);
+}
+
+@keyframes lh-frame-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lh-zoom {
+  from {
+    scale: 1.18;
+    filter: blur(6px) brightness(0.6);
+  }
+  to {
+    scale: 1;
+    filter: none;
+  }
+}
+@keyframes lh-drift {
+  from {
+    transform: translate3d(-4%, -2%, 0);
+  }
+  to {
+    transform: translate3d(5%, 3%, 0);
+  }
+}
+@keyframes lh-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lh-word {
+  from {
+    opacity: 0;
+    transform: translateY(105%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lh-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lh-cell {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lh-ping {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.92);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+}
+@keyframes lh-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes lh-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes lh-badge-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4) rotate(-90deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Hero ostidagi panellar ---------- */
+.lp {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 64px;
+  padding-bottom: 72px;
+}
+.lp-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.lp-card {
+  position: relative;
+  min-width: 0;
+  padding: 22px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 30px 60px -40px rgba(0, 0, 0, 0.8);
+}
+@media (min-width: 640px) {
+  .lp-card {
+    padding: 26px;
+  }
+}
+.lp-grid-results,
+.lp-grid-day {
+  display: grid;
+  gap: 20px;
+}
+@media (min-width: 1024px) {
+  .lp-grid-results {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+  .lp-grid-day {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    margin-top: 20px;
+  }
+}
+.lp-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.lp-k {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.lp-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--fg-muted);
+}
+.lp-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--accent);
+  transition: color 0.2s;
+}
+.lp-link:hover {
+  color: var(--accent-hover);
+}
+.lp-link svg {
+  transition: translate 0.2s;
+}
+.lp-link:hover svg {
+  translate: 3px 0;
+}
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #0b1220;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.lp-btn:hover {
+  background: var(--accent-hover);
+}
+.lp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 28px 0 8px;
+  font-size: 14px;
+  color: var(--fg-muted);
+}
+.lp-target {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.lp-target > :last-child {
+  margin-top: auto;
+}
+.lp-target-level {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 8px;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 64px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--fg);
+}
+.lp-target-level span {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--fg-muted);
+}
+.lp-meter,
+.lp-bar {
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(227, 167, 155, 0.15);
+}
+.lp-meter {
+  height: 8px;
+}
+.lp-bar {
+  height: 6px;
+  margin-bottom: 6px;
+}
+.lp-meter span,
+.lp-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s;
+}
+.reveal:not(.is-visible) .lp-meter span,
+.reveal:not(.is-visible) .lp-bar span {
+  transform: scaleX(0);
+}
+.lp-meter-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--fg-faint);
+  font-variant-numeric: tabular-nums;
+}
+.lp-skills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (min-width: 1024px) {
+  .lp-skills {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+.lp-skill {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+}
+@media (min-width: 640px) {
+  .lp-skill {
+    padding: 22px;
+  }
+}
+.lp-ico {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--accent);
+}
+.lp-level {
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--fg);
+  background: rgba(217, 179, 130, 0.14);
+  border: 1px solid rgba(217, 179, 130, 0.35);
+}
+.lp-skill-name {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-muted);
+}
+.lp-skill-score {
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.lp-skill-score small {
+  margin-left: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--fg-faint);
+}
+.lp-plan-ring {
+  --p: 0;
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: conic-gradient(var(--accent) calc(var(--p) * 360deg), rgba(255, 255, 255, 0.08) 0);
+}
+.lp-plan-ring::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: inherit;
+  background: var(--bg-elevated);
+}
+.lp-plan-ring b {
+  position: relative;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 18px;
+}
+.lp-plan-list {
+  display: grid;
+  gap: 10px;
+}
+.lp-plan-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.2s, border-color 0.2s;
+}
+.lp-plan-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(227, 167, 155, 0.35);
+}
+.lp-check,
+.lp-recent-ico {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+}
+.lp-check {
+  color: var(--accent);
+}
+.lp-plan-item[data-done] .lp-check {
+  background: #6fbf8b;
+  color: #0b1220;
+}
+.lp-plan-title,
+.lp-recent-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lp-plan-item[data-done] .lp-plan-title {
+  color: var(--fg-muted);
+  text-decoration: line-through;
+  text-decoration-color: rgba(169, 180, 198, 0.5);
+}
+.lp-plan-hint,
+.lp-recent-date {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--fg-faint);
+}
+.lp-plan-arrow {
+  flex-shrink: 0;
+  color: var(--fg-faint);
+  transition: translate 0.2s, color 0.2s;
+}
+.lp-plan-item:hover .lp-plan-arrow {
+  translate: 3px 0;
+  color: var(--accent);
+}
+.lp-totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.lp-totals dt {
+  font-size: 11.5px;
+  color: var(--fg-faint);
+}
+.lp-totals dd {
+  margin-top: 2px;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.lp-recent-list {
+  display: grid;
+}
+.lp-recent-list li + li {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.lp-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+.lp-recent-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.lp-recent-ico {
+  color: var(--fg-muted);
+}
+.lp-recent-score {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.lp-recent-score small {
+  font-size: 11px;
+  color: var(--fg-faint);
+}
+.lp-recent-score em {
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--fg);
+  background: rgba(217, 179, 130, 0.14);
+}
+.lp-chip {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.lp-chip-ok {
+  background: rgba(111, 191, 139, 0.14);
+  color: #6fbf8b;
+}
+.lp-chip-wait {
+  background: rgba(224, 178, 103, 0.14);
+  color: #e0b267;
+}
+.lp-chip-live {
+  background: rgba(227, 167, 155, 0.14);
+  color: var(--accent);
+}
+
+/* ---------- Ball dinamikasi grafigi ---------- */
+.lt-chart {
+  position: relative;
+}
+.lt-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.lt-chart rect:focus {
+  outline: none;
+}
+.lt-axis {
+  stroke: rgba(255, 255, 255, 0.14);
+  stroke-width: 1;
+}
+.lt-grid {
+  stroke: rgba(255, 255, 255, 0.07);
+  stroke-width: 1;
+}
+.lt-band {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--fg-muted);
+}
+.lt-tick {
+  font-size: 10.5px;
+  fill: var(--fg-faint);
+  font-variant-numeric: tabular-nums;
+}
+.lt-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.lt-area,
+.lt-dot,
+.lt-last {
+  opacity: 0;
+}
+.lt-dot {
+  fill: var(--bg-elevated);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.lt-dot[data-active] {
+  fill: var(--accent);
+}
+.reveal.is-visible .lt-line {
+  animation: lt-draw 1.6s 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.reveal.is-visible .lt-area,
+.reveal.is-visible .lt-last {
+  animation: lt-fade 0.8s 1.3s forwards;
+}
+.reveal.is-visible .lt-dot {
+  animation: lt-fade 0.4s forwards;
+  animation-delay: calc(0.4s + var(--i, 0) * 0.08s);
+}
+.lt-cross {
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1;
+}
+.lt-last {
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--fg);
+}
+.lt-tooltip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  min-width: 140px;
+  max-width: 220px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(11, 18, 32, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 30px -16px rgba(0, 0, 0, 0.8);
+  transform: translate(-50%, calc(-100% - 14px));
+  pointer-events: none;
+}
+.lt-tooltip b {
+  font-family: var(--font-brand), "Poppins", sans-serif;
+  font-size: 18px;
+  color: var(--fg);
+}
+.lt-tooltip small {
+  font-size: 11px;
+  color: var(--fg-faint);
+}
+.lt-tooltip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+.lt-tooltip .lt-date {
+  color: var(--fg-faint);
+}
+@keyframes lt-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes lt-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lh *,
+  .lh-frame {
+    animation: none !important;
+  }
+  .lh-bg,
+  .lh-title,
+  .lh-card,
+  .lh-badge {
+    translate: none !important;
+  }
+  .lt-line {
+    stroke-dashoffset: 0;
+  }
+  .lt-area,
+  .lt-dot,
+  .lt-last {
+    opacity: 1;
+  }
+  .reveal .lt-line,
+  .reveal .lt-area,
+  .reveal .lt-dot,
+  .reveal .lt-last {
+    animation: none !important;
+  }
+}
