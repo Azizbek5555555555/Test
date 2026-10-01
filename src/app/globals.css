@@ -4142,3 +4142,553 @@ html[lang="en"] .i18n-uz,
 html:not([lang="en"]) .i18n-en {
   display: none !important;
 }
+
+/* ==========================================================================
+   Metodologiya — tog' so'qmog'i (SummitTrail)
+   ========================================================================== */
+.st-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.st-stage {
+  position: relative;
+  margin: 0 -8px;
+}
+.st-scene {
+  position: relative;
+  aspect-ratio: 1000 / 340;
+}
+.st-scene {
+  /* chetlari va pasti fonga silliq singib ketadi */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(to bottom, #000 72%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(to bottom, #000 72%, transparent);
+  mask-composite: intersect;
+}
+.st-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.st-stars circle {
+  fill: #f3e6d8;
+  opacity: 0.5;
+  animation: st-twinkle 4s ease-in-out infinite;
+}
+@keyframes st-twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.75; }
+}
+.st-sun {
+  position: absolute;
+  left: 90.5%;
+  top: 8%;
+  width: 30%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(246, 215, 176, 0.42), rgba(246, 215, 176, 0.12) 38%, transparent 68%);
+  pointer-events: none;
+  opacity: 0.45;
+  transition: opacity 1.2s ease;
+}
+.st.is-summit .st-sun {
+  opacity: 0.8;
+}
+.st-contours path {
+  fill: none;
+  stroke: #d9b382;
+  stroke-opacity: 0.08;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.st-ridge {
+  stroke: rgba(240, 207, 156, 0.35);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.st-flag line {
+  stroke: #cdb89a;
+  stroke-width: 1.6;
+}
+.st-flag-cloth {
+  fill: #d9b382;
+  transform-origin: 905px 13px;
+  transform: scaleX(0.35);
+  transition: transform 0.9s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.st.is-summit .st-flag-cloth,
+.st:not(.st-js) .st-flag-cloth {
+  transform: scaleX(1);
+  animation: st-wave 2.6s ease-in-out infinite;
+}
+@keyframes st-wave {
+  0%, 100% { transform: scaleX(1) skewY(0deg); }
+  50% { transform: scaleX(0.9) skewY(-5deg); }
+}
+.st-drop {
+  stroke: rgba(227, 167, 155, 0.35);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+  vector-effect: non-scaling-stroke;
+}
+.st-path-ghost,
+.st-path,
+.st-path-glow {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.st-path-ghost {
+  stroke: rgba(255, 255, 255, 0.16);
+  stroke-width: 2;
+  stroke-dasharray: 2 7;
+}
+.st-path {
+  stroke: url(#st-trail);
+  stroke-width: 3;
+}
+.st-path-glow {
+  stroke: #f0cf9c;
+  stroke-width: 11;
+  stroke-opacity: 0.14;
+}
+.st-camp-ring {
+  fill: rgba(11, 18, 32, 0.85);
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1.5;
+  transition: stroke 0.5s ease, fill 0.5s ease;
+}
+.st-camp-dot {
+  fill: rgba(255, 255, 255, 0.28);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 0.5s ease, transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.st-camp.is-on .st-camp-ring,
+.st:not(.st-js) .st-camp-ring {
+  stroke: #e3a79b;
+  fill: rgba(227, 167, 155, 0.14);
+}
+.st-camp.is-on .st-camp-dot,
+.st:not(.st-js) .st-camp-dot {
+  fill: #f0cf9c;
+  transform: scale(1.25);
+}
+.st-climber {
+  transition: opacity 0.4s ease;
+}
+.st-climber-dot {
+  fill: #fff4e6;
+}
+
+/* kartalar */
+.st-cards {
+  display: grid;
+  gap: 14px;
+  margin-top: 6px;
+  position: relative;
+  z-index: 1;
+}
+@media (min-width: 768px) {
+  .st-cards {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+.st-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(160deg, rgba(30, 40, 72, 0.55), rgba(13, 20, 38, 0.6));
+  padding: 18px 18px 20px;
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1), border-color 0.6s ease,
+    box-shadow 0.6s ease;
+}
+.st-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.st-num {
+  font-family: var(--font-display, serif);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(227, 167, 155, 0.55);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.6s ease;
+}
+.st-camp-tag {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.st.st-js .st-card {
+  opacity: 0.38;
+  transform: translateY(14px);
+}
+.st.st-js .st-card.is-on {
+  opacity: 1;
+  transform: none;
+  border-color: rgba(227, 167, 155, 0.35);
+  box-shadow: 0 18px 40px -26px rgba(227, 167, 155, 0.55);
+}
+.st .st-card.is-on .st-num,
+.st:not(.st-js) .st-num {
+  color: #e3a79b;
+}
+.st-card-summit .st-camp-tag {
+  border-color: rgba(217, 179, 130, 0.5);
+  color: #d9b382;
+}
+.st.st-js .st-card-summit.is-on {
+  border-color: rgba(217, 179, 130, 0.55);
+  box-shadow: 0 18px 44px -24px rgba(217, 179, 130, 0.7);
+}
+@media (max-width: 767px) {
+  .st-drop { display: none; }
+  .st-stage { margin: 0 -16px; }
+  .st.st-js .st-card { transform: translateX(-10px); }
+}
+.st:not(.is-live) * {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .st * { animation: none !important; transition: none !important; }
+}
+
+/* ==========================================================================
+   Biz haqimizda — jonli kompozitsiya (AboutPeak)
+   ========================================================================== */
+.ab {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border-radius: 24px;
+}
+@media (min-width: 1024px) {
+  .ab { grid-template-columns: 1fr 1.1fr; }
+}
+.ab-visual {
+  position: relative;
+  min-height: 340px;
+  overflow: hidden;
+  isolation: isolate;
+}
+@media (min-width: 1024px) {
+  .ab-visual { min-height: 560px; }
+}
+.ab-img {
+  position: absolute;
+  inset: -6%;
+  transform: translate3d(calc(var(--tx, 0) * -14px), calc(var(--ty, 0) * -10px + var(--sp, 0) * 30px), 0) scale(1.04);
+  opacity: 0.55;
+}
+.ab-img img {
+  animation: ab-kenburns 26s ease-in-out infinite alternate;
+}
+@keyframes ab-kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.1) translate(-1.5%, 1%); }
+}
+.ab-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(11, 18, 32, 0.92), rgba(11, 18, 32, 0.15) 55%, rgba(11, 18, 32, 0.35)),
+    linear-gradient(to right, transparent 60%, rgba(22, 30, 52, 0.7));
+}
+.ab-beam {
+  position: absolute;
+  top: -30%;
+  left: -40%;
+  width: 70%;
+  height: 160%;
+  background: linear-gradient(90deg, transparent, rgba(240, 207, 156, 0.13), transparent);
+  transform: rotate(18deg) translateX(-60%);
+  animation: ab-beam 9s ease-in-out infinite;
+}
+@keyframes ab-beam {
+  0%, 15% { transform: rotate(18deg) translateX(-60%); opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  85%, 100% { transform: rotate(18deg) translateX(260%); opacity: 0; }
+}
+.ab-fog {
+  position: absolute;
+  left: -30%;
+  width: 160%;
+  height: 34%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(214, 200, 230, 0.16), transparent 70%);
+}
+.ab-fog-1 {
+  bottom: 18%;
+  animation: ab-drift 22s ease-in-out infinite alternate;
+  transform: translate3d(calc(var(--tx, 0) * 18px), 0, 0);
+}
+.ab-fog-2 {
+  bottom: 38%;
+  opacity: 0.7;
+  animation: ab-drift 30s ease-in-out infinite alternate-reverse;
+}
+@keyframes ab-drift {
+  from { translate: -8% 0; }
+  to { translate: 10% -6%; }
+}
+
+/* CEFR balandlik o'lchagichi */
+.ab-alt {
+  position: absolute;
+  top: 12%;
+  right: 7%;
+  bottom: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  z-index: 2;
+}
+.ab-alt-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(240, 207, 156, 0.8);
+}
+.ab-alt-rail {
+  position: relative;
+  flex: 1;
+  width: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.14);
+}
+.ab-alt-fill {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(to top, #e3a79b, #f0cf9c);
+  box-shadow: 0 0 12px rgba(240, 207, 156, 0.6);
+  transform-origin: bottom;
+  transition: transform 2.6s cubic-bezier(0.45, 0, 0.2, 1) 0.3s;
+}
+.ab-alt-mark {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--i) * 25%);
+  display: flex;
+  align-items: center;
+  translate: -5px 50%;
+}
+.ab-alt-mark i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f0cf9c;
+  box-shadow: 0 0 0 3px rgba(11, 18, 32, 0.8), 0 0 10px rgba(240, 207, 156, 0.7);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+  transition-delay: calc(0.3s + var(--i) * 0.55s);
+}
+.ab-alt-mark b {
+  position: absolute;
+  right: 18px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f3e6d8;
+  transition: color 0.4s ease;
+  transition-delay: calc(0.3s + var(--i) * 0.55s);
+}
+.ab-alt-climber {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 18px;
+  height: 18px;
+  margin: 0 0 -9px -9px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6ea 25%, rgba(240, 207, 156, 0.5) 45%, transparent 70%);
+  transition: bottom 2.6s cubic-bezier(0.45, 0, 0.2, 1) 0.3s;
+  animation: ab-pulse 2.2s ease-in-out infinite;
+}
+@keyframes ab-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+}
+.ab.ab-js:not(.is-in) .ab-alt-fill { transform: scaleY(0); }
+.ab.ab-js:not(.is-in) .ab-alt-climber { bottom: 0%; }
+.ab.ab-js:not(.is-in) .ab-alt-mark i {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(11, 18, 32, 0.8);
+}
+.ab.ab-js:not(.is-in) .ab-alt-mark b { color: rgba(255, 255, 255, 0.35); }
+
+/* iqtibos */
+.ab-quote {
+  position: absolute;
+  left: 8%;
+  right: 22%;
+  bottom: 9%;
+  z-index: 2;
+}
+.ab-quote blockquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(22px, 2.2vw, 30px);
+  line-height: 1.25;
+  color: #f2c7bd;
+}
+.ab-quote svg {
+  display: block;
+  width: 70%;
+  height: 14px;
+  margin-top: 8px;
+}
+.ab-quote path {
+  fill: none;
+  stroke: #d9b382;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.6, 0, 0.2, 1) 1.2s;
+}
+.ab.ab-js:not(.is-in) .ab-quote path { stroke-dashoffset: 1; }
+
+/* o'ng tomon */
+.ab-copy {
+  position: relative;
+  padding: 32px;
+}
+@media (min-width: 640px) {
+  .ab-copy { padding: 48px; }
+}
+.ab-x {
+  color: #e3a79b;
+  font-style: italic;
+}
+.ab-copy .hero-hand {
+  margin-top: 6px;
+}
+.ab-in {
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
+  transition-delay: calc(0.15s + var(--d, 0) * 0.12s);
+}
+.ab.ab-js:not(.is-in) .ab-in {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.ab-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 28px;
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+}
+.ab-orbit {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+.ab-orbit-rings {
+  position: absolute;
+  inset: 0;
+  animation: ab-spin 60s linear infinite reverse;
+}
+.ab-orbit-rings circle {
+  fill: none;
+  stroke: rgba(217, 179, 130, 0.28);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+}
+.ab-orbit-spin {
+  position: absolute;
+  inset: 0;
+  animation: ab-spin 36s linear infinite;
+}
+@keyframes ab-spin {
+  to { transform: rotate(360deg); }
+}
+.ab-pill {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: rotate(var(--a)) translateX(78px) rotate(calc(var(--a) * -1));
+}
+.ab-pill > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  translate: -50% -50%;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(13, 20, 38, 0.92);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #f3e6d8;
+  animation: ab-spin 36s linear infinite reverse;
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.7);
+}
+.ab-pill i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 8px var(--tone);
+}
+.ab-orbit-seal {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 6px rgba(217, 179, 130, 0.08), 0 0 34px rgba(217, 179, 130, 0.35);
+}
+.ab-facts {
+  display: grid;
+  gap: 18px;
+  flex: 1;
+  min-width: 180px;
+}
+.ab-facts li {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.ab-facts b {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 1;
+}
+.ab-facts span {
+  font-size: 14px;
+  color: var(--fg-muted);
+}
+.ab:not(.is-live) *,
+.ab:not(.is-live) *::before {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab * { animation: none !important; transition: none !important; }
+}
+.ab[data-mode="static"] * { animation: none !important; }
