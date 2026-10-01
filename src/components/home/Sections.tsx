@@ -23,6 +23,7 @@ import { cn } from "@/lib/format";
 import { Reveal } from "@/components/motion/Reveal";
 import type { Course } from "@/lib/types";
 import { getT } from "@/i18n/server";
+import { SummitTrail } from "./SummitTrail";
 import type { Bi, T } from "@/i18n";
 
 type IconType = ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
@@ -212,35 +213,22 @@ export function PullQuote({ children }: { children: ReactNode }) {
    Yo'l xaritasi — 5 qadam (Figma: how-it-works-section)
    ---------------------------------------------------------------------------- */
 const ROADMAP = [
-  { title: "Learn", text: { uz: "General English, maqolalar va lug'at bilan poydevor quring.", en: "Build a foundation with General English, articles and vocabulary." } },
-  { title: "Practice", text: { uz: "Reading, Listening, Writing va Speaking bo'yicha mashq qiling.", en: "Practise Reading, Listening, Writing and Speaking." } },
-  { title: "Take Exam", text: { uz: "Full Mock va Exam Checking — qat'iy taymerli real sharoit.", en: "Full Mock and Exam Checking — real conditions with a strict timer." } },
-  { title: "See Result", text: { uz: "Ballar, CEFR darajasi va har bir savol bo'yicha tahlil.", en: "Scores, CEFR level and a question-by-question breakdown." } },
-  { title: "Improve", text: { uz: "Zaif tomonlaringiz ustida ishlab, keyingi cho'qqiga chiqing.", en: "Work on your weak spots and climb to the next peak." } },
+  { title: "Learn", camp: { uz: "Tayanch lager", en: "Base camp" }, text: { uz: "General English, maqolalar va lug'at bilan poydevor quring.", en: "Build a foundation with General English, articles and vocabulary." } },
+  { title: "Practice", camp: { uz: "1-lager", en: "Camp 1" }, text: { uz: "Reading, Listening, Writing va Speaking bo'yicha mashq qiling.", en: "Practise Reading, Listening, Writing and Speaking." } },
+  { title: "Take Exam", camp: { uz: "2-lager", en: "Camp 2" }, text: { uz: "Full Mock va Exam Checking — qat'iy taymerli real sharoit.", en: "Full Mock and Exam Checking — real conditions with a strict timer." } },
+  { title: "See Result", camp: { uz: "3-lager", en: "Camp 3" }, text: { uz: "Ballar, CEFR darajasi va har bir savol bo'yicha tahlil.", en: "Scores, CEFR level and a question-by-question breakdown." } },
+  { title: "Improve", camp: { uz: "Cho'qqi", en: "Summit" }, text: { uz: "Zaif tomonlaringiz ustida ishlab, keyingi cho'qqiga chiqing.", en: "Work on your weak spots and climb to the next peak." } },
 ];
 
+/** Metodologiya: skroll bilan chiziladigan tog' so'qmog'i (SummitTrail) */
 export async function Roadmap() {
   const t = await getT();
   return (
-    <section className="container-page py-20 lg:py-20">
-      <SectionTitle eyebrow={t("Metodologiya", "Methodology")} title={t("Cho'qqiga olib boruvchi yo'l", "The path to the summit")} />
-      <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-5">
-        {ROADMAP.map((step, i) => (
-          <Reveal key={step.title} delay={i * 110} className="flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-4">
-              <span className="font-display font-semibold text-[32px] leading-none text-brand-400/50 tabular-nums">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              {i < ROADMAP.length - 1 ? (
-                <span className="hidden lg:block h-px w-[100px] bg-line" aria-hidden />
-              ) : null}
-            </div>
-            <h3 className="display-title text-[22px] font-semibold">{step.title}</h3>
-            <p className="text-[13px] leading-normal text-muted">{t(step.text)}</p>
-          </Reveal>
-        ))}
-      </div>
-    </section>
+    <SummitTrail
+      eyebrow={t("Metodologiya", "Methodology")}
+      title={t("Cho'qqiga olib boruvchi yo'l", "The path to the summit")}
+      steps={ROADMAP.map((step) => ({ title: step.title, text: t(step.text), camp: t(step.camp) }))}
+    />
   );
 }
 

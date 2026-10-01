@@ -12,6 +12,7 @@ import { HomeStory } from "@/components/story/HomeStory";
 import { AmbientBackdrop } from "@/components/story/AmbientBackdrop";
 import { ResultReveal } from "@/components/story/ResultReveal";
 import { StatsReveal } from "@/components/home/StatsReveal";
+import { AboutPeak } from "@/components/home/AboutPeak";
 import { getT } from "@/i18n/server";
 import {
   CompareTable,
@@ -86,54 +87,26 @@ async function AboutSection() {
   const t = await getT();
   return (
     <section className="container-page py-20" id="about">
-      <Reveal className="card-glass grid overflow-hidden lg:grid-cols-[1fr_1.1fr]">
-        <div className="relative min-h-[280px] lg:min-h-full">
-          <Image
-            src="/design/ambient-peak.jpg"
-            alt=""
-            fill
-            sizes="(min-width: 1024px) 45vw, 100vw"
-            className="object-cover opacity-40"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink-950/80 via-ink-950/20 to-transparent lg:bg-gradient-to-r" />
-          <div className="absolute bottom-8 left-8 right-8">
-            <p className="font-display italic text-2xl sm:text-[28px] leading-snug text-brand-300">
-              “{t("Har bir qadam cho'qqi sari puxta chizilgan.", "Every step is carefully mapped toward the summit.")}”
-            </p>
-          </div>
-        </div>
-        <div className="p-8 sm:p-12">
-          <p className="eyebrow">
-            <span className="h-px w-5 bg-brand-400" aria-hidden />
-            {t("Biz haqimizda", "About us")}
-          </p>
-          <h2 className="display-title mt-4 text-4xl sm:text-[44px]">LevelX English</h2>
-          <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted">
-            <p>
-              {t(
-                "LevelX English — ingliz tilini o'rganishni yanada tizimli, amaliy va natijaga yo'naltirilgan qilish maqsadida yaratilgan ta'lim brendi. Maqsadimiz — o'quvchiga o'z imkoniyatlaridan yuqoriga chiqishga yordam berish.",
-                "LevelX English is an education brand created to make learning English more structured, practical and results-driven. Our goal is to help every learner push past their own limits.",
-              )}
-            </p>
-            <p>
-              {t(
-                "Reading, Listening, Writing va Speaking ko'nikmalari bir tizim asosida rivojlanadi: to'liq mock testlar, so'nggi imtihon savollari, maqolalar, listening practice va vocabulary.",
-                "Reading, Listening, Writing and Speaking grow within one system: full mock tests, the latest exam questions, articles, listening practice and vocabulary.",
-              )}
-            </p>
-          </div>
-          <div className="mt-8 grid grid-cols-2 gap-6 border-t border-line pt-8">
-            <div>
-              <p className="font-display text-5xl font-semibold text-brand-400">4</p>
-              <p className="mt-1 text-sm text-muted">{t("ko'nikma — bitta tizimda", "skills — one system")}</p>
-            </div>
-            <div>
-              <p className="font-display text-5xl font-semibold text-gold-400">1</p>
-              <p className="mt-1 text-sm text-muted">{t("maqsad", "goal")} — {SITE_TAGLINE}</p>
-            </div>
-          </div>
-        </div>
-      </Reveal>
+      <AboutPeak
+        copy={{
+          eyebrow: t("Biz haqimizda", "About us"),
+          quote: t("Har bir qadam cho'qqi sari puxta chizilgan.", "Every step is carefully mapped toward the summit."),
+          hand: SITE_TAGLINE,
+          paragraphs: [
+            t(
+              "LevelX English — ingliz tilini o'rganishni yanada tizimli, amaliy va natijaga yo'naltirilgan qilish maqsadida yaratilgan ta'lim brendi. Maqsadimiz — o'quvchiga o'z imkoniyatlaridan yuqoriga chiqishga yordam berish.",
+              "LevelX English is an education brand created to make learning English more structured, practical and results-driven. Our goal is to help every learner push past their own limits.",
+            ),
+            t(
+              "Reading, Listening, Writing va Speaking ko'nikmalari bir tizim asosida rivojlanadi: to'liq mock testlar, so'nggi imtihon savollari, maqolalar, listening practice va vocabulary.",
+              "Reading, Listening, Writing and Speaking grow within one system: full mock tests, the latest exam questions, articles, listening practice and vocabulary.",
+            ),
+          ],
+          skillsFact: t("ko'nikma — bitta tizimda", "skills — one system"),
+          goalFact: t("maqsad — o'z chegarangizdan oshib o'tish", "goal — to push past your limits"),
+          altitude: t("Daraja", "Level"),
+        }}
+      />
     </section>
   );
 }
