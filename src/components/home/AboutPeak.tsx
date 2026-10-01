@@ -131,7 +131,7 @@ export function AboutPeak({ copy }: { copy: AboutCopy }) {
           className="display-title mt-4 text-4xl sm:text-[46px] ab-in"
           style={{ "--d": 1 } as React.CSSProperties}
         >
-          Level<span className="ab-x">X</span> English
+          <span className="lx-word">level<span>x</span>english</span>
         </h2>
         <p
           className="hero-hand ab-in"

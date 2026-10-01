@@ -58,7 +58,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <BrandMark size={30} />
             </span>
             <span className="adm-brand-name">
-              LevelX <em>Admin</em>
+              level<span className="text-[#10bfa6]">x</span>english <em>Admin</em>
             </span>
           </Link>
           <div className="adm-top-actions">

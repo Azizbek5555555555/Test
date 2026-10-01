@@ -16,7 +16,7 @@ export const CERT_W = 460;
 export const CERT_H = 620;
 
 export const CERT = {
-  brand: "LevelX English",
+  brand: "levelxenglish",
   title: "Certificate",
   subtitle: "of English Language Proficiency",
   certify: "This is to certify that",

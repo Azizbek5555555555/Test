@@ -141,7 +141,7 @@ export default async function AdminSettingsPage() {
         />
       </Collapsible>
 
-      <Collapsible title="📊 CEFR chegaralari" subtitle="Umumiy ball (0–100) qaysi darajaga to'g'ri kelishi">
+      <Collapsible title="📊 CEFR chegaralari" subtitle="Umumiy ball (0–75) qaysi darajaga to'g'ri kelishi. Rasmiy: C1 65, B2 51, B1 38">
         <AdminForm
           compact
           action={updateSettingFieldsAction}
@@ -151,7 +151,7 @@ export default async function AdminSettingsPage() {
             { name: "C1", label: "C1 — shu balldan boshlab", type: "number", defaultValue: txt(bands, "C1") },
             { name: "B2", label: "B2 — shu balldan boshlab", type: "number", defaultValue: txt(bands, "B2") },
             { name: "B1", label: "B1 — shu balldan boshlab", type: "number", defaultValue: txt(bands, "B1") },
-            { name: "A2", label: "A2 — shu balldan boshlab (pastrog'i A1)", type: "number", defaultValue: txt(bands, "A2") },
+            { name: "A2", label: "B1 dan quyi (A2) — shu balldan boshlab", type: "number", defaultValue: txt(bands, "A2") },
           ]}
         />
       </Collapsible>

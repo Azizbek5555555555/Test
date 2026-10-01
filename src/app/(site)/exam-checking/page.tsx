@@ -10,6 +10,7 @@ import { TestSetCard } from "@/components/test/TestSetCard";
 import { FeedbackCards, ResultCard } from "@/components/test/ResultCard";
 import { ExamGateHeader, ExamRules, ExamSequence } from "@/components/exam/ExamGate";
 import { Reveal } from "@/components/motion/Reveal";
+import { ScoringGuide } from "@/components/exam/ScoringGuide";
 import { getT } from "@/i18n/server";
 import type { T } from "@/i18n";
 
@@ -127,6 +128,11 @@ export default async function ExamCheckingPage() {
           </div>
         </div>
       </section>
+
+      {/* ------------------------------------------------ Rasmiy baholash tizimi */}
+      <div className="container-page pt-16">
+        <ScoringGuide />
+      </div>
 
       {/* ------------------------------------------------ Imtihonlar */}
       <section id="imtihonlar" className="container-page scroll-mt-28 py-16">

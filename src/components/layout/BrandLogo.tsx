@@ -2,8 +2,7 @@ import Image from "next/image";
 import { cn } from "@/lib/format";
 
 /**
- * Brend belgisi (logo). Sayt qorong'i — shuning uchun qora fonli rasmiy logodan
- * tayyorlangan shaffof variant ishlatiladi (public/brand/logo-mark-dark-*.png).
+ * Brend belgisi — rasmiy "LX" ikonkasi (shaffof fon, public/brand/lx-mark-*.png).
  */
 export function BrandMark({
   size = 32,
@@ -14,7 +13,7 @@ export function BrandMark({
 }) {
   return (
     <Image
-      src={size > 96 ? "/brand/logo-mark-dark-256.png" : "/brand/logo-mark-dark-128.png"}
+      src={size > 96 ? "/brand/lx-mark-256.png" : "/brand/lx-mark-128.png"}
       alt=""
       width={size}
       height={size}
@@ -25,11 +24,11 @@ export function BrandMark({
   );
 }
 
-/** "LevelX English" yozuvi — Figma: Cormorant Garamond SemiBold */
+/** "levelxenglish" yozuvi — rasmiy logodagidek: Poppins, "x" harfi firuza rangda */
 export function BrandWordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("font-display font-semibold tracking-normal text-fg", className)}>
-      LevelX <span className="text-brand-400">English</span>
+    <span className={cn("brand-wordmark", className)}>
+      level<span>x</span>english
     </span>
   );
 }

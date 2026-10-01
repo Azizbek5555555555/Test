@@ -12,6 +12,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { cn } from "@/lib/format";
 import { PageHero } from "@/components/marketing/PageHero";
 import { MockBooklets } from "@/components/story/MockBooklets";
+import { EXAMINER_NAME, REVIEW_HOURS } from "@/lib/constants";
 import { getT } from "@/i18n/server";
 import type { T } from "@/i18n";
 
@@ -46,8 +47,8 @@ const faq = (t: T) => [
   {
     q: t("Writing va Speaking qanday tekshiriladi?", "How are Writing and Speaking checked?"),
     a: t(
-      "Premium testlarda Writing va Speaking javoblaringizni o'qituvchi tekshiradi va har bir bo'lim bo'yicha izoh qoldiradi. Natija tayyor bo'lganda profilingizda ko'rinadi.",
-      "In Premium tests a teacher reviews your Writing and Speaking answers and leaves feedback for each part. The result appears in your profile once it is ready.",
+      `Premium testlarda Writing va Speaking javoblaringizni tekshiruvchi ${EXAMINER_NAME} ${REVIEW_HOURS} soat ichida rasmiy Multilevel mezonlari bo'yicha baholaydi (har biri 0–75 ball) va izoh qoldiradi. Natija profilingizda ko'rinadi.`,
+      `In Premium tests our examiner ${EXAMINER_NAME} grades your Writing and Speaking within ${REVIEW_HOURS} hours using the official Multilevel criteria (each 0–75) and leaves feedback. The result appears in your profile.`,
     ),
   },
   {

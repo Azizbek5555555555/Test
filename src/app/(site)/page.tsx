@@ -94,8 +94,8 @@ async function AboutSection() {
           hand: SITE_TAGLINE,
           paragraphs: [
             t(
-              "LevelX English — ingliz tilini o'rganishni yanada tizimli, amaliy va natijaga yo'naltirilgan qilish maqsadida yaratilgan ta'lim brendi. Maqsadimiz — o'quvchiga o'z imkoniyatlaridan yuqoriga chiqishga yordam berish.",
-              "LevelX English is an education brand created to make learning English more structured, practical and results-driven. Our goal is to help every learner push past their own limits.",
+              "levelxenglish — ingliz tilini o'rganishni yanada tizimli, amaliy va natijaga yo'naltirilgan qilish maqsadida yaratilgan ta'lim brendi. Maqsadimiz — o'quvchiga o'z imkoniyatlaridan yuqoriga chiqishga yordam berish.",
+              "levelxenglish is an education brand created to make learning English more structured, practical and results-driven. Our goal is to help every learner push past their own limits.",
             ),
             t(
               "Reading, Listening, Writing va Speaking ko'nikmalari bir tizim asosida rivojlanadi: to'liq mock testlar, so'nggi imtihon savollari, maqolalar, listening practice va vocabulary.",

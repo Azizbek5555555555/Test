@@ -241,10 +241,10 @@ export async function gradeAttemptAction(
   const writing = writingRaw === "" ? null : Number(writingRaw);
   const speaking = speakingRaw === "" ? null : Number(speakingRaw);
 
-  if (writing !== null && (!Number.isFinite(writing) || writing < 0 || writing > 100))
-    return { ok: false, message: "Writing bali 0–100 oralig'ida bo'lsin." };
-  if (speaking !== null && (!Number.isFinite(speaking) || speaking < 0 || speaking > 100))
-    return { ok: false, message: "Speaking bali 0–100 oralig'ida bo'lsin." };
+  if (writing !== null && (!Number.isFinite(writing) || writing < 0 || writing > 75))
+    return { ok: false, message: "Writing bali 0–75 oralig'ida bo'lsin (rasmiy shkala)." };
+  if (speaking !== null && (!Number.isFinite(speaking) || speaking < 0 || speaking > 75))
+    return { ok: false, message: "Speaking bali 0–75 oralig'ida bo'lsin (rasmiy shkala)." };
 
   try {
     const supabase = await createServerSupabase();
@@ -941,7 +941,7 @@ export async function updateSettingFieldsAction(
     value = { card_number: card, card_owner: str(formData, "card_owner"), instruction: str(formData, "instruction") };
   } else if (key === "cefr_bands") {
     const bands = { C1: num(formData, "C1", -1), B2: num(formData, "B2", -1), B1: num(formData, "B1", -1), A2: num(formData, "A2", -1) };
-    if (Object.values(bands).some((v) => v < 0 || v > 100)) return { ok: false, message: "Har bir chegara 0–100 oralig'ida bo'lsin." };
+    if (Object.values(bands).some((v) => v < 0 || v > 75)) return { ok: false, message: "Har bir chegara 0–75 oralig'ida bo'lsin." };
     if (!(bands.C1 > bands.B2 && bands.B2 > bands.B1 && bands.B1 > bands.A2))
       return { ok: false, message: "Tartib: C1 > B2 > B1 > A2 bo'lishi kerak." };
     value = bands;

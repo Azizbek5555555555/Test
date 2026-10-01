@@ -353,7 +353,7 @@ function CertBack() {
         ))}
       </svg>
       <LogoSeal size={132} className="rr-monogram" />
-      <p className="rr-back-title">{CERT.brand}</p>
+      <p className="rr-back-title"><span className="lx-word">level<span>x</span>english</span></p>
       <p className="rr-back-sub">CEFR Certificate</p>
     </div>
   );
@@ -385,7 +385,7 @@ function CertFront() {
         <span className="cr-sample">{CERT.sample}</span>
         <LogoSeal size={58} />
         <p className="cr-brand">
-          LevelX <span>English</span>
+          <span className="lx-word">level<span>x</span>english</span>
         </p>
         <p className="cr-title">{CERT.title}</p>
         <p className="cr-subtitle">{CERT.subtitle}</p>

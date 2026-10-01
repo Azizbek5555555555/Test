@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { FlameIcon } from "@/components/ui/icons";
 import { Reveal } from "@/components/motion/Reveal";
+import { MAX_SCORE, scorePercent } from "@/lib/scoring";
 import { getT } from "@/i18n/server";
 import type { Bi } from "@/i18n";
 
@@ -124,10 +125,11 @@ export default async function ProfilePage() {
           </div>
 
           <div className="card-glass grid shrink-0 place-items-center self-center rounded-2xl p-5 md:self-auto animate-pop">
-            <ProgressRing value={data.overall ?? 0} size={180} stroke={10}>
+            <ProgressRing value={scorePercent(data.overall)} size={180} stroke={10}>
               <div>
                 <p className="font-display text-5xl leading-none text-fg lining-nums">
-                  {data.overall != null ? `${data.overall}%` : "—"}
+                  {data.overall != null ? data.overall : "—"}
+                  {data.overall != null ? <small className="text-lg text-muted">/{MAX_SCORE}</small> : null}
                 </p>
                 <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
                   {t("Umumiy natija", "Overall result")}
@@ -158,9 +160,10 @@ export default async function ProfilePage() {
                   const value = data.skills[section];
                   return (
                     <div key={section} className="flex flex-col items-center gap-3">
-                      <ProgressRing value={value ?? 0} size={100} stroke={8} color={SKILL_COLOR[section]}>
+                      <ProgressRing value={scorePercent(value)} size={100} stroke={8} color={SKILL_COLOR[section]}>
                         <span className="font-display text-xl text-fg lining-nums">
-                          {value != null ? `${value}%` : "—"}
+                          {value != null ? value : "—"}
+                          {value != null ? <small className="text-xs text-muted">/{MAX_SCORE}</small> : null}
                         </span>
                       </ProgressRing>
                       <span className="text-sm font-semibold text-fg">{SECTION_LABEL[section]}</span>

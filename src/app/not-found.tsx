@@ -15,7 +15,7 @@ export default async function NotFound() {
       <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950/30 via-ink-950/70 to-ink-950" />
 
       <div className="container-page py-8">
-        <Link href="/" className="flex w-fit items-center gap-3" aria-label={t("LevelX English — bosh sahifa", "LevelX English — home")}>
+        <Link href="/" className="flex w-fit items-center gap-3" aria-label={t("levelxenglish — bosh sahifa", "levelxenglish — home")}>
           <BrandMark size={32} />
           <BrandWordmark className="text-2xl" />
         </Link>

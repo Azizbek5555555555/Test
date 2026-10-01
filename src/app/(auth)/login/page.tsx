@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("Kirish", "Log in"),
     description: t(
-      "LevelX English platformasiga Google orqali kiring va tayyorgarlikni boshlang.",
-      "Log in to LevelX English with Google and start preparing.",
+      "levelxenglish platformasiga Google orqali kiring va tayyorgarlikni boshlang.",
+      "Log in to levelxenglish with Google and start preparing.",
     ),
   };
 }
@@ -41,7 +41,7 @@ export default async function LoginPage({
         />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-ink-950/80 to-transparent" />
 
-        <Link href="/" className="flex w-fit items-center gap-3" aria-label={t("LevelX English — bosh sahifa", "LevelX English — home")}>
+        <Link href="/" className="flex w-fit items-center gap-3" aria-label={t("levelxenglish — bosh sahifa", "levelxenglish — home")}>
           <BrandMark size={32} />
           <BrandWordmark className="text-2xl" />
         </Link>

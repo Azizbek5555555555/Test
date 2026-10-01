@@ -1,5 +1,5 @@
 /**
- * LevelX yuklanish belgisi: doira bo'ylab kattalashib, yorishib boruvchi
+ * levelxenglish yuklanish belgisi: doira bo'ylab kattalashib, yorishib boruvchi
  * nuqtalar ("kometa" dumi) aylanadi, o'rtada brend yozuvi.
  * Faqat CSS animatsiya (transform) — JS kerak emas, protsessorni yuklamaydi.
  */
@@ -39,7 +39,7 @@ export function Loader({ size = 132, label, className = "" }: { size?: number; l
       </div>
       <div className="lx-loader-text">
         <b>
-          LevelX <span>English</span>
+          <span className="lx-word">level<span>x</span>english</span>
         </b>
         <small>
           {label ?? (

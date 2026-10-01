@@ -1,13 +1,14 @@
 import type { Attempt, SectionBreakdownEntry, SkillSection } from "@/lib/types";
-import { EXAM_SECTION_ORDER, SECTION_LABEL, SECTIONS, SITE_NAME } from "@/lib/constants";
+import { EXAM_SECTION_ORDER, EXAMINER_NAME, REVIEW_HOURS, SECTION_LABEL, SECTIONS, SITE_NAME } from "@/lib/constants";
 import { cefrFromScore, cn, formatDateTime } from "@/lib/format";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { getT } from "@/i18n/server";
+import { MAX_SCORE, scorePercent } from "@/lib/scoring";
 import type { T } from "@/i18n";
 
 /**
  * Figma 09 "Instant Diagnostic Breakdown" — natija kartasi:
- *   MULTILEVEL RESULT · CEFR halqasi · bo'limlar "62 / 100" · amallar
+ *   MULTILEVEL RESULT · CEFR halqasi · bo'limlar "62 / 75" (rasmiy shkala) · amallar
  */
 export async function ResultCard({
   attempt,
@@ -40,7 +41,7 @@ export async function ResultCard({
       </p>
 
       <div className="mt-6 flex justify-center">
-        <ProgressRing value={overall ?? 0} size={200} stroke={10} color="var(--color-gold-400)">
+        <ProgressRing value={scorePercent(overall)} size={200} stroke={10} color="var(--color-gold-400)">
           <div>
             <p className="font-display text-6xl leading-none text-gold-400 lining-nums">
               {attempt.cefr_level ?? "—"}
@@ -49,7 +50,7 @@ export async function ResultCard({
               {attempt.cefr_level ? t("Umumiy CEFR", "Overall CEFR") : t("Tekshirilmoqda", "Being reviewed")}
             </p>
             {overall != null ? (
-              <p className="mt-1 text-xs tabular-nums text-muted">{overall} / 100</p>
+              <p className="mt-1 text-xs tabular-nums text-muted">{overall} / {MAX_SCORE}</p>
             ) : null}
           </div>
         </ProgressRing>
@@ -71,11 +72,11 @@ export async function ResultCard({
       {attempt.needs_manual_check ? (
         <div className="mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm leading-relaxed text-fg">
           <strong>
-            {t("Writing va Speaking javoblaringiz o'qituvchi tekshiruvida.", "Your Writing and Speaking answers are being reviewed by a teacher.")}
+            {t("Writing va Speaking javoblaringiz tekshiruvda.", "Your Writing and Speaking answers are under review.")}
           </strong>{" "}
           {t(
-            "Tekshirilgach yakuniy ball va CEFR darajasi yangilanadi — natija profilingizda saqlanadi.",
-            "Once reviewed, your final score and CEFR level will update — the result is saved in your profile.",
+            `Tekshiruvchi ${EXAMINER_NAME} ularni ${REVIEW_HOURS} soat ichida rasmiy mezonlar bo'yicha baholaydi. Shundan keyin yakuniy ball va daraja yangilanadi — natija profilingizda saqlanadi.`,
+            `Our examiner ${EXAMINER_NAME} grades them against the official criteria within ${REVIEW_HOURS} hours. Your final score and level will then update — the result is saved in your profile.`,
           )}
         </div>
       ) : null}
@@ -114,7 +115,7 @@ export async function FeedbackCards({ attempt }: { attempt: Attempt }) {
                 <p className="text-[15px] font-semibold text-fg">{SECTION_LABEL[section] ?? section}</p>
                 {scores[section] != null ? (
                   <span className="text-xs font-semibold text-success">
-                    {scores[section]} / 100{level ? ` · ${level}` : ""}
+                    {scores[section]} / {MAX_SCORE}{level ? ` · ${level}` : ""}
                   </span>
                 ) : null}
               </div>
@@ -158,7 +159,7 @@ function ScoreRow({
   t: T;
 }) {
   const pending = score == null;
-  const pct = score ?? 0;
+  const pct = scorePercent(score);
 
   return (
     <li>
@@ -168,7 +169,7 @@ function ScoreRow({
           <span className="text-xs font-semibold text-warning">{t("tekshirilmoqda", "in review")}</span>
         ) : (
           <span className="font-semibold tabular-nums text-fg">
-            {score} / 100
+            {score} / {MAX_SCORE}
             {typeof correct === "number" && typeof total === "number" ? (
               <span className="ml-2 text-xs font-normal text-muted">
                 ({correct}/{total})
@@ -182,7 +183,7 @@ function ScoreRow({
           <div
             className={cn(
               "h-full rounded-full",
-              pct >= 60 ? "bg-success" : pct >= 45 ? "bg-warning" : "bg-danger",
+              (score ?? 0) >= 51 ? "bg-success" : (score ?? 0) >= 38 ? "bg-warning" : "bg-danger",
             )}
             style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
           />

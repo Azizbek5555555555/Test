@@ -7,7 +7,7 @@ export function LogoSeal({ size, className }: { size: number; className?: string
   return (
     <span className={cn("logo-seal", className)} style={{ width: size, height: size }} aria-hidden>
       <Image
-        src={size > 72 ? "/brand/logo-mark-256.png" : "/brand/logo-mark-128.png"}
+        src={size > 72 ? "/brand/lx-mark-256.png" : "/brand/lx-mark-128.png"}
         alt=""
         width={img}
         height={img}

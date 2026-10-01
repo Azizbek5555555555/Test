@@ -29,7 +29,7 @@ export function StorySheet() {
       <div className="flex items-start justify-between">
         <div>
           <p className="story-brand">
-            LevelX <span>English</span>
+            <span className="lx-word">level<span>x</span>english</span>
           </p>
           <p className="story-mini mt-1">{t(SHEET.subtitle)}</p>
         </div>
@@ -75,7 +75,7 @@ export function StorySheet() {
             </span>
             <span className="story-score">
               <span data-count={skill.key}>0</span>
-              <small>/100</small>
+              <small>/75</small>
             </span>
             {skill.key === "writing" || skill.key === "speaking" ? (
               <svg className="story-underline" viewBox="0 0 120 12" preserveAspectRatio="none">
@@ -97,7 +97,7 @@ export function StorySheet() {
           <p className="story-label">{t(SHEET.overallLabel)}</p>
           <p className="story-overall">
             <span data-count="overall">0</span>
-            <small>/100</small>
+            <small>/75</small>
           </p>
           <svg className="story-circle" viewBox="0 0 160 90" preserveAspectRatio="none">
             <path
@@ -169,9 +169,9 @@ function Stamp({ level, tone }: { level: string; tone: "red" | "gold" }) {
           CEFR LEVEL
         </textPath>
       </text>
-      <text fill={color} fontSize="9" fontWeight="700" letterSpacing="3" opacity="0.9">
+      <text fill={color} fontSize="8" fontWeight="700" letterSpacing="1.4" opacity="0.9">
         <textPath href={`#arcb-${level}`} startOffset="50%" textAnchor="middle">
-          LEVELX
+          LEVELXENGLISH
         </textPath>
       </text>
       <text

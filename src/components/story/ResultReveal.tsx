@@ -377,7 +377,7 @@ function CardBack() {
         ))}
       </svg>
       <LogoSeal size={124} className="rr-monogram" />
-      <p className="rr-back-title">{REVEAL_RESULT.brand}</p>
+      <p className="rr-back-title"><span className="lx-word">level<span>x</span>english</span></p>
       <p className="rr-back-sub">{REVEAL_RESULT.form} · {REVEAL_RESULT.exam}</p>
     </div>
   );
@@ -397,7 +397,7 @@ function CardFront() {
       <div className="flex items-start justify-between">
         <div>
           <p className="rr-brand">
-            LevelX <span>English</span>
+            <span className="lx-word">level<span>x</span>english</span>
           </p>
           <p className="rr-caps mt-1 tracking-[0.3em]">{r.form}</p>
         </div>

@@ -55,7 +55,7 @@ export function PremiumCard3D({ active }: { active?: boolean }) {
             <div className="pc-lines" />
             <div className="pc-top">
               <p className="pc-brand">
-                LevelX <span>English</span>
+                <span className="lx-word">level<span>x</span>english</span>
               </p>
               <p className="pc-tier">{active ? "Premium · faol" : "Premium"}</p>
             </div>

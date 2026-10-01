@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Cormorant_Garamond, Inter } from "next/font/google";
-import { SITE_DESCRIPTION, SITE_DESCRIPTION_EN, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { Caveat, Cormorant_Garamond, Inter, Poppins } from "next/font/google";
+import { SITE_DESCRIPTION, SITE_DESCRIPTION_EN, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/constants";
 import { getLocale, getT } from "@/i18n/server";
 import { I18nProvider } from "@/i18n/client";
 import { CursorFollower } from "@/components/motion/CursorFollower";
@@ -30,9 +30,18 @@ const hand = Caveat({
   variable: "--font-hand",
 });
 
+// Brend yozuvi (levelxenglish) — rasmiy brend shrifti Poppins
+const brand = Poppins({
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+  variable: "--font-brand",
+});
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
   return {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: `${SITE_NAME} — ${SITE_TAGLINE}`,
     template: `%s · ${SITE_NAME}`,
@@ -40,8 +49,9 @@ export async function generateMetadata(): Promise<Metadata> {
   description: t(SITE_DESCRIPTION, SITE_DESCRIPTION_EN),
   applicationName: SITE_NAME,
   keywords: [
+    "levelxenglish",
     "LevelX English",
-    "LevelX",
+    "levelx.academy",
     "Multilevel",
     "Multilevel imtihon",
     "ingliz tili",
@@ -54,6 +64,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: t(SITE_DESCRIPTION, SITE_DESCRIPTION_EN),
     type: "website",
+    siteName: SITE_NAME,
+    url: SITE_URL,
     locale: t.locale === "en" ? "en_US" : "uz_UZ",
   },
   robots: { index: true, follow: true },
@@ -74,7 +86,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`dark ${inter.variable} ${cormorant.variable} ${hand.variable}`}
+      className={`dark ${inter.variable} ${cormorant.variable} ${hand.variable} ${brand.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
