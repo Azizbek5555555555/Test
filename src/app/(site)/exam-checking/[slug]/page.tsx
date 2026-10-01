@@ -10,7 +10,7 @@ import {
 } from "@/lib/queries";
 import { startAttemptAction } from "@/lib/actions/attempts";
 import { Check } from "react-feather";
-import { EXAM_SECTION_ORDER } from "@/lib/constants";
+import { EXAM_SECTION_ORDER, EXAMINER_NAME, REVIEW_HOURS } from "@/lib/constants";
 import type { SkillSection } from "@/lib/types";
 import { Alert } from "@/components/ui/Card";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -152,8 +152,8 @@ export default async function ExamIntroPage({
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted">
             {t(
-              "Listening va Reading darhol avtomatik baholanadi. Writing va Speaking javoblaringizni o'qituvchi tekshirib, izoh bilan ball qo'yadi. Shundan keyin yakuniy Overall ball va CEFR daraja profilingizda paydo bo'ladi.",
-              "Listening and Reading are marked automatically right away. A teacher reviews your Writing and Speaking answers and scores them with feedback. After that, your final Overall score and CEFR level appear in your profile.",
+              `Listening va Reading darhol rasmiy jadval bo'yicha baholanadi (har biri 0–75). Writing va Speaking javoblaringizni tekshiruvchi ${EXAMINER_NAME} ${REVIEW_HOURS} soat ichida rasmiy mezonlar bo'yicha baholab, izoh qoldiradi. Shundan keyin umumiy ball (4 bo'lim o'rtachasi) va daraja — B1 (38–50), B2 (51–64) yoki C1 (65–75) — profilingizda paydo bo'ladi.`,
+              `Listening and Reading are marked instantly using the official table (each 0–75). Our examiner ${EXAMINER_NAME} grades your Writing and Speaking against the official criteria within ${REVIEW_HOURS} hours and leaves feedback. Your overall score (the average of 4 sections) and level — B1 (38–50), B2 (51–64) or C1 (65–75) — then appear in your profile.`,
             )}
           </p>
           <ButtonLink href="/full-mock" variant="secondary" size="sm" className="mt-5">

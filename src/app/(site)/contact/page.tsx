@@ -9,8 +9,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("Biz bilan bog'lanish", "Contact us"),
     description: t(
-      "Telegram, Instagram, telefon va email — LevelX English bilan bog'lanish uchun.",
-      "Telegram, Instagram, phone and email — ways to reach LevelX English.",
+      "Telegram, Instagram, telefon va email — levelxenglish bilan bog'lanish uchun.",
+      "Telegram, Instagram, phone and email — ways to reach levelxenglish.",
     ),
   };
 }

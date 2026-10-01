@@ -270,11 +270,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
 
         <section className="ag">
           <p className="ag-title">Ko&apos;nikmalar bo&apos;yicha o&apos;rtacha ball</p>
-          <p className="ag-sub">Barcha urinishlar, {period}</p>
+          <p className="ag-sub">Rasmiy shkala (0–75), barcha urinishlar, {period}</p>
           <div className="mt-5">
             {stats && stats.skills.some((s) => s.count > 0) ? (
               <HBars
-                max={Math.max(...stats.skills.map((s) => s.avg ?? 0)) > 75 ? 100 : 75}
+                max={75}
                 items={stats.skills.map((s) => ({ label: s.label, value: s.avg, hint: `${fmt(s.count)} ta natija` }))}
               />
             ) : (
@@ -385,7 +385,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
             <div className="ad-cardviz mt-4">
               <div className="flex items-start justify-between">
                 <span className="font-display text-[18px] font-semibold">
-                  LevelX <span className="text-brand-400">Premium</span>
+                  level<span className="text-[#10bfa6]">x</span>english <span className="text-brand-400">Premium</span>
                 </span>
                 <span className="ad-cardviz-chip" aria-hidden />
               </div>

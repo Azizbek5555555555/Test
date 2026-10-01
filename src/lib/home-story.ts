@@ -141,13 +141,13 @@ export function storyChapters(stats: SiteStats, t: T): StoryChapter[] {
       body: t.locale === "en"
         ? n(
             stats.questions,
-            "Every section is scored out of 100, with an overall level from A1 to C1. {n} real questions in the bank.",
-            "Every section is scored out of 100, with an overall level from A1 to C1.",
+            "Every section is scored on the official 75-point scale, with an overall level of B1, B2 or C1. {n} real questions in the bank.",
+            "Every section is scored on the official 75-point scale, with an overall level of B1, B2 or C1.",
           )
         : n(
             stats.questions,
-            "Har bir bo'lim 100 ballik tizimda, umumiy daraja A1 dan C1 gacha. Bazada {n} ta real savol.",
-            "Har bir bo'lim 100 ballik tizimda, umumiy daraja A1 dan C1 gacha.",
+            "Har bir bo'lim rasmiy 75 ballik tizimda baholanadi, umumiy daraja — B1, B2 yoki C1. Bazada {n} ta real savol.",
+            "Har bir bo'lim rasmiy 75 ballik tizimda baholanadi, umumiy daraja — B1, B2 yoki C1.",
           ),
     },
     {
@@ -221,24 +221,24 @@ export type Range = [number, number];
 /** Sanaladigan raqamlar: har bir oraliqda from → to */
 export const COUNTS: Record<SkillKey | "overall", { range: Range; from: number; to: number }[]> = {
   listening: [
-    { range: [0.265, 0.33], from: 0, to: 68 },
-    { range: [0.8, 0.88], from: 68, to: 79 },
+    { range: [0.265, 0.33], from: 0, to: 58 },
+    { range: [0.8, 0.88], from: 58, to: 69 },
   ],
   reading: [
-    { range: [0.34, 0.405], from: 0, to: 71 },
-    { range: [0.81, 0.89], from: 71, to: 82 },
+    { range: [0.34, 0.405], from: 0, to: 60 },
+    { range: [0.81, 0.89], from: 60, to: 71 },
   ],
   writing: [
-    { range: [0.415, 0.48], from: 0, to: 62 },
-    { range: [0.82, 0.9], from: 62, to: 76 },
+    { range: [0.415, 0.48], from: 0, to: 52 },
+    { range: [0.82, 0.9], from: 52, to: 66 },
   ],
   speaking: [
-    { range: [0.49, 0.555], from: 0, to: 66 },
-    { range: [0.83, 0.91], from: 66, to: 77 },
+    { range: [0.49, 0.555], from: 0, to: 55 },
+    { range: [0.83, 0.91], from: 55, to: 67 },
   ],
   overall: [
-    { range: [0.56, 0.62], from: 0, to: 67 },
-    { range: [0.84, 0.92], from: 67, to: 79 },
+    { range: [0.56, 0.62], from: 0, to: 56 },
+    { range: [0.84, 0.92], from: 56, to: 68 },
   ],
 };
 
@@ -439,20 +439,20 @@ export const REVEAL_HEIGHT = { desktop: 320, mobile: 260 } as const;
 export const REVEAL_LEAD = 0.75;
 
 export const REVEAL_RESULT = {
-  brand: "LevelX English",
+  brand: "levelxenglish",
   form: "Test Report Form",
   exam: "Multilevel · CEFR",
   ref: "№ LX-2026-0079",
   name: { uz: "Sizning ismingiz", en: "Your name" } as Bi,
   date: "2026",
-  centre: "LevelX Online",
+  centre: "levelx.academy",
   scores: [
-    { key: "listening", label: "Listening", value: 79 },
-    { key: "reading", label: "Reading", value: 82 },
-    { key: "writing", label: "Writing", value: 76 },
-    { key: "speaking", label: "Speaking", value: 77 },
+    { key: "listening", label: "Listening", value: 69 },
+    { key: "reading", label: "Reading", value: 71 },
+    { key: "writing", label: "Writing", value: 66 },
+    { key: "speaking", label: "Speaking", value: 67 },
   ],
-  overall: 79,
+  overall: 68,
   level: "C1",
   comment: { uz: "Ajoyib natija! Keyingi maqsad — C1 dan ham yuqori.", en: "Excellent result! Next goal — beyond C1." } as Bi,
   sample: { uz: "Namuna", en: "Sample" } as Bi,

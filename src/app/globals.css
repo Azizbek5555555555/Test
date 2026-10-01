@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   LEVELX ENGLISH — Design tokens (Figma: "Cinematic Editorial Dark")
+   LEVELXENGLISH — Design tokens (Figma: "Cinematic Editorial Dark")
    Push Past Your Limits
 
    Figma style guide:
@@ -4578,10 +4578,6 @@ html:not([lang="en"]) .i18n-en {
 @media (min-width: 640px) {
   .ab-copy { padding: 48px; }
 }
-.ab-x {
-  color: #e3a79b;
-  font-style: italic;
-}
 .ab-copy .hero-hand {
   margin-top: 6px;
 }
@@ -4692,3 +4688,85 @@ html:not([lang="en"]) .i18n-en {
   .ab * { animation: none !important; transition: none !important; }
 }
 .ab[data-mode="static"] * { animation: none !important; }
+
+/* ==========================================================================
+   Rasmiy baholash tizimi (ScoringGuide)
+   ========================================================================== */
+.sg-card {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(160deg, rgba(30, 40, 72, 0.5), rgba(13, 20, 38, 0.6));
+  padding: 20px;
+}
+.sg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.sg-table th,
+.sg-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 7px 6px;
+  text-align: center;
+}
+.sg-table th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-muted);
+}
+.sg-table td:first-child,
+.sg-table th:first-child {
+  text-align: left;
+  color: var(--fg-muted);
+}
+.sg-table td:not(:first-child) {
+  color: var(--fg);
+  font-weight: 600;
+}
+.sg-band {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sg-level {
+  display: inline-grid;
+  min-width: 46px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(217, 179, 130, 0.14);
+  border: 1px solid rgba(217, 179, 130, 0.45);
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #d9b382;
+}
+.sg-band-low .sg-level {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--fg-muted);
+}
+
+/* ==========================================================================
+   Brend yozuvi — "levelxenglish" (rasmiy logo: Poppins, "x" firuza)
+   ========================================================================== */
+.brand-wordmark,
+.lx-word {
+  font-family: var(--font-brand), "Poppins", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  text-transform: none;
+  font-style: normal;
+}
+.brand-wordmark {
+  color: var(--fg);
+  line-height: 1;
+}
+.brand-wordmark span {
+  color: #10bfa6;
+}
+.lx-word > span,
+.lx-word > b {
+  color: #10bfa6;
+  font-weight: inherit;
+}

@@ -149,7 +149,7 @@ async function receiptDetail(params: Record<string, unknown>) {
     receipt_type: 0,
     items: [
       {
-        title: `LevelX English Premium — ${order.plan_title ?? `${order.months} oylik`}`,
+        title: `levelxenglish Premium — ${order.plan_title ?? `${order.months} oylik`}`,
         price: order.amount * 100,
         count: 1,
         code,

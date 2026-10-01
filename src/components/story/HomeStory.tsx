@@ -208,7 +208,7 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
       }
       for (const { el, key } of barEls) {
         const v = values[key] ?? countValue(p, COUNTS[key]);
-        el.style.transform = `scaleX(${(v / 100).toFixed(3)})`;
+        el.style.transform = `scaleX(${(v / 75).toFixed(3)})`;
       }
       for (const { el, range } of hlEls) {
         el.style.opacity = (isStatic ? 0 : windowOpacity(p, range, 0.2)).toFixed(3);
@@ -300,7 +300,7 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
       ref={rootRef}
       className="story"
       data-mode={mode}
-      aria-label={t("LevelX English — natija varaqasi", "LevelX English — result sheet")}
+      aria-label={t("levelxenglish — natija varaqasi", "levelxenglish — result sheet")}
       style={
         {
           "--story-h-d": `${STORY_HEIGHT.desktop}vh`,

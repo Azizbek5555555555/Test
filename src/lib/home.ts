@@ -160,9 +160,9 @@ export interface ActivityItem {
 }
 
 export interface DashboardData {
-  /** Har bo'lim bo'yicha oxirgi 5 ta natijaning o'rtachasi (0–100), natija bo'lmasa null */
+  /** Har bo'lim bo'yicha oxirgi 5 ta natijaning o'rtachasi (rasmiy 0–75 shkala), natija bo'lmasa null */
   skills: Record<SkillSection, number | null>;
-  /** Bo'limlar o'rtachasi (0–100) */
+  /** Bo'limlar o'rtachasi (0–75) */
   overall: number | null;
   taken: number;
   graded: number;

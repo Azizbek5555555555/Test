@@ -38,7 +38,7 @@ export function MockBooklets() {
               <div className="mb-cover">
                 <span className="mb-spine" />
                 <p className="mb-top">
-                  LevelX <span>· Full Mock</span>
+                  <span className="lx-word">level<b>x</b>english</span> <span>· Full Mock</span>
                 </p>
                 <span className="mb-icon">
                   <Icon size={22} strokeWidth={1.6} />

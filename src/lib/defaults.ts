@@ -39,11 +39,11 @@ export const DEFAULT_PLANS: PremiumPlan[] = [
 
 export const DEFAULT_PAYMENT: PaymentSettings = {
   card_number: "8600 0000 0000 0000",
-  card_owner: "LEVELX ENGLISH",
+  card_owner: "LEVELXENGLISH",
   instruction:
     "To'lovni amalga oshirgach, chek rasmini Telegram orqali yuboring. " +
     "Admin tasdiqlagach Premium faollashadi.",
 };
 
-/** Hujjatning 12-bo'limidagi misolga mos: o'rtacha 62.25 → B2 */
-export const DEFAULT_CEFR_BANDS: CefrBands = { C1: 75, B2: 60, B1: 45, A2: 30 };
+/** Rasmiy Multilevel shkalasi (0–75): C1 65–75, B2 51–64, B1 38–50, 38 dan past — B1 dan quyi */
+export const DEFAULT_CEFR_BANDS: CefrBands = { C1: 65, B2: 51, B1: 38, A2: 0 };

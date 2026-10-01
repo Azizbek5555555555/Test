@@ -1,14 +1,21 @@
 import type { QuestionKind, SkillSection } from "./types";
 import type { Bi } from "@/i18n";
 
-export const SITE_NAME = "LevelX English";
+/** Writing va Speaking javoblarini tekshiruvchi va muddat */
+export const EXAMINER_NAME = "Mr. Shokir";
+export const REVIEW_HOURS = 24;
+
+/** Brend nomi — logoda yozilganidek */
+export const SITE_NAME = "levelxenglish";
+/** Asosiy domen */
+export const SITE_URL = "https://levelx.academy";
 /** Brendning asosiy shiori */
 export const SITE_TAGLINE = "Push Past Your Limits";
 export const SITE_DESCRIPTION =
-  "LevelX English — ingliz tilini tizimli o'rganish, real imtihon formatida mashq qilish " +
+  "levelxenglish — ingliz tilini tizimli o'rganish, real imtihon formatida mashq qilish " +
   "va natijangizni yangi bosqichga olib chiqish uchun yaratilgan zamonaviy ta'lim platformasi.";
 export const SITE_DESCRIPTION_EN =
-  "LevelX English is a modern learning platform to study English systematically, practise in the " +
+  "levelxenglish is a modern learning platform to study English systematically, practise in the " +
   "real exam format and take your results to the next level.";
 
 /* -------------------------------------------------------------------------
