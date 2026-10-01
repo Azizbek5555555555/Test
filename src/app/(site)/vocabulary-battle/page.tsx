@@ -75,7 +75,7 @@ export default async function VocabularyBattlePage({
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#221d2e] via-[#141a2c] via-40% to-ink-950">
+    <div className="bg-gradient-to-b from-[#0f2a3d] via-[#0c1c33] via-40% to-ink-950">
       <PageHero
         eyebrow={t("Jonli so'z maydoni", "Live word arena")}
         title="Vocabulary Battle"
@@ -146,7 +146,7 @@ export default async function VocabularyBattlePage({
             </Reveal>
 
             {/* ------------------------------------------------ Namuna savol */}
-            <Reveal delay={80} className="rounded-2xl border-[1.5px] border-brand-400/80 bg-ink-900 p-7 shadow-[0_24px_60px_-30px_rgba(227,167,155,0.35)]">
+            <Reveal delay={80} className="rounded-2xl border-[1.5px] border-brand-400/80 bg-ink-900 p-7 shadow-[0_24px_60px_-30px_rgba(16, 191, 166,0.35)]">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-semibold text-gold-400">{t("Savol", "Question")} 1 / {GAME_QUESTION_COUNT}</span>
                 <span className="inline-flex items-center gap-1 rounded bg-ink-700 px-2 py-1 text-[11px] font-semibold text-gold-400">

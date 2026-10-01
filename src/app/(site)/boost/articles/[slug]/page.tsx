@@ -52,7 +52,7 @@ export default async function ArticlePage({
   for (const q of questions) taskCounts.set(q.kind, (taskCounts.get(q.kind) ?? 0) + 1);
 
   return (
-    <div className="bg-gradient-to-b from-[#16213a] to-ink-950 to-40%">
+    <div className="bg-gradient-to-b from-[#0f2440] to-ink-950 to-40%">
       <div className="container-page pb-10 pt-10 sm:pt-14">
         <Link
           href="/boost/articles"

@@ -40,7 +40,7 @@ export default async function PlayPage({
   }
 
   return (
-    <div className="bg-gradient-to-b from-[#221d2e] to-ink-950">
+    <div className="bg-gradient-to-b from-[#0f2a3d] to-ink-950">
       <div className="container-page py-10 sm:py-14">
         <Link
           href="/vocabulary-battle"

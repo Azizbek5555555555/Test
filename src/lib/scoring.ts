@@ -36,7 +36,8 @@ export function writingStandardScore(expertMark: number): number {
 
 /**
  * Speaking: 1–3 savollar (0–5), 4–6 savollar (0–5), 7-savol (0–5), 8-savol (0–6) → 0–21.
- * Rasmiy o'tkazish jadvali yuborilmagan — Writing jadvali bo'yicha mutanosib (taxminiy) hisob.
+ * Alohida jadval yo'q: Speaking ham Writing'dagi o'tkazish jadvali bilan baholanadi
+ * (o'quv markazi tasdiqlagan) — 0–21 yig'indi 0–17 ga mutanosib keltiriladi, so'ng jadval.
  */
 export function speakingStandardScore(rawSum: number): number {
   return writingStandardScore((Math.max(0, Math.min(21, rawSum)) * 17) / 21);

@@ -23,7 +23,7 @@ const BASE =
 const VARIANTS: Record<ButtonVariant, string> = {
   // accent/base fon + ink matn; hover → accent/hover
   primary:
-    "bg-brand-400 text-ink-950 hover:bg-brand-300 hover:shadow-[0_8px_24px_-8px_rgba(227,167,155,0.55)]",
+    "bg-brand-400 text-ink-950 hover:bg-brand-300 hover:shadow-[0_8px_24px_-8px_rgba(16, 191, 166,0.55)]",
   // 1.5px accent chegara; hover → to'liq accent
   secondary:
     "border-[1.5px] border-brand-400 text-fg hover:bg-brand-400 hover:text-ink-950",
@@ -31,7 +31,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   outline:
     "border-[1.5px] border-brand-400 text-brand-400 hover:bg-brand-400 hover:text-ink-950",
   premium:
-    "bg-gold-400 text-ink-950 hover:bg-gold-300 hover:shadow-[0_8px_24px_-8px_rgba(217,179,130,0.55)]",
+    "bg-gold-400 text-ink-950 hover:bg-gold-300 hover:shadow-[0_8px_24px_-8px_rgba(58, 160, 227,0.55)]",
   danger: "bg-danger text-ink-950 hover:brightness-110",
   light: "bg-ink-50 text-ink-950 hover:bg-white",
   glass: "bg-white/5 text-fg border border-white/10 hover:bg-white/10 backdrop-blur-md",

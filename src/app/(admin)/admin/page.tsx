@@ -29,12 +29,12 @@ export const metadata: Metadata = {
 };
 
 const CEFR_COLOR: Record<string, string> = {
-  A1: "#6e7c93",
+  A1: "#6b7f9a",
   A2: "#8b93c9",
   B1: "#7c89ff",
   B2: "#3cc3b1",
-  C1: "#e3a79b",
-  C2: "#d9b382",
+  C1: "#10bfa6",
+  C2: "#3aa0e3",
 };
 const WEEK = ["Du", "Se", "Ch", "Pa", "Ju", "Sh", "Ya"];
 
@@ -113,7 +113,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
               </span>
               Jami foydalanuvchilar
             </p>
-            <span className="h-9 w-9 rounded-full bg-gradient-to-br from-brand-400 to-gold-400 shadow-[0_8px_20px_-8px_rgba(227,167,155,.8)]" aria-hidden />
+            <span className="h-9 w-9 rounded-full bg-gradient-to-br from-brand-400 to-gold-400 shadow-[0_8px_20px_-8px_rgba(16, 191, 166,.8)]" aria-hidden />
           </div>
           <p className="ag-huge mt-7">{fmt(stats?.totals.users ?? counts.users)}</p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -201,9 +201,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
               <p className="ag-sub">Oxirgi {period} · Toshkent vaqti bo&apos;yicha</p>
             </div>
             <div className="flex flex-wrap gap-3 text-[12px] text-muted">
-              <LegendDot color="#e3a79b" label="Yangi foydalanuvchilar" />
+              <LegendDot color="#10bfa6" label="Yangi foydalanuvchilar" />
               <LegendDot color="#7c89ff" label="Faol foydalanuvchilar" />
-              <LegendDot color="#d9b382" label="Tugatilgan testlar" />
+              <LegendDot color="#3aa0e3" label="Tugatilgan testlar" />
             </div>
           </div>
           <div className="mt-4">
@@ -212,9 +212,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
                 height={pay ? 330 : 260}
                 labels={stats.series.labels}
                 series={[
-                  { name: "Yangi", color: "#e3a79b", values: stats.series.newUsers },
+                  { name: "Yangi", color: "#10bfa6", values: stats.series.newUsers },
                   { name: "Faol", color: "#7c89ff", values: stats.series.active },
-                  { name: "Testlar", color: "#d9b382", values: stats.series.completed },
+                  { name: "Testlar", color: "#3aa0e3", values: stats.series.completed },
                 ]}
               />
             ) : (
@@ -257,11 +257,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
           <p className="ag-sub">Natija olingan urinishlar, {period}</p>
           {stats && stats.cefr.length > 0 ? (
             <div className="mt-5 flex items-center gap-5">
-              <Donut size={150} stroke={16} segments={stats.cefr.map((c) => ({ label: c.level, value: c.count, color: CEFR_COLOR[c.level] ?? "#6e7c93" }))}>
+              <Donut size={150} stroke={16} segments={stats.cefr.map((c) => ({ label: c.level, value: c.count, color: CEFR_COLOR[c.level] ?? "#6b7f9a" }))}>
                 <span className="text-[22px] font-light tabular-nums">{fmt(stats.cefr.reduce((s, c) => s + c.count, 0))}</span>
                 <span className="text-[10.5px] text-faint">natija</span>
               </Donut>
-              <Legend segments={stats.cefr.map((c) => ({ label: c.level, value: c.count, color: CEFR_COLOR[c.level] ?? "#6e7c93" }))} />
+              <Legend segments={stats.cefr.map((c) => ({ label: c.level, value: c.count, color: CEFR_COLOR[c.level] ?? "#6b7f9a" }))} />
             </div>
           ) : (
             <Empty />

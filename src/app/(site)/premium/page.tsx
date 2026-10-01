@@ -143,7 +143,7 @@ export default async function PremiumPage({
             {/* Premium */}
             <Reveal
               delay={100}
-              className="relative rounded-2xl border-[1.5px] border-gold-400 bg-ink-800 p-8 shadow-[0_30px_80px_-40px_rgba(217,179,130,0.55)]"
+              className="relative rounded-2xl border-[1.5px] border-gold-400 bg-ink-800 p-8 shadow-[0_30px_80px_-40px_rgba(58, 160, 227,0.55)]"
             >
               <span className="absolute right-6 top-6 rounded-full bg-gold-400 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-ink-950">
                 {isPremium ? t("Faol", "Active") : t("Eng ommabop", "Most popular")}

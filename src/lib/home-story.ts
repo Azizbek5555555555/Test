@@ -405,26 +405,26 @@ export const STORY_AURORA: { a: Glow[]; b: Glow[] } = {
   // Sovuq: indigo + shaftoli + firuza
   a: [
     { color: "rgba(92, 107, 255, 0.45)", at: [82, 10], radius: 55 },
-    { color: "rgba(227, 167, 155, 0.30)", at: [10, 42], radius: 45 },
+    { color: "rgba(16, 191, 166, 0.30)", at: [10, 42], radius: 45 },
     { color: "rgba(43, 179, 163, 0.22)", at: [28, 96], radius: 45 },
   ],
   // Iliq: oltin + qizg'ish + shaftoli
   b: [
-    { color: "rgba(217, 179, 130, 0.40)", at: [74, 72], radius: 50 },
+    { color: "rgba(58, 160, 227, 0.40)", at: [74, 72], radius: 50 },
     { color: "rgba(212, 87, 107, 0.26)", at: [48, 22], radius: 42 },
-    { color: "rgba(227, 167, 155, 0.30)", at: [14, 18], radius: 40 },
+    { color: "rgba(16, 191, 166, 0.30)", at: [14, 18], radius: 40 },
   ],
 };
 
 /** Hikoyadan keyingi bo'limlar foni — bir marta chiziladi, kontent bilan birga siljiydi */
 export const PAGE_GLOWS: Glow[] = [
   { color: "rgba(92, 107, 255, 0.20)", at: [85, 4], radius: 22 },
-  { color: "rgba(227, 167, 155, 0.16)", at: [8, 16], radius: 24 },
+  { color: "rgba(16, 191, 166, 0.16)", at: [8, 16], radius: 24 },
   { color: "rgba(43, 179, 163, 0.12)", at: [90, 30], radius: 22 },
-  { color: "rgba(217, 179, 130, 0.16)", at: [12, 46], radius: 24 },
+  { color: "rgba(58, 160, 227, 0.16)", at: [12, 46], radius: 24 },
   { color: "rgba(212, 87, 107, 0.12)", at: [80, 60], radius: 22 },
   { color: "rgba(92, 107, 255, 0.16)", at: [15, 74], radius: 24 },
-  { color: "rgba(217, 179, 130, 0.14)", at: [85, 90], radius: 24 },
+  { color: "rgba(58, 160, 227, 0.14)", at: [85, 90], radius: 24 },
 ];
 
 export const glowBackground = (glows: Glow[]) =>

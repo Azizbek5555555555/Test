@@ -27,9 +27,9 @@ export interface AboutCopy {
 
 const LEVELS = ["A1", "A2", "B1", "B2", "C1"];
 const SKILLS = [
-  { name: "Reading", tone: "#e3a79b" },
-  { name: "Listening", tone: "#d9b382" },
-  { name: "Writing", tone: "#3cc3b1" },
+  { name: "Reading", tone: "#10bfa6" },
+  { name: "Listening", tone: "#3aa0e3" },
+  { name: "Writing", tone: "#c9f1ea" },
   { name: "Speaking", tone: "#8a96ff" },
 ];
 
@@ -76,7 +76,7 @@ export function AboutPeak({ copy }: { copy: AboutCopy }) {
       <div ref={visualRef} className="ab-visual">
         <div className="ab-img">
           <Image
-            src="/design/ambient-peak.jpg"
+            src="/design/ambient-peak-teal.jpg"
             alt=""
             fill
             sizes="(min-width: 1024px) 45vw, 100vw"
