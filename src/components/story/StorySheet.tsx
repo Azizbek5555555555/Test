@@ -204,14 +204,14 @@ function Pen({ tone }: { tone: "navy" | "red" }) {
         </linearGradient>
       </defs>
       {/* uchi (pero) */}
-      <path d="M0 10 L16 5 L22 5 L22 15 L16 15 Z" fill="#d9b382" />
+      <path d="M0 10 L16 5 L22 5 L22 15 L16 15 Z" fill="#3aa0e3" />
       <path d="M0 10 L16 10" stroke="#8a6a3a" strokeWidth="0.8" />
       {/* ushlash joyi */}
       <rect x="22" y="4" width="30" height="12" rx="3" fill="#141b2b" />
-      <rect x="52" y="3" width="6" height="14" fill="#d9b382" />
+      <rect x="52" y="3" width="6" height="14" fill="#3aa0e3" />
       {/* korpus */}
       <rect x="58" y="3" width="98" height="14" rx="7" fill={`url(#${id})`} />
-      <rect x="120" y="1" width="4" height="10" rx="1" fill="#d9b382" />
+      <rect x="120" y="1" width="4" height="10" rx="1" fill="#3aa0e3" />
     </svg>
   );
 }

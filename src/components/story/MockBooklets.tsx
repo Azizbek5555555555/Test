@@ -7,9 +7,9 @@ import { useTilt } from "@/components/motion/useTilt";
 
 const BOOKS = [
   { skill: "Listening", meta: { uz: "8 qism · 35 daqiqa", en: "8 parts · 35 min" }, icon: Headphones, tone: "#7c89ff" },
-  { skill: "Reading", meta: { uz: "5 qism · 60 daqiqa", en: "5 parts · 60 min" }, icon: BookOpen, tone: "#e3a79b" },
-  { skill: "Writing", meta: { uz: "2 topshiriq · 60 daqiqa", en: "2 tasks · 60 min" }, icon: Edit3, tone: "#3cc3b1" },
-  { skill: "Speaking", meta: { uz: "3 qism · 15 daqiqa", en: "3 parts · 15 min" }, icon: Mic, tone: "#d9b382" },
+  { skill: "Reading", meta: { uz: "5 qism · 60 daqiqa", en: "5 parts · 60 min" }, icon: BookOpen, tone: "#10bfa6" },
+  { skill: "Writing", meta: { uz: "2 topshiriq · 60 daqiqa", en: "2 tasks · 60 min" }, icon: Edit3, tone: "#c9f1ea" },
+  { skill: "Speaking", meta: { uz: "3 qism · 15 daqiqa", en: "3 parts · 15 min" }, icon: Mic, tone: "#3aa0e3" },
 ];
 
 /**

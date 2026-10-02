@@ -289,7 +289,7 @@ export function VocabGame({
   const seconds = Math.ceil(msLeft / 1000);
 
   return (
-    <div className="mx-auto max-w-xl rounded-2xl border-[1.5px] border-brand-400/80 bg-ink-900 p-6 shadow-[0_24px_60px_-30px_rgba(227,167,155,0.35)] sm:p-8">
+    <div className="mx-auto max-w-xl rounded-2xl border-[1.5px] border-brand-400/80 bg-ink-900 p-6 shadow-[0_24px_60px_-30px_rgba(16, 191, 166,0.35)] sm:p-8">
       {/* Yuqori qator */}
       <div className="flex items-center justify-between gap-4">
         <span className="text-sm font-semibold tabular-nums text-gold-400">

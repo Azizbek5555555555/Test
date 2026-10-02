@@ -9,7 +9,7 @@ import type { PayMethod } from "@/lib/admin-stats";
 export const METHOD_COLOR: Record<PayMethod, string> = {
   payme: "#33c3c7",
   click: "#3d8bff",
-  card: "#d9b382",
+  card: "#3aa0e3",
 };
 
 const nf = new Intl.NumberFormat("ru-RU");
@@ -108,7 +108,7 @@ export function AreaChart({ labels, series, height = 230 }: { labels: string[]; 
             <rect x={x(i) - colW / 2} y={T} width={colW} height={base - T} fill="transparent" />
             <line x1={x(i)} x2={x(i)} y1={T} y2={base} className="ac-hl" />
             {series.map((s) => (
-              <circle key={s.name} cx={x(i)} cy={y(s.values[i] ?? 0)} r="4.5" fill="#0d1526" stroke={s.color} strokeWidth="2.4" className="ac-dot" />
+              <circle key={s.name} cx={x(i)} cy={y(s.values[i] ?? 0)} r="4.5" fill="#08172b" stroke={s.color} strokeWidth="2.4" className="ac-dot" />
             ))}
             <g className="ac-tip" transform={`translate(${tipX} ${T})`}>
               <rect width="150" height={22 + series.length * 18} rx="10" />
@@ -222,7 +222,7 @@ export function PillBars({ values, labels }: { values: number[]; labels: string[
 /* ============================================================================
    Gorizontal ustunlar
    ============================================================================ */
-export function HBars({ items, max, color = "#e3a79b" }: { items: { label: string; value: number | null; hint?: string }[]; max?: number; color?: string }) {
+export function HBars({ items, max, color = "#10bfa6" }: { items: { label: string; value: number | null; hint?: string }[]; max?: number; color?: string }) {
   const m = max ?? Math.max(1, ...items.map((i) => i.value ?? 0));
   return (
     <ul className="ad-hbars">

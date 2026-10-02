@@ -56,7 +56,7 @@ export default async function LeaderboardPage({
   const rest = rows.slice(3);
 
   return (
-    <div className="bg-gradient-to-b from-[#221d2e] via-[#141a2c] via-40% to-ink-950">
+    <div className="bg-gradient-to-b from-[#0f2a3d] via-[#0c1c33] via-40% to-ink-950">
       <PageHero
         eyebrow="Vocabulary Battle"
         title="Top Climbers"

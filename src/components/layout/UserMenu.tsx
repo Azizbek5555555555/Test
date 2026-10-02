@@ -2,6 +2,7 @@
 
 import { useT } from "@/i18n/client";
 import Link from "next/link";
+import { BarChart2, LogOut, Settings, Star, User } from "react-feather";
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { formatXp } from "@/lib/format";
@@ -49,9 +50,9 @@ export function UserMenu({ user }: { user: UserMenuData }) {
   }, [open]);
 
   const items = [
-    { href: "/profile", label: t("Mening profilim", "My profile"), icon: "👤" },
-    { href: "/profile/results", label: t("Natijalarim", "My results"), icon: "📊" },
-    { href: "/premium", label: "Premium", icon: "⭐" },
+    { href: "/profile", label: t("Mening profilim", "My profile"), icon: User },
+    { href: "/profile/results", label: t("Natijalarim", "My results"), icon: BarChart2 },
+    { href: "/premium", label: "Premium", icon: Star },
   ];
 
   return (
@@ -61,7 +62,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2.5 rounded-full py-0.5 pl-1 pr-0.5 group"
+        className="site-user group"
       >
         <span className="hidden md:inline text-sm font-semibold text-fg group-hover:text-brand-300 transition-colors max-w-[9rem] truncate">
           {firstName(user.fullName, t("Profil", "Profile"))}
@@ -83,9 +84,9 @@ export function UserMenu({ user }: { user: UserMenuData }) {
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 mt-3 w-64 card p-0 overflow-hidden z-50 animate-pop shadow-lift"
+          className="site-pop absolute right-0 mt-3 w-64 overflow-hidden z-50 animate-pop"
         >
-          <div className="p-4 border-b border-line bg-[var(--bg-subtle)]">
+          <div className="p-4 border-b border-white/10 bg-white/[0.03]">
             <div className="flex items-center gap-3">
               <Avatar
                 name={user.fullName}
@@ -102,8 +103,8 @@ export function UserMenu({ user }: { user: UserMenuData }) {
             </div>
             <div className="flex items-center gap-2 mt-3">
               {user.isPremium ? (
-                <span className="text-xs font-bold text-gold-400">
-                  ⭐ PREMIUM
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-gold-400">
+                  <Star size={12} aria-hidden /> PREMIUM
                 </span>
               ) : (
                 <Link
@@ -121,42 +122,38 @@ export function UserMenu({ user }: { user: UserMenuData }) {
           </div>
 
           <nav className="p-1.5">
-            {items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                role="menuitem"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm
-                           hover:bg-[var(--bg-subtle)] transition-colors"
-              >
-                <span aria-hidden>{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
+            {items.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="site-pop-item"
+                >
+                  <Icon size={15} aria-hidden />
+                  {item.label}
+                </Link>
+              );
+            })}
 
             {user.isStaff ? (
               <Link
                 href="/admin"
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm
-                           hover:bg-[var(--bg-subtle)] transition-colors"
+                className="site-pop-item"
               >
-                <span aria-hidden>🛠️</span>
+                <Settings size={15} aria-hidden />
                 {t("Admin panel", "Admin panel")}
               </Link>
             ) : null}
           </nav>
 
-          <form action="/auth/signout" method="post" className="p-1.5 border-t border-line">
-            <button
-              type="submit"
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm
-                         text-danger hover:bg-danger/10
-                         transition-colors"
-            >
-              <span aria-hidden>🚪</span>
+          <form action="/auth/signout" method="post" className="p-1.5 border-t border-white/10">
+            <button type="submit" className="site-pop-item w-full text-danger hover:!bg-danger/10">
+              <LogOut size={15} aria-hidden />
               {t("Chiqish", "Log out")}
             </button>
           </form>

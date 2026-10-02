@@ -34,7 +34,7 @@ export default async function LoginPage({
   return (
     <div className="flex flex-1 flex-col lg:flex-row">
       {/* ------------------------------------------------ Chap panel: "The summit concept" */}
-      <aside className="relative isolate flex flex-col overflow-hidden bg-gradient-to-b from-[#212d44] via-[#121b2c] via-55% to-[#0b1220] px-6 pb-10 pt-8 sm:px-10 lg:w-[44.5%] lg:max-w-[640px] lg:shrink-0 lg:px-[60px] lg:py-[60px]">
+      <aside className="relative isolate flex flex-col overflow-hidden bg-gradient-to-b from-[#212d44] via-[#121b2c] via-55% to-[#071427] px-6 pb-10 pt-8 sm:px-10 lg:w-[44.5%] lg:max-w-[640px] lg:shrink-0 lg:px-[60px] lg:py-[60px]">
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-[url('/design/summit-hut.jpg')] bg-cover bg-center opacity-30 animate-ken-burns"

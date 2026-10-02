@@ -4,10 +4,10 @@ import Link from "next/link";
 import { getProfile, isStaff, profileHasPremium } from "@/lib/auth";
 import { MAIN_NAV, SITE_NAME } from "@/lib/constants";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { ButtonLink } from "@/components/ui/Button";
 import { UserMenu } from "./UserMenu";
 import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
+import { HeaderShell } from "./HeaderShell";
 import { BrandMark, BrandWordmark } from "./BrandLogo";
 
 /** Foydalanuvchining oxirgi aniqlangan CEFR darajasi (header'dagi "B1" belgisi) */
@@ -29,8 +29,9 @@ async function getLastLevel(userId: string): Promise<string | null> {
 }
 
 /**
- * Figma: top-navigation — 84px, ink/base 70% + blur, pastda ink/border chiziq.
- * Chapda logo, o'rtada havolalar (faol — accent), o'ngda foydalanuvchi.
+ * Suzuvchi shisha kapsula: chapda logo, o'rtada havolalar (faol havola ostida
+ * sirpanuvchi firuza indikator), o'ngda til, foydalanuvchi va mobil menyu.
+ * Skroll qilinganda kapsula ixchamlashadi va to'qroq bo'ladi (HeaderShell).
  */
 export async function Header() {
   const t = await getT();
@@ -38,21 +39,17 @@ export async function Header() {
   const level = profile ? await getLastLevel(profile.id) : null;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-ink-950/70 backdrop-blur-[8px]">
+    <HeaderShell>
       <div className="container-page">
-        <div className="flex items-center gap-6 h-[72px] lg:h-[84px]">
-          <Link
-            href="/"
-            className="flex items-center gap-3 shrink-0"
-            aria-label={`${SITE_NAME} — ${t("bosh sahifa", "home")}`}
-          >
-            <BrandMark size={34} />
-            <BrandWordmark className="text-[22px] leading-none hidden sm:block" />
+        <div className="site-bar">
+          <Link href="/" className="site-brand" aria-label={`${SITE_NAME} — ${t("bosh sahifa", "home")}`}>
+            <BrandMark size={32} className="site-brand-mark" />
+            <BrandWordmark className="text-[19px] sm:text-[21px] leading-none" />
           </Link>
 
           <NavLinks items={MAIN_NAV.map((item) => ({ href: item.href, label: t(item.label) }))} />
 
-          <div className="ml-auto flex items-center gap-4">
+          <div className="ml-auto flex items-center gap-2.5 sm:gap-3">
             <LangSwitch className="hidden sm:inline-grid" />
             {profile ? (
               <UserMenu
@@ -68,15 +65,13 @@ export async function Header() {
               />
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="hidden sm:inline text-sm font-semibold text-fg hover:text-brand-300 transition-colors"
-                >
+                <Link href="/login" className="site-login hidden sm:inline-flex">
                   {t("Kirish", "Log in")}
                 </Link>
-                <ButtonLink href="/login" size="sm" className="hidden sm:inline-flex">
+                <Link href="/login" className="site-cta hidden sm:inline-flex">
                   {t("Bepul boshlash", "Start free")}
-                </ButtonLink>
+                  <span aria-hidden>→</span>
+                </Link>
               </>
             )}
 
@@ -84,6 +79,6 @@ export async function Header() {
           </div>
         </div>
       </div>
-    </header>
+    </HeaderShell>
   );
 }

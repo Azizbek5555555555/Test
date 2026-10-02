@@ -231,12 +231,12 @@ export function SummitTrail({
                 <stop offset="1" stopColor="#111830" />
               </linearGradient>
               <linearGradient id="st-trail" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0" stopColor="#e3a79b" />
-                <stop offset="1" stopColor="#f0cf9c" />
+                <stop offset="0" stopColor="#10bfa6" />
+                <stop offset="1" stopColor="#7cc4f0" />
               </linearGradient>
               <radialGradient id="st-halo">
-                <stop offset="0" stopColor="#f6d7b0" stopOpacity="0.9" />
-                <stop offset="1" stopColor="#f6d7b0" stopOpacity="0" />
+                <stop offset="0" stopColor="#c9f1ea" stopOpacity="0.9" />
+                <stop offset="1" stopColor="#c9f1ea" stopOpacity="0" />
               </radialGradient>
               <clipPath id="st-mount">
                 <path d={RIDGE} />

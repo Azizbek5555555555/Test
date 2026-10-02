@@ -86,7 +86,7 @@ export function GradingForm({
             title="Rasmiy mezon bo'yicha hisoblagich"
             parts={SPEAKING_PARTS}
             convert={speakingStandardScore}
-            note="Savollar bali yig'indisi (0–21) 0–75 shkalaga o'tkaziladi (taxminiy — Speaking uchun alohida rasmiy jadval yuborilmagan)."
+            note="Savollar bali yig'indisi (0–21) Writing'dagi kabi rasmiy jadval bo'yicha 0–75 shkalaga o'tkaziladi."
             onResult={(v) => setSpeaking(String(v))}
           />
           <Field
