@@ -43,11 +43,58 @@ function canonicalRedirect(request: NextRequest): NextResponse | null {
   return NextResponse.redirect(`https://${canonical}${pathname}${search}`, 308);
 }
 
+/**
+ * Content Security Policy — brauzerga "faqat shu manbalardan kod va resurs yukla" deydi.
+ * Har so'rovda yangi tasodifiy `nonce` yaratiladi: faqat shu kalitga ega skriptlar ishlaydi,
+ * shuning uchun saytga qandaydir yo'l bilan tiqilgan begona <script> bajarilmaydi (XSS himoyasi).
+ */
+function contentSecurityPolicy(nonce: string, request: NextRequest): string {
+  let supabase = "https://*.supabase.co";
+  try {
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) supabase = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin;
+  } catch {
+    /* noto'g'ri URL — umumiy qiymat qoladi */
+  }
+  const supabaseWs = supabase.replace(/^http/, "ws");
+  const dev = process.env.NODE_ENV === "development";
+  const https = (request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol).startsWith("https");
+
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${dev ? " 'unsafe-eval'" : ""}`,
+    // React `style={{...}}` atributlari va next/font uslublari uchun
+    "style-src 'self' 'unsafe-inline'",
+    `img-src 'self' data: blob: https://lh3.googleusercontent.com https://images.unsplash.com ${supabase}`,
+    "font-src 'self' data:",
+    `connect-src 'self' ${supabase} ${supabaseWs}`,
+    `media-src 'self' blob: ${supabase}`,
+    "worker-src 'self' blob:",
+    "frame-src 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    ...(https ? ["upgrade-insecure-requests"] : []),
+  ].join("; ");
+}
+
 export async function proxy(request: NextRequest) {
   const redirect = canonicalRedirect(request);
   if (redirect) return redirect;
 
-  let response = NextResponse.next({ request });
+  const nonce = btoa(crypto.randomUUID());
+  const csp = contentSecurityPolicy(nonce, request);
+  // Next.js sahifani chizayotganda nonce'ni so'rov sarlavhasidan oladi va o'z skriptlariga qo'yadi
+  const next = () => {
+    const headers = new Headers(request.headers);
+    headers.set("x-nonce", nonce);
+    headers.set("content-security-policy", csp);
+    const res = NextResponse.next({ request: { headers } });
+    res.headers.set("Content-Security-Policy", csp);
+    return res;
+  };
+
+  let response = next();
 
   // Supabase hali sozlanmagan bo'lsa — sayt baribir ochilishi kerak
   if (!isSupabaseConfigured()) {
@@ -77,7 +124,7 @@ export async function proxy(request: NextRequest) {
           for (const { name, value } of cookiesToSet) {
             request.cookies.set(name, value);
           }
-          response = NextResponse.next({ request });
+          response = next();
           for (const { name, value, options } of cookiesToSet) {
             response.cookies.set(name, value, options);
           }

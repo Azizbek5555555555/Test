@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Textarea } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Card";
+import { Honeypot } from "./Honeypot";
 
 export function ContactForm({
   defaultName,
@@ -35,6 +36,7 @@ export function ContactForm({
 
   return (
     <form action={formAction} className="space-y-4">
+      <Honeypot />
       {state && !state.ok ? <Alert tone="danger">{state.message}</Alert> : null}
 
       <Field label={t("Ismingiz", "Your name")} htmlFor="contact-name" required>

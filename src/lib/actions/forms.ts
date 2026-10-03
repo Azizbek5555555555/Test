@@ -4,12 +4,17 @@ import { getT } from "@/i18n/server";
 
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 import { getProfile } from "@/lib/auth";
+import { clientIp, isBot, rateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "./profile";
 
 export type { ActionResult };
 
 const PHONE_RE = /^[\d\s+()-]{7,20}$/;
+
+/** Bazadagi spam to'sig'i (0009_antispam.sql) ishlaganini aniqlaydi */
+const isFloodError = (message: string | undefined) => /too_many_/.test(message ?? "");
 
 /* -------------------------------------------------------------------------
    KURSGA YOZILISH (hujjat: 14-bo'lim)
@@ -30,9 +35,31 @@ export async function applyToCourseAction(
   if (!PHONE_RE.test(phone))
     return { ok: false, message: t("Telefon raqamini to'g'ri kiriting.", "Enter a valid phone number.") };
 
+  const accepted = {
+    ok: true,
+    message: t(
+      "Arizangiz qabul qilindi! Tez orada siz bilan bog'lanamiz.",
+      "Your application has been received! We will contact you soon.",
+    ),
+  };
+  // Bot-tuzoq to'ldirilgan — botga "qabul qilindi" deymiz, lekin hech narsa yozmaymiz
+  if (isBot(formData)) return accepted;
+  if (!rateLimit(`apply:${await clientIp()}`, 5, 60 * 60 * 1000)) {
+    return { ok: false, message: t("Juda ko'p urinish. Birozdan keyin qayta urinib ko'ring.", "Too many attempts. Please try again later.") };
+  }
+
   try {
     const profile = await getProfile();
-    const supabase = await createServerSupabase();
+    // Bazaga faqat server yozadi (0009_antispam.sql) — anon kalit bilan to'g'ridan-to'g'ri yozib bo'lmaydi
+    const supabase = createAdminSupabase();
+
+    const { data: course } = await supabase
+      .from("courses")
+      .select("id")
+      .eq("id", courseId)
+      .eq("published", true)
+      .maybeSingle();
+    if (!course) return { ok: false, message: t("Kurs topilmadi.", "Course not found.") };
 
     const { error } = await supabase.from("course_applications").insert({
       course_id: courseId,
@@ -42,17 +69,17 @@ export async function applyToCourseAction(
       note: note ? note.slice(0, 1000) : null,
     });
 
-    if (error) return { ok: false, message: error.message };
+    if (error) {
+      if (isFloodError(error.message))
+        return { ok: false, message: t("Bu raqamdan ariza allaqachon yuborilgan. Tez orada bog'lanamiz.", "An application from this number has already been sent. We will contact you soon.") };
+      return { ok: false, message: t("Arizani yuborib bo'lmadi.", "Could not send the application.") };
+    }
   } catch {
     return { ok: false, message: t("Arizani yuborib bo'lmadi.", "Could not send the application.") };
   }
 
   revalidatePath("/admin/applications");
-  return {
-    ok: true,
-    message:
-      t("Arizangiz qabul qilindi! Tez orada siz bilan bog'lanamiz.", "Your application has been received! We will contact you soon."),
-  };
+  return accepted;
 }
 
 /* -------------------------------------------------------------------------
@@ -81,8 +108,17 @@ export async function sendContactMessageAction(
   if (phone && !PHONE_RE.test(phone))
     return { ok: false, message: t("Telefon raqamini to'g'ri kiriting.", "Enter a valid phone number.") };
 
+  const sent = {
+    ok: true,
+    message: t("Xabaringiz yuborildi! Tez orada javob beramiz.", "Your message has been sent! We will reply soon."),
+  };
+  if (isBot(formData)) return sent;
+  if (!rateLimit(`contact:${await clientIp()}`, 3, 10 * 60 * 1000)) {
+    return { ok: false, message: t("Juda ko'p xabar yuborildi. 10 daqiqadan keyin qayta urinib ko'ring.", "Too many messages. Please try again in 10 minutes.") };
+  }
+
   try {
-    const supabase = await createServerSupabase();
+    const supabase = createAdminSupabase();
     const { error } = await supabase.from("contact_messages").insert({
       name: name.slice(0, 120),
       email: email ? email.slice(0, 160) : null,
@@ -90,16 +126,17 @@ export async function sendContactMessageAction(
       message: message.slice(0, 3000),
     });
 
-    if (error) return { ok: false, message: error.message };
+    if (error) {
+      if (isFloodError(error.message))
+        return { ok: false, message: t("Juda ko'p xabar yuborildi. Birozdan keyin qayta urinib ko'ring.", "Too many messages. Please try again later.") };
+      return { ok: false, message: t("Xabarni yuborib bo'lmadi.", "Could not send the message.") };
+    }
   } catch {
     return { ok: false, message: t("Xabarni yuborib bo'lmadi.", "Could not send the message.") };
   }
 
   revalidatePath("/admin/messages");
-  return {
-    ok: true,
-    message: t("Xabaringiz yuborildi! Tez orada javob beramiz.", "Your message has been sent! We will reply soon."),
-  };
+  return sent;
 }
 
 /* -------------------------------------------------------------------------
