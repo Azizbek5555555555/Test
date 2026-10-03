@@ -432,8 +432,8 @@ o'zi):
 > `.env.local` faylingizning mazmunini (`NEXT_PUBLIC_SITE_URL` qatorisiz)
 > to'g'ridan-to'g'ri qo'ying.
 
-> ⚠️ **`NEXT_PUBLIC_SITE_URL` ni qo'shmang** — Railway bergan domen
-> avtomatik aniqlanadi. Uni faqat o'z domeningizni ulaganingizda yozasiz.
+> ⚠️ **`NEXT_PUBLIC_SITE_URL` ni qo'shmang** — saytning manzili avtomatik
+> aniqlanadi (o'z domeningizda ham). Domen ulash — 13-QADAM.
 
 > ⚠️ **Nega bu muhim:** `NEXT_PUBLIC_` bilan boshlanadigan o'zgaruvchilar
 > **build paytida** kodga yoziladi. Ularni qo'shmasdan build qilsangiz,
@@ -499,7 +499,7 @@ Sayt endi real manzilda (masalan `https://multilevel-plus-production.up.railway.
 2. **Audience** → **Publish app** → **Confirm** → holat **In production**
 
 Endi istalgan Gmail egasi kira oladi. O'z domeningizni ulaganingizda
-shu havolalarni yangi domen bilan almashtirasiz.
+shu havolalarni yangi domen bilan almashtirasiz (13.6-qadam).
 
 ---
 
@@ -732,6 +732,86 @@ Railway → **Deployments** → oxirgi deploy → **View Logs**.
 
 ---
 
+## 13-QADAM · O'z domeningizni ulash (levelx.academy · Hostinger)
+
+Tartib muhim: avval sayt manzili (1–4), keyin kirish (5–6), keyin pochta (7–9).
+DNS o'zgarishlari odatda 5–30 daqiqada, ba'zan 24 soatgacha kuchga kiradi.
+
+### 13.1. Hostinger — emailni tasdiqlash
+Hostinger yuborgan xatdagi havolani bosing (muddati bor, aks holda domen
+to'xtatiladi). hPanel → **Domains → levelx.academy → DNS / Nameservers**.
+
+### 13.2. Railway — domenni qo'shish
+Railway → loyiha → servis → **Settings → Networking → Public Networking →
++ Custom Domain**:
+1. `levelx.academy` yozing → port so'rasa **8080** → Railway 2 ta yozuv beradi:
+   **CNAME** (`@` → `xxxx.up.railway.app`) va **TXT** (`_railway-verify` → `railway-verify=...`).
+2. Yana **+ Custom Domain** → `www.levelx.academy` → yana CNAME va TXT beradi.
+Sahifani yopmang — qiymatlar 13.3 da kerak.
+
+### 13.3. Hostinger — DNS yozuvlari
+**DNS / Nameservers → DNS records**:
+1. **Eskilarini o'chiring:** Name `@` bo'lgan **A** va **AAAA** yozuvlar, Name
+   `www` bo'lgan **CNAME** (Hostinger "parking" yozuvlari). Boshqalariga tegmang.
+2. **Qo'shing** (Type → Name → Points to / Content → TTL `300`):
+   | Type | Name | Qiymat |
+   |---|---|---|
+   | CNAME | `@` | Railway bergan `xxxx.up.railway.app` *(Hostinger uni o'zi ALIAS qiladi)* |
+   | TXT | `_railway-verify` | `railway-verify=...` (levelx.academy uchun) |
+   | CNAME | `www` | Railway bergan `yyyy.up.railway.app` |
+   | TXT | `_railway-verify.www` | `railway-verify=...` (www uchun) |
+3. Railway'da ikkala domen yonida yashil belgi (✅) va SSL paydo bo'lishini kuting.
+   https://levelx.academy ochilsa — sayt manzili tayyor.
+
+### 13.4. Railway — asosiy domen
+**Variables → + New Variable:** `CANONICAL_HOST` = `levelx.academy` → saqlang.
+Shundan keyin `www.levelx.academy` va eski `...up.railway.app` manzillari
+avtomatik `https://levelx.academy` ga o'tadi. `NEXT_PUBLIC_SITE_URL` kerak emas.
+⚠️ Buni faqat https://levelx.academy ochilgandan **keyin** qo'shing.
+
+### 13.5. Supabase — kirish manzillari
+**Authentication → URL Configuration:**
+- **Site URL:** `https://levelx.academy`
+- **Redirect URLs** (+ Add URL): `https://levelx.academy/**`,
+  `https://www.levelx.academy/**` (eski railway va `http://localhost:3000/**` qolsin) → **Save**
+
+### 13.6. Google — kirish oynasi
+Google Cloud Console → **Google Auth Platform**:
+1. **Clients** → Web client → **Authorized JavaScript origins** → `https://levelx.academy`
+   va `https://www.levelx.academy` qo'shing. **Authorized redirect URIs** ga tegmang
+   (Supabase callback o'zgarmaydi) → **Save**.
+2. **Branding:** home page `https://levelx.academy`, privacy `https://levelx.academy/privacy`,
+   terms `https://levelx.academy/terms`, **Authorized domains** → `levelx.academy` → **Save**.
+3. **Audience:** holat **In production** bo'lsin.
+4. (Tavsiya) [Google Search Console](https://search.google.com/search-console) →
+   **Domain** → `levelx.academy` → bergan **TXT** yozuvini Hostinger DNS'ga
+   (Name `@`) qo'shing → **Verify** → **Sitemaps** → `sitemap.xml`.
+
+### 13.7. Pochta — kirish kodlari (Resend)
+1. [resend.com](https://resend.com) → ro'yxatdan o'ting → **Domains → Add Domain** →
+   `levelx.academy` → Resend 3–4 ta yozuv beradi (MX va TXT `send`, TXT `resend._domainkey`,
+   ixtiyoriy TXT `_dmarc`). Ularni Hostinger DNS'ga **aynan** shunday qo'shing
+   (Name ustunidagi `.levelx.academy` qismini yozmang) → Resend'da **Verify DNS Records** → ✅.
+2. Resend → **API Keys → Create API Key** (Sending access) → nusxalang.
+3. Supabase → **Authentication → Emails → SMTP Settings** → **Enable custom SMTP**:
+   Sender email `noreply@levelx.academy` · Sender name `levelxenglish` ·
+   Host `smtp.resend.com` · Port `465` · Username `resend` · Password = API kalit → **Save**.
+4. Supabase → **Authentication → Rate Limits** → email yuborish limitini `100` /soat qiling.
+5. Shablonlar — 6.2-qadam; saytda email bo'limini yoqish — 6.3-qadam (`EMAIL_LOGIN=on`).
+
+### 13.8. Payme va Click
+Kabinetlarda manzillar shu domen bilan yoziladi:
+- Payme: `https://levelx.academy/api/payments/payme`
+- Click: `https://levelx.academy/api/payments/click/prepare` va `.../click/complete`
+
+### 13.9. Yakuniy tekshiruv
+- https://levelx.academy va https://www.levelx.academy → sayt (www asosiyga o'tadi)
+- Google bilan kirish → saytga qaytadi
+- Email kodi → begona Gmail'ga ham keladi (Spam'ni ham tekshiring)
+- https://levelx.academy/sitemap.xml va /robots.txt ochiladi
+
+---
+
 ## 📞 Keyingi qadamlar
 
 Sayt ishga tushgach:
@@ -739,8 +819,6 @@ Sayt ishga tushgach:
 1. **Sayt sozlamalari** dan o'z Telegram/Instagram/telefoningizni yozing
 2. Demo kontentni o'chirib, o'z testlaringizni qo'shing
 3. O'qituvchilarga `teacher` roli bering
-4. O'z domeningizni Railway → **Settings → Networking → Custom Domain**
-   dan ulang (keyin `NEXT_PUBLIC_SITE_URL` ni ham qo'shing va Supabase
-   Redirect URLs ro'yxatiga yangi domenni kiriting)
+4. O'z domeningizni ulang — **13-QADAM**
 
 Omad! 🎓
