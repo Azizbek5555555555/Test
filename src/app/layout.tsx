@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Cormorant_Garamond, Inter, Poppins } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_DESCRIPTION_EN, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/constants";
+import { headers } from "next/headers";
 import { getLocale, getT } from "@/i18n/server";
 import { I18nProvider } from "@/i18n/client";
 import { CursorFollower } from "@/components/motion/CursorFollower";
@@ -110,6 +111,8 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
+  // CSP nonce (proxy.ts) — o'zimizning inline skriptlarimizga beriladi
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang={locale}
@@ -118,9 +121,9 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: STRUCTURED_DATA }} />
+        <script type="application/ld+json" nonce={nonce} dangerouslySetInnerHTML={{ __html: STRUCTURED_DATA }} />
         {/* har bir to'liq yuklanishda (kirish, refresh) yuklanish ekrani */}
-        <Splash label={locale === "en" ? "Loading" : "Yuklanmoqda"} />
+        <Splash label={locale === "en" ? "Loading" : "Yuklanmoqda"} nonce={nonce} />
         <I18nProvider locale={locale}>{children}</I18nProvider>
         <CursorFollower />
       </body>

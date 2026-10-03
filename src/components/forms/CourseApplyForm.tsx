@@ -6,6 +6,7 @@ import { applyToCourseAction, type ActionResult } from "@/lib/actions/forms";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Textarea } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Card";
+import { Honeypot } from "./Honeypot";
 
 export function CourseApplyForm({
   courseId,
@@ -35,6 +36,7 @@ export function CourseApplyForm({
 
   return (
     <form action={formAction} className="space-y-4">
+      <Honeypot />
       {state && !state.ok ? <Alert tone="danger">{state.message}</Alert> : null}
 
       <input type="hidden" name="course_id" value={courseId} />

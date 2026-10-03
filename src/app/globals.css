@@ -6850,3 +6850,13 @@ a.sf-channel:hover span {
     transition: none;
   }
 }
+
+/* Bot-tuzoq maydoni — ekrandan tashqarida (display:none emas: ba'zi botlar uni o'tkazib yuboradi) */
+.lx-hp {
+  position: absolute !important;
+  left: -10000px !important;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

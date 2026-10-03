@@ -1,6 +1,7 @@
 import { createServerSupabase } from "./supabase/server";
 import { isSupabaseConfigured } from "./supabase/env";
 import { isAttemptTimeOver } from "./attempt-time";
+import { sanitizeRichText } from "./sanitize";
 import type {
   Article,
   ArticleListItem,
@@ -116,6 +117,7 @@ export async function getTestParts(testSetId: string): Promise<TestPart[]> {
       .order("order_index", { ascending: true });
     return ((data ?? []) as Omit<TestPart, "transcript">[]).map((part) => ({
       ...part,
+      passage: sanitizeRichText(part.passage),
       transcript: null,
     }));
   } catch {
@@ -395,7 +397,8 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
       .select("*")
       .eq("slug", slug)
       .maybeSingle();
-    return (data as Article | null) ?? null;
+    const article = data as Article | null;
+    return article ? { ...article, body: sanitizeRichText(article.body) ?? "" } : null;
   } catch {
     return null;
   }

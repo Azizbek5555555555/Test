@@ -65,7 +65,7 @@ export function Loader({ size = 132, label, className = "" }: { size?: number; l
  * yo'qoladi; ko'pi bilan 3.5 soniya. JS o'chiq yoki "harakatni kamaytirish"
  * yoqilgan bo'lsa ko'rsatilmaydi.
  */
-export function Splash({ label }: { label?: string }) {
+export function Splash({ label, nonce }: { label?: string; nonce?: string }) {
   const code = `(function(){try{
 if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
 var h=document.documentElement,t0=Date.now(),done=false;h.classList.add("lx-splashing");
@@ -77,7 +77,7 @@ if(document.readyState==="complete")hide();else window.addEventListener("load",h
       <div className="lx-splash" aria-hidden>
         <Loader size={210} label={label} />
       </div>
-      <script dangerouslySetInnerHTML={{ __html: code }} />
+      <script nonce={nonce} dangerouslySetInnerHTML={{ __html: code }} />
     </>
   );
 }
