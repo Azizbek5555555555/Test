@@ -16,7 +16,37 @@ const PROTECTED_PREFIXES = [
 /** Faqat xodimlar (admin/teacher) uchun */
 const STAFF_PREFIXES = ["/admin"];
 
+/**
+ * Asosiy domen (Railway → Variables → CANONICAL_HOST=levelx.academy).
+ * Sayt boshqa manzil bilan ochilsa (www.levelx.academy yoki *.up.railway.app),
+ * foydalanuvchi asosiy domenga yo'naltiriladi. O'zgaruvchi yo'q bo'lsa — hech narsa qilinmaydi.
+ * Kirish jarayoni (/auth/*) va API so'rovlari tegilmaydi: ular cookie va POST bilan ishlaydi.
+ */
+function canonicalRedirect(request: NextRequest): NextResponse | null {
+  const canonical = process.env.CANONICAL_HOST?.trim().toLowerCase();
+  if (!canonical) return null;
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+
+  const { pathname, search } = request.nextUrl;
+  if (pathname.startsWith("/auth/") || pathname.startsWith("/api/")) return null;
+
+  const host = (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase()
+    .replace(/:\d+$/, "");
+  if (!host || host === canonical) return null;
+  // Lokal ishlab chiqish va ichki manzillar yo'naltirilmaydi
+  if (host === "localhost" || host === "0.0.0.0" || /^\d+\.\d+\.\d+\.\d+$/.test(host)) return null;
+  if (host !== `www.${canonical}` && !host.endsWith(".up.railway.app")) return null;
+
+  return NextResponse.redirect(`https://${canonical}${pathname}${search}`, 308);
+}
+
 export async function proxy(request: NextRequest) {
+  const redirect = canonicalRedirect(request);
+  if (redirect) return redirect;
+
   let response = NextResponse.next({ request });
 
   // Supabase hali sozlanmagan bo'lsa — sayt baribir ochilishi kerak
