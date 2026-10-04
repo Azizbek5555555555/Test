@@ -98,14 +98,14 @@ export function LearnerHero(props: LearnerHeroProps) {
     <section ref={rootRef} className="lh is-live">
       {/* Ramka ortidagi xira, oqartirilgan manzara (rasmdagi kabi) */}
       <div className="lh-backdrop" aria-hidden>
-        <Image src="/design/summit-teal.jpg" alt="" fill sizes="100vw" className="object-cover" />
+        <Image src="/design/ambient-peak-teal.jpg" alt="" fill sizes="100vw" className="object-cover" />
       </div>
 
       <div className="container-page">
         <div ref={frameRef} className="lh-frame">
           <div className="lh-bg" aria-hidden>
             <Image
-              src="/design/summit-teal.jpg"
+              src="/design/ambient-peak-teal.jpg"
               alt=""
               fill
               priority
