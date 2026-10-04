@@ -2250,6 +2250,16 @@ input[type="number"]::-webkit-inner-spin-button {
   inset: 0;
   z-index: -1;
   background: linear-gradient(180deg, #0f2440, var(--color-ink-950));
+  /* pastki chet yumshoq so'nadi — keyingi bo'lim bilan qattiq chiziq hosil bo'lmaydi */
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+/* Hero'dan keyingi birinchi bo'lim (kartalar) unga yopishib qolmasin.
+   components qatlamida — sahifada aniq mt-* berilgan bo'lsa, o'shanisi ustun. */
+@layer components {
+  .ph + * {
+    margin-top: 1.5rem;
+  }
 }
 /* ikki katta rangli nur — sekin suzadi (faqat transform: arzon) */
 .ph-bg::before,
