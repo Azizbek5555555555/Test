@@ -76,7 +76,7 @@ export function AboutPeak({ copy }: { copy: AboutCopy }) {
       <div ref={visualRef} className="ab-visual">
         <div className="ab-img">
           <Image
-            src="/design/summit-teal.jpg"
+            src="/design/ambient-peak-teal.jpg"
             alt=""
             fill
             sizes="(min-width: 1024px) 45vw, 100vw"

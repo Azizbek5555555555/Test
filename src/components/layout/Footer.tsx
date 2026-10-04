@@ -68,7 +68,7 @@ export async function Footer() {
       <div className="container-page">
         <div className="sf-frame">
           <div className="sf-bg" aria-hidden>
-            <Image src="/design/summit-teal.jpg" alt="" fill sizes="100vw" className="object-cover" />
+            <Image src="/design/ambient-peak-teal.jpg" alt="" fill sizes="(min-width: 1280px) 1280px, 100vw" className="object-cover" />
           </div>
           <div className="sf-shade" aria-hidden />
 
