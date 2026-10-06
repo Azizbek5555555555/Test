@@ -18,7 +18,7 @@ export function CtaBand({
   flushBottom?: boolean;
 }) {
   return (
-    <section className={`relative isolate overflow-hidden border-y border-line bg-gradient-to-br ${flushBottom ? "-mb-24" : ""} from-[#1d3257] via-[#141d49] to-[#0f1540]`}>
+    <section className={`theme-keep relative isolate overflow-hidden border-y border-line bg-gradient-to-br ${flushBottom ? "-mb-24" : ""} from-[#1d3257] via-[#141d49] to-[#0f1540]`}>
       <ContourLines className="absolute -right-10 top-0 -z-10 h-full w-[70%] text-gold-400/40 sm:w-[55%]" />
       <div
         aria-hidden

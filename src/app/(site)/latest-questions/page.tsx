@@ -115,7 +115,7 @@ export default async function LatestQuestionsPage({
                     className={cn(
                       "rounded-full px-4 py-1.5 text-[13px] font-medium tabular-nums transition-colors",
                       y === year
-                        ? "bg-brand-400 text-ink-950"
+                        ? "bg-brand-400 text-on-accent"
                         : "border border-line bg-ink-900 text-muted hover:text-fg",
                     )}
                   >
@@ -133,7 +133,7 @@ export default async function LatestQuestionsPage({
                       aria-current={s === section ? "true" : undefined}
                       className={cn(
                         "rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors",
-                        s === section ? "bg-brand-400 text-ink-950" : "text-muted hover:text-fg",
+                        s === section ? "bg-brand-400 text-on-accent" : "text-muted hover:text-fg",
                       )}
                     >
                       {s === "all" ? t("Barchasi", "All") : SECTION_LABEL[s]}
@@ -178,8 +178,8 @@ export default async function LatestQuestionsPage({
                             className={cn(
                               "col-start-3 row-start-1 inline-flex justify-center rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors sm:col-auto sm:row-auto",
                               locked
-                                ? "border-[1.5px] border-gold-400/80 text-gold-400 group-hover:bg-gold-400 group-hover:text-ink-950"
-                                : "bg-brand-400 text-ink-950 group-hover:bg-brand-300",
+                                ? "border-[1.5px] border-gold-400/80 text-gold-400 group-hover:bg-gold-400 group-hover:text-on-accent"
+                                : "bg-brand-400 text-on-accent group-hover:bg-brand-300",
                             )}
                           >
                             {locked ? t("Ochish", "Unlock") : t("Mashq", "Practise")}
@@ -257,11 +257,11 @@ export default async function LatestQuestionsPage({
 
 function AccessPill({ premium, t }: { premium: boolean; t: T }) {
   return premium ? (
-    <span className="inline-flex rounded-full bg-gold-400 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-950">
+    <span className="inline-flex rounded-full bg-gold-400 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-accent">
       Premium
     </span>
   ) : (
-    <span className="inline-flex rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-950">
+    <span className="inline-flex rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-accent">
       {t("Bepul", "Free")}
     </span>
   );

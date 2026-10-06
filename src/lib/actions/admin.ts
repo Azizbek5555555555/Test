@@ -6,6 +6,8 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import { getProfile, isAdmin, isStaff } from "@/lib/auth";
 import type { ActionResult } from "./profile";
 import type { UserRole } from "@/lib/types";
+import { getPremiumPlans } from "@/lib/settings";
+import { planReviews } from "@/lib/premium";
 
 export type { ActionResult };
 
@@ -158,51 +160,72 @@ export async function reviewPremiumRequestAction(
 
   const requestId = str(formData, "request_id");
   const decision = str(formData, "decision"); // approve | reject
-  const userId = str(formData, "user_id");
-  const months = num(formData, "months", 1);
 
-  if (!requestId || !userId)
-    return { ok: false, message: "So'rov topilmadi." };
+  if (!requestId) return { ok: false, message: "So'rov topilmadi." };
 
   const me = await getProfile();
 
   try {
     const admin = createAdminSupabase();
 
-    const { error: reqError } = await admin
+    // Tarif, muddat va o'quvchi — brauzerdan emas, bazadagi so'rovning o'zidan olinadi
+    const { data: request } = await admin
+      .from("premium_requests")
+      .select("user_id, plan, months, status")
+      .eq("id", requestId)
+      .maybeSingle();
+    const row = request as { user_id: string; plan: string; months: number | null; status: string } | null;
+    if (!row) return { ok: false, message: "So'rov topilmadi." };
+    if (row.status !== "pending") return { ok: false, message: "Bu so'rov allaqachon ko'rib chiqilgan." };
+
+    // Faqat hali "kutilmoqda" holatidagi so'rov yangilanadi — ikki marta bosilsa ham Premium ikki marta qo'shilmaydi
+    const { data: updated, error: reqError } = await admin
       .from("premium_requests")
       .update({
         status: decision === "approve" ? "approved" : "rejected",
         reviewed_by: me?.id ?? null,
         reviewed_at: new Date().toISOString(),
       })
-      .eq("id", requestId);
+      .eq("id", requestId)
+      .eq("status", "pending")
+      .select("id");
 
     if (reqError) return { ok: false, message: reqError.message };
+    if (!updated || updated.length === 0) return { ok: false, message: "Bu so'rov allaqachon ko'rib chiqilgan." };
 
     if (decision === "approve") {
+      const months = Math.min(60, Math.max(1, Number(row.months) || 1));
+      const plan = (await getPremiumPlans()).find((p) => p.id === row.plan);
+      const reviews = planReviews(plan);
+
       // Mavjud muddatni hisobga olamiz — uzaytirish
       const { data: existing } = await admin
         .from("profiles")
-        .select("premium_until")
-        .eq("id", userId)
+        .select("premium_until, review_credits")
+        .eq("id", row.user_id)
         .maybeSingle();
 
-      const current = (existing as { premium_until: string | null } | null)
-        ?.premium_until;
+      const current = existing as { premium_until: string | null; review_credits?: number | null } | null;
       const base =
-        current && new Date(current).getTime() > Date.now()
-          ? new Date(current)
+        current?.premium_until && new Date(current.premium_until).getTime() > Date.now()
+          ? new Date(current.premium_until)
           : new Date();
 
-      base.setMonth(base.getMonth() + Math.min(60, Math.max(1, months)));
+      base.setMonth(base.getMonth() + months);
 
       const { error: profError } = await admin
         .from("profiles")
         .update({ is_premium: true, premium_until: base.toISOString() })
-        .eq("id", userId);
-
+        .eq("id", row.user_id);
       if (profError) return { ok: false, message: profError.message };
+
+      if (reviews > 0) {
+        const { error: creditError } = await admin
+          .from("profiles")
+          .update({ review_credits: (current?.review_credits ?? 0) + reviews })
+          .eq("id", row.user_id);
+        if (creditError) return { ok: false, message: `Premium yoqildi, lekin tekshiruvlar qo'shilmadi: ${creditError.message}` };
+      }
     }
   } catch (error) {
     return { ok: false, message: describeError(error) };
@@ -217,6 +240,32 @@ export async function reviewPremiumRequestAction(
         ? "So'rov tasdiqlandi va Premium faollashtirildi."
         : "So'rov rad etildi.",
   };
+}
+
+/** Admin o'quvchiga qolgan o'qituvchi tekshiruvlari sonini qo'lda belgilaydi */
+export async function setReviewCreditsAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const denied = await requireAdminAction();
+  if (denied) return denied;
+
+  const userId = str(formData, "user_id");
+  const credits = num(formData, "credits", -1);
+  if (!userId) return { ok: false, message: "Foydalanuvchi tanlanmagan." };
+  if (!Number.isInteger(credits) || credits < 0 || credits > 100)
+    return { ok: false, message: "Son 0–100 oralig'ida bo'lsin." };
+
+  try {
+    const admin = createAdminSupabase();
+    const { error } = await admin.from("profiles").update({ review_credits: credits }).eq("id", userId);
+    if (error) return { ok: false, message: error.message };
+  } catch (error) {
+    return { ok: false, message: describeError(error) };
+  }
+
+  revalidatePath("/admin/users");
+  return { ok: true, message: `O'qituvchi tekshiruvlari: ${credits} ta.` };
 }
 
 /* =========================================================================
@@ -948,7 +997,7 @@ export async function updateSettingFieldsAction(
   } else if (key === "premium_plans") {
     const count = num(formData, "plan_count", 0);
     const popular = str(formData, "popular_index");
-    const plans: { id: string; title: string; months: number; amount: number; note?: string; popular?: boolean }[] = [];
+    const plans: { id: string; title: string; months: number; amount: number; reviews: number; note?: string; popular?: boolean }[] = [];
     for (let i = 0; i < count; i++) {
       const title = str(formData, `plan_${i}_title`);
       if (!title) continue; // bo'sh qator — tarif o'chirilgan yoki qo'shilmagan
@@ -958,10 +1007,13 @@ export async function updateSettingFieldsAction(
         return { ok: false, message: `"${title}": muddat 1–60 oy oralig'ida bo'lsin.` };
       if (!Number.isInteger(amount) || amount < 1000)
         return { ok: false, message: `"${title}": narx kamida 1 000 so'm bo'lsin.` };
+      const reviews = num(formData, `plan_${i}_reviews`, 0);
+      if (!Number.isInteger(reviews) || reviews < 0 || reviews > 100)
+        return { ok: false, message: `"${title}": o'qituvchi tekshiruvi soni 0–100 oralig'ida bo'lsin.` };
       let id = str(formData, `plan_${i}_id`) || `m${months}`;
       while (plans.some((p) => p.id === id)) id += "x";
       const note = str(formData, `plan_${i}_note`);
-      plans.push({ id, title, months, amount, ...(note ? { note } : {}), ...(popular === String(i) ? { popular: true } : {}) });
+      plans.push({ id, title, months, amount, reviews, ...(note ? { note } : {}), ...(popular === String(i) ? { popular: true } : {}) });
     }
     if (plans.length === 0) return { ok: false, message: "Kamida bitta tarif bo'lishi kerak." };
     value = plans;

@@ -309,6 +309,8 @@ export async function getTestSetForAdmin(id: string): Promise<{
 export interface ResultRow extends Attempt {
   profiles: { full_name: string | null; email: string | null } | null;
   test_sets: { title: string; slug: string } | null;
+  /** Bahoni qo'ygan o'qituvchi/admin (avtomatik baholanganda — null) */
+  grader: { full_name: string | null; email: string | null } | null;
 }
 
 /**
@@ -319,7 +321,8 @@ export async function listAllResults(search?: string): Promise<ResultRow[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const supabase = await createServerSupabase();
-    const select = "*, profiles!attempts_user_id_fkey(full_name, email), test_sets(title, slug)";
+    const select =
+      "*, profiles!attempts_user_id_fkey(full_name, email), grader:profiles!attempts_graded_by_fkey(full_name, email), test_sets(title, slug)";
     const term = search?.trim();
 
     if (!term) {

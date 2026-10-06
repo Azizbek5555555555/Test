@@ -3,6 +3,8 @@ import { Caveat, Cormorant_Garamond, Inter, Poppins } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_DESCRIPTION_EN, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/constants";
 import { headers } from "next/headers";
 import { getLocale, getT } from "@/i18n/server";
+import { getTheme } from "@/lib/theme/server";
+import { THEME_COLOR } from "@/lib/theme";
 import { I18nProvider } from "@/i18n/client";
 import { CursorFollower } from "@/components/motion/CursorFollower";
 import { Splash } from "@/components/motion/Loader";
@@ -73,12 +75,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  themeColor: "#071427",
-  colorScheme: "dark",
-};
+export async function generateViewport(): Promise<Viewport> {
+  const theme = await getTheme();
+  return {
+    width: "device-width",
+    initialScale: 1,
+    themeColor: THEME_COLOR[theme],
+    colorScheme: theme,
+  };
+}
 
 /**
  * Google uchun tuzilgan ma'lumot (JSON-LD): qidiruv natijalarida sayt nomi
@@ -110,13 +115,14 @@ const STRUCTURED_DATA = JSON.stringify({
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const locale = await getLocale();
+  const [locale, theme] = await Promise.all([getLocale(), getTheme()]);
   // CSP nonce (proxy.ts) — o'zimizning inline skriptlarimizga beriladi
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang={locale}
-      className={`dark ${inter.variable} ${cormorant.variable} ${hand.variable} ${brand.variable}`}
+      data-theme={theme}
+      className={`${theme === "dark" ? "dark " : ""}${inter.variable} ${cormorant.variable} ${hand.variable} ${brand.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

@@ -45,6 +45,8 @@ export interface Profile {
   role: UserRole;
   is_premium: boolean;
   premium_until: string | null;
+  /** Qolgan o'qituvchi tekshiruvlari (0010 migratsiyasi; undan oldin — undefined) */
+  review_credits?: number;
   total_xp: number;
   onboarded: boolean;
   created_at: string;
@@ -325,6 +327,8 @@ export interface PremiumPlan {
   title: string;
   months: number;
   amount: number;
+  /** Nechta Full Mock o'qituvchi tomonidan tekshiriladi (Writing/Speaking) */
+  reviews?: number;
   note?: string;
   popular?: boolean;
 }

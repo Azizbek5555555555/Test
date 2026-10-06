@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef } from "react";
 import { ArrowRight, BookOpen, Check, Edit3, Headphones, Mic, Star, Zap } from "react-feather";
 import type { SiteStats } from "@/lib/home";
 import {
-  COUNTS,
   DRAWS,
   FLOATERS,
   HIGHLIGHTS,
@@ -24,7 +23,7 @@ import {
   type StoryChapter,
 } from "@/lib/home-story";
 import { cn } from "@/lib/format";
-import { StorySheet } from "./StorySheet";
+import { CertSheet, CERT_W } from "./CertSheet";
 import { useMotionMode } from "./motion";
 
 /* ============================================================================
@@ -71,14 +70,6 @@ function windowOpacity(p: number, [a, b]: Range, edge: number, openStart = false
   return smooth(Math.min(fin, fout));
 }
 
-function countValue(p: number, segments: { range: Range; from: number; to: number }[]) {
-  let v = 0;
-  for (const seg of segments) {
-    if (p >= seg.range[0]) v = seg.from + (seg.to - seg.from) * smooth(rangeT(p, seg.range));
-  }
-  return Math.round(v);
-}
-
 /* ============================================================================
    Komponent
    ============================================================================ */
@@ -108,8 +99,6 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
     }));
     const chapterEls = q("[data-chapter]").map((el) => ({ el, i: Number(el.dataset.chapter) }));
     const floatEls = q("[data-float]").map((el) => ({ el, f: FLOATERS[Number(el.dataset.float)] }));
-    const countEls = q("[data-count]").map((el) => ({ el, key: el.dataset.count as keyof typeof COUNTS, last: -1 }));
-    const barEls = q("[data-bar]").map((el) => ({ el, key: el.dataset.bar as keyof typeof COUNTS }));
     const hlEls = q("[data-hl]").map((el) => ({ el, range: HIGHLIGHTS[el.dataset.hl as keyof typeof HIGHLIGHTS] }));
     const revealEls = q("[data-reveal]").map((el) => ({ el, key: el.dataset.reveal as keyof typeof REVEALS, width: 0 }));
     const penEls = q("[data-pen]").map((el) => ({ el, key: el.dataset.pen as keyof typeof REVEALS }));
@@ -124,8 +113,8 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
     let raf = 0;
     let running = false;
 
-    const SHEET_W = 440;
-    let SHEET_H = 680;
+    const SHEET_W = CERT_W;
+    let SHEET_H = 623;
     const sheetEl = root.querySelector<HTMLElement>("[data-kf='sheet']");
 
     function measure() {
@@ -196,20 +185,7 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
         el.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0) rotate(${r.toFixed(2)}deg) scale(${(0.9 + o * 0.1).toFixed(3)})`;
       }
 
-      // 4) Sanaladigan ballar va chiziqlar
-      const values: Record<string, number> = {};
-      for (const c of countEls) {
-        const v = countValue(p, COUNTS[c.key]);
-        values[c.key] = v;
-        if (v !== c.last) {
-          c.el.textContent = String(v);
-          c.last = v;
-        }
-      }
-      for (const { el, key } of barEls) {
-        const v = values[key] ?? countValue(p, COUNTS[key]);
-        el.style.transform = `scaleX(${(v / 75).toFixed(3)})`;
-      }
+      // 4) Lupa: hozir gap ketayotgan ball ustida
       for (const { el, range } of hlEls) {
         el.style.opacity = (isStatic ? 0 : windowOpacity(p, range, 0.2)).toFixed(3);
       }
@@ -300,7 +276,7 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
       ref={rootRef}
       className="story"
       data-mode={mode}
-      aria-label={t("levelxenglish — natija varaqasi", "levelxenglish — result sheet")}
+      aria-label={t("levelxenglish — ustozning C1 sertifikati", "levelxenglish — the teacher's C1 certificate")}
       style={
         {
           "--story-h-d": `${STORY_HEIGHT.desktop}vh`,
@@ -332,7 +308,7 @@ export function HomeStory({ stats }: { stats: SiteStats }) {
             <div data-scaler className="story-scaler">
               <div data-kf="shadow" data-basis="sheet" className="story-shadow" />
               <div data-kf="sheet" className="story-sheet" style={{ transform: "rotateX(26deg) rotateY(-20deg) rotate(-9deg) scale(0.9)" }}>
-                <StorySheet />
+                <CertSheet />
               </div>
             </div>
           </div>

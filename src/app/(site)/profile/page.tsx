@@ -92,7 +92,7 @@ export default async function ProfilePage() {
   ];
 
   return (
-    <div className="bg-gradient-to-b from-[#172431] via-[#141f2d] to-ink-950">
+    <div className="bg-gradient-to-b from-[var(--tint-top,#172431)] via-[var(--tint-mid,#141f2d)] to-ink-950">
       <div className="container-page pb-20 pt-12 sm:pt-16">
         {/* ------------------------------------------------ Hero */}
         <section className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
@@ -264,6 +264,9 @@ export default async function ProfilePage() {
             <p className="mt-1 truncate text-sm text-muted">{profile.email}</p>
             <p className="mt-1 text-xs text-muted">
               {t("Ro'yxatdan o'tgan", "Joined")}: {formatDate(profile.created_at, t.locale)}
+              {isPremium && typeof profile.review_credits === "number"
+                ? ` · ${t("O'qituvchi tekshiruvi", "Teacher reviews")}: ${profile.review_credits} ${t("ta qoldi", "left")}`
+                : ""}
               {isPremium && profile.premium_until
                 ? ` · ${t("Premium muddati", "Premium until")}: ${formatDate(profile.premium_until, t.locale)}`
                 : ""}

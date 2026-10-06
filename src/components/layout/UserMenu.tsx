@@ -68,7 +68,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
           {firstName(user.fullName, t("Profil", "Profile"))}
         </span>
         {user.level ? (
-          <span className="hidden md:inline rounded-full bg-brand-400 px-2 py-0.5 text-[10px] font-bold text-ink-950">
+          <span className="hidden md:inline rounded-full bg-brand-400 px-2 py-0.5 text-[10px] font-bold text-on-accent">
             {user.level}
           </span>
         ) : null}
@@ -86,7 +86,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
           role="menu"
           className="site-pop absolute right-0 mt-3 w-64 overflow-hidden z-50 animate-pop"
         >
-          <div className="p-4 border-b border-white/10 bg-white/[0.03]">
+          <div className="p-4 border-b border-hi/10 bg-hi/[0.03]">
             <div className="flex items-center gap-3">
               <Avatar
                 name={user.fullName}
@@ -151,7 +151,7 @@ export function UserMenu({ user }: { user: UserMenuData }) {
             ) : null}
           </nav>
 
-          <form action="/auth/signout" method="post" className="p-1.5 border-t border-white/10">
+          <form action="/auth/signout" method="post" className="p-1.5 border-t border-hi/10">
             <button type="submit" className="site-pop-item w-full text-danger hover:!bg-danger/10">
               <LogOut size={15} aria-hidden />
               {t("Chiqish", "Log out")}

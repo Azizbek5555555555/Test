@@ -261,7 +261,7 @@ export default async function BoostPage() {
             >
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-400 text-ink-950 transition-transform group-hover:scale-110">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-400 text-on-accent transition-transform group-hover:scale-110">
                     <Play size={16} fill="currentColor" aria-hidden />
                   </span>
                   <div className="min-w-0">
@@ -272,7 +272,7 @@ export default async function BoostPage() {
                     </p>
                   </div>
                 </div>
-                <span className="rounded-full border-[1.5px] border-brand-400 px-4 py-1.5 text-[13px] font-semibold text-fg transition-colors group-hover:bg-brand-400 group-hover:text-ink-950">
+                <span className="rounded-full border-[1.5px] border-brand-400 px-4 py-1.5 text-[13px] font-semibold text-fg transition-colors group-hover:bg-brand-400 group-hover:text-on-accent">
                   {t("Mashqni boshlash", "Start practice")}
                 </span>
               </div>

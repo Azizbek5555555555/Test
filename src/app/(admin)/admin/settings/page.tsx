@@ -112,6 +112,13 @@ export default async function AdminSettingsPage() {
                 { name: `plan_${i}_title`, label: `${head}: nomi`, type: "text" as const, defaultValue: txt(p, "title"), placeholder: "Masalan: 3 oylik", hint: isNew ? undefined : "Nomini o'chirsangiz, tarif olib tashlanadi" },
                 { name: `plan_${i}_months`, label: "Muddati (oy)", type: "number" as const, defaultValue: txt(p, "months") },
                 { name: `plan_${i}_amount`, label: "Narxi (so'm)", type: "number" as const, defaultValue: txt(p, "amount") },
+                {
+                  name: `plan_${i}_reviews`,
+                  label: "O'qituvchi tekshiruvi (Full Mock soni)",
+                  type: "number" as const,
+                  defaultValue: isNew ? "" : txt(p, "reviews") || "0",
+                  hint: "Writing/Speaking'ni o'qituvchi nechta Full Mock'da tekshiradi. 0 — tekshiruvsiz",
+                },
                 { name: `plan_${i}_note`, label: "Izoh (ixtiyoriy)", type: "text" as const, defaultValue: txt(p, "note"), placeholder: "Masalan: 16% tejaysiz" },
               ];
             }),

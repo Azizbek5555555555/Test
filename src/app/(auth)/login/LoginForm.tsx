@@ -275,7 +275,7 @@ export function LoginForm({
             onClick={() => setMode(m)}
             className={cn(
               "relative z-10 rounded-full py-2.5 text-sm font-semibold transition-colors",
-              mode === m ? "text-ink-950" : "text-muted hover:text-fg",
+              mode === m ? "text-on-accent" : "text-muted hover:text-fg",
             )}
           >
             {m === "login" ? t("Kirish", "Log in") : t("Ro'yxatdan o'tish", "Sign up")}
@@ -294,7 +294,7 @@ export function LoginForm({
         variant="glass"
         size="lg"
         fullWidth
-        className="mt-6 border-line bg-transparent hover:border-brand-400/60 hover:bg-white/[0.03]"
+        className="mt-6 border-line bg-transparent hover:border-brand-400/60 hover:bg-hi/[0.03]"
         onClick={signInWithGoogle}
         disabled={busy}
       >
@@ -486,8 +486,8 @@ function Steps({ current, t }: { current: 1 | 2; t: T }) {
               <span
                 className={cn(
                   "grid size-[18px] place-items-center rounded-full text-[10px] font-semibold",
-                  done && "bg-success text-ink-950",
-                  active && "bg-brand-400 text-ink-950",
+                  done && "bg-success text-on-accent",
+                  active && "bg-brand-400 text-on-accent",
                   !done && !active && "border border-muted/70",
                 )}
               >

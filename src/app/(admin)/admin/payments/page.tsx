@@ -103,7 +103,7 @@ export default async function AdminPaymentsPage({ searchParams }: { searchParams
                 </thead>
                 <tbody>
                   {stats.methods.map((m) => (
-                    <tr key={m.key} className="border-t border-white/5">
+                    <tr key={m.key} className="border-t border-hi/5">
                       <td className="py-3">
                         <span className="inline-flex items-center gap-2">
                           <i className="h-2.5 w-2.5 rounded-full" style={{ background: METHOD_COLOR[m.key] }} />

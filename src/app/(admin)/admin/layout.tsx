@@ -7,6 +7,7 @@ import { COURSES_ENABLED } from "@/lib/constants";
 import { initials } from "@/lib/format";
 import { BrandMark } from "@/components/layout/BrandLogo";
 import { AdminNav, type NavItem } from "@/components/admin/AdminNav";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 /**
  * Admin panel qobig'i (Payno uslubi, sayt ranglarida): katta shisha ramka,
@@ -58,10 +59,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <BrandMark size={30} />
             </span>
             <span className="adm-brand-name">
-              level<span className="text-[#10bfa6]">x</span>english <em>Admin</em>
+              level<span className="text-brand-400">x</span>english <em>Admin</em>
             </span>
           </Link>
           <div className="adm-top-actions">
+            <ThemeToggle className="adm-circle" />
             <Link href="/" className="adm-circle" title="Saytga qaytish">
               <ExternalLink size={16} strokeWidth={1.8} />
             </Link>

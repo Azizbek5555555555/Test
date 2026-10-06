@@ -6,6 +6,8 @@ import { formatDateTime, formatSum } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/Card";
 import { PremiumRequestActions } from "@/components/admin/PremiumRequestActions";
+import { getPremiumPlans } from "@/lib/settings";
+import { planReviews } from "@/lib/premium";
 
 export const metadata: Metadata = {
   title: "Premium so'rovlar",
@@ -22,7 +24,7 @@ export default async function AdminPremiumPage() {
   const me = await getProfile();
   if (!isAdmin(me)) redirect("/admin");
 
-  const requests = await listPremiumRequests();
+  const [requests, plans] = await Promise.all([listPremiumRequests(), getPremiumPlans()]);
   const pending = requests.filter((r) => r.status === "pending");
   const handled = requests.filter((r) => r.status !== "pending");
 
@@ -62,6 +64,10 @@ export default async function AdminPremiumPage() {
                     <p className="text-sm mt-2">
                       <strong>{request.plan}</strong> · {request.months} oy ·{" "}
                       {formatSum(request.amount)}
+                      {(() => {
+                        const reviews = planReviews(plans.find((p) => p.id === request.plan));
+                        return reviews > 0 ? ` · +${reviews} ta o'qituvchi tekshiruvi` : "";
+                      })()}
                     </p>
                     {request.note ? (
                       <p className="text-sm text-muted mt-1.5 leading-relaxed">

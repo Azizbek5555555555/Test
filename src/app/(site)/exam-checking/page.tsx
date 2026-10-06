@@ -168,7 +168,7 @@ export default async function ExamCheckingPage() {
       </section>
 
       {/* ------------------------------------------------ 3-bosqich: natija namunasi */}
-      <section id="natija" className="scroll-mt-20 border-t border-line bg-gradient-to-b from-[#0f2440] to-ink-950">
+      <section id="natija" className="scroll-mt-20 border-t border-line bg-gradient-to-b from-[var(--tint-top,#0f2440)] to-ink-950">
         <div className="container-page py-16">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-success">

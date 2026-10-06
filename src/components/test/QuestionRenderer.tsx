@@ -91,7 +91,7 @@ export function QuestionRenderer({
     <div className="scroll-mt-24" id={`q-${question.id}`}>
       <div className="flex gap-3">
         <span
-          className="shrink-0 w-7 h-7 rounded-lg bg-brand-400 text-ink-950
+          className="shrink-0 w-7 h-7 rounded-lg bg-brand-400 text-on-accent
                      grid place-items-center text-sm font-bold tabular-nums"
           aria-hidden
         >
@@ -170,7 +170,7 @@ function renderControl({
                   className={cn(
                     "shrink-0 w-6 h-6 rounded-full border-2 grid place-items-center text-xs font-bold",
                     selected
-                      ? "border-brand-400 bg-brand-400 text-ink-950"
+                      ? "border-brand-400 bg-brand-400 text-on-accent"
                       : "border-ink-600 text-muted",
                   )}
                   aria-hidden
@@ -220,7 +220,7 @@ function renderControl({
                   className={cn(
                     "shrink-0 w-6 h-6 rounded-md border-2 grid place-items-center text-xs font-bold",
                     checked
-                      ? "border-brand-400 bg-brand-400 text-ink-950"
+                      ? "border-brand-400 bg-brand-400 text-on-accent"
                       : "border-ink-600 text-muted",
                   )}
                   aria-hidden
@@ -252,7 +252,7 @@ function renderControl({
                 className={cn(
                   "px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all",
                   selected
-                    ? "border-brand-400 bg-brand-400 text-ink-950"
+                    ? "border-brand-400 bg-brand-400 text-on-accent"
                     : "border-line hover:border-brand-400 text-muted hover:text-fg",
                   disabled && "cursor-not-allowed opacity-70",
                 )}

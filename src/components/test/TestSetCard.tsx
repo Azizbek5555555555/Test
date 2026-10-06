@@ -55,7 +55,7 @@ export async function TestSetCard({
             className={cn(
               "rounded-full px-2.5 py-0.5 text-[10px] font-semibold",
               manual
-                ? "bg-gold-400 uppercase tracking-wide text-ink-950"
+                ? "bg-gold-400 uppercase tracking-wide text-on-accent"
                 : "border border-line bg-ink-800 text-muted",
             )}
           >
@@ -102,8 +102,8 @@ export async function TestSetCard({
           className={cn(
             "inline-flex items-center rounded-full px-5 py-2 text-[13px] font-semibold transition-colors",
             locked
-              ? "border-[1.5px] border-gold-400/80 text-gold-400 group-hover:bg-gold-400 group-hover:text-ink-950"
-              : "bg-brand-400 text-ink-950 group-hover:bg-brand-300",
+              ? "border-[1.5px] border-gold-400/80 text-gold-400 group-hover:bg-gold-400 group-hover:text-on-accent"
+              : "bg-brand-400 text-on-accent group-hover:bg-brand-300",
           )}
         >
           {locked ? t("Premiumni ochish", "Unlock Premium") : t("Boshlash", "Start")}
