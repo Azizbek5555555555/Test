@@ -7682,3 +7682,294 @@ a.sf-channel:hover span {
   background: var(--bg-subtle);
   padding: 0.6rem 1rem;
 }
+
+/* ==========================================================================
+   Hero sertifikati (CertSheet): ustozning haqiqiy C1 sertifikati va uning
+   ustidagi skroll animatsiyalari (marker, lupa, belgilar, muhr, qog'oz, QR)
+   ========================================================================== */
+.cert {
+  position: relative;
+  border-radius: 6px;
+  background: #fbfbf0;
+  box-shadow:
+    0 0 0 1px rgba(120, 96, 60, 0.18),
+    0 2px 0 rgb(var(--sh, 0 0 0) / calc(0.08 * var(--shk, 1)));
+}
+.cert-img {
+  border-radius: 6px;
+  object-fit: cover;
+  user-select: none;
+}
+/* qog'oz bo'ylab yengil yorug'lik o'tadi */
+.cert-sheen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  pointer-events: none;
+}
+.cert-sheen::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55) 50%, transparent);
+  transform: translateX(0) skewX(-14deg);
+  animation: cert-sheen 9s ease-in-out 1.2s infinite;
+}
+@keyframes cert-sheen {
+  0% {
+    transform: translateX(0) skewX(-14deg);
+  }
+  22%,
+  100% {
+    transform: translateX(420%) skewX(-14deg);
+  }
+}
+
+/* marker: ism qatorlari ustidan yashil-sariq chiziqlar */
+.cert-mark {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  will-change: clip-path;
+}
+.cert-mark i {
+  position: absolute;
+  left: 0;
+  height: 26%;
+  border-radius: 3px 8px 4px 9px;
+  background: linear-gradient(90deg, rgba(246, 211, 74, 0.5), rgba(246, 211, 74, 0.38));
+  mix-blend-mode: multiply;
+  transform: rotate(-0.6deg);
+}
+.cert-pen {
+  position: absolute;
+  z-index: 4;
+  width: 0;
+  height: 0;
+  will-change: transform, opacity;
+}
+.cert-pen-note {
+  top: 30px;
+  left: 0;
+}
+
+/* "Ustozingiz" yorlig'i */
+.cert-tag {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  will-change: transform, opacity;
+}
+.cert-tag span {
+  white-space: nowrap;
+  font-family: var(--font-hand), cursive;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1;
+  color: #2b3f8f;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+.cert-tag-arrow {
+  width: 30px;
+  height: 23px;
+  margin-top: -6px;
+  overflow: visible;
+}
+.cert-tag-arrow path {
+  fill: none;
+  stroke: #2b3f8f;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+/* ballar yonidagi belgi (ruchka bilan qo'yilgandek) */
+.cert-tick {
+  position: absolute;
+  z-index: 2;
+  width: 22px;
+  height: 18px;
+  overflow: visible;
+}
+.cert-tick path {
+  fill: none;
+  stroke: #0b8a79;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.2;
+}
+
+/* lupa */
+.cert-lens {
+  position: absolute;
+  z-index: 5;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  border: 5px solid #1f2a44;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.55) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.3),
+    0 18px 34px -12px rgb(var(--sh, 0 0 0) / calc(0.6 * var(--shk, 1)));
+  will-change: opacity;
+  pointer-events: none;
+}
+.cert-lens::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.55), transparent 42%);
+}
+.cert-lens-handle {
+  position: absolute;
+  right: -30px;
+  bottom: -30px;
+  width: 44px;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #3a4a70, #141b2b);
+  transform: rotate(45deg);
+  transform-origin: left center;
+  box-shadow: 0 6px 12px -4px rgb(var(--sh, 0 0 0) / calc(0.5 * var(--shk, 1)));
+}
+
+/* umumiy ball atrofidagi qizil doira */
+.cert-circle {
+  position: absolute;
+  z-index: 2;
+  overflow: visible;
+}
+.cert-circle path {
+  fill: none;
+  stroke: #c8463b;
+  stroke-linecap: round;
+  stroke-width: 2.4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* o'qituvchining yopishqoq qog'ozi */
+.cert-note {
+  position: absolute;
+  z-index: 4;
+  left: -7%;
+  top: 74%;
+  width: 41%;
+  padding: 10px 12px 12px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #fff2a8, #f7e27c);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 16px 26px -14px rgba(90, 60, 20, 0.55);
+  will-change: transform, opacity;
+}
+.cert-note::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 54px;
+  height: 16px;
+  margin-left: -27px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transform: rotate(-3deg);
+}
+.cert-note-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a6a3a;
+}
+.cert-note-text {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-hand), cursive;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: #c8463b;
+  will-change: clip-path;
+}
+
+/* daraja katakchasi — oltin nur */
+.cert-level {
+  position: absolute;
+  z-index: 2;
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 2px rgba(201, 149, 63, 0.9),
+    0 0 18px 4px rgba(242, 196, 107, 0.65);
+  pointer-events: none;
+}
+.cert-stamp {
+  position: absolute;
+  z-index: 4;
+  left: 80%;
+  top: 84%;
+  width: 112px;
+  height: 112px;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 8px 12px rgba(90, 60, 20, 0.25));
+}
+
+/* QR skaneri */
+.cert-scan {
+  position: absolute;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px rgba(16, 191, 166, 0.85), 0 0 16px rgba(16, 191, 166, 0.45);
+  pointer-events: none;
+}
+.cert-scan i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  background: linear-gradient(180deg, transparent, rgba(16, 191, 166, 0.45), rgba(16, 191, 166, 0.9) 92%, transparent);
+  animation: cert-scan 1.8s ease-in-out infinite alternate;
+}
+@keyframes cert-scan {
+  from {
+    top: -22%;
+  }
+  to {
+    top: 100%;
+  }
+}
+.cert-verified {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  gap: 1px;
+  border-radius: 10px;
+  background: #0b8a79;
+  padding: 7px 11px 8px;
+  white-space: nowrap;
+  color: #fff;
+  box-shadow: 0 12px 24px -12px rgba(11, 138, 121, 0.8);
+  transform-origin: left center;
+  will-change: transform, opacity;
+}
+.cert-verified b {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.cert-verified small {
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cert-sheen::before,
+  .cert-scan i {
+    animation: none;
+  }
+}

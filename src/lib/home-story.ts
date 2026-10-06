@@ -72,11 +72,11 @@ export function storyChapters(stats: SiteStats, t: T): StoryChapter[] {
     {
       id: "name",
       range: [0.12, 0.26],
-      eyebrow: t("01 · Boshlanish", "01 · The start"),
-      title: t("Har bir natija ismingizdan boshlanadi", "Every result starts with your name"),
+      eyebrow: t("01 · Ustozingiz", "01 · Your teacher"),
+      title: t("Sizni C1 darajali ustoz tayyorlaydi", "You are coached by a C1-certified teacher"),
       body: t(
-        "Bepul ro'yxatdan o'ting — har bir test, ball va o'qituvchi izohi profilingizda saqlanib boradi.",
-        "Sign up for free — every test, score and teacher comment is saved in your profile.",
+        "Abduxalilov Shokirjon (Mr. Shokir) — rasmiy Multilevel sertifikati: C1, umumiy 69 ball. Writing va Speaking ishlaringizni aynan u tekshiradi.",
+        "Abduxalilov Shokirjon (Mr. Shokir) holds an official Multilevel certificate: C1, 69 overall. He is the one who checks your Writing and Speaking.",
       ),
     },
     {
@@ -174,7 +174,7 @@ export function storyChapters(stats: SiteStats, t: T): StoryChapter[] {
       id: "final",
       range: [0.92, 1],
       eyebrow: t("Sizning navbatingiz", "Your turn"),
-      title: t("Keyingi natija varaqasi — sizniki", "The next result sheet is yours"),
+      title: t("Keyingi sertifikat — sizniki", "The next certificate is yours"),
       body: t(
         "Bugun bepul boshlang. Birinchi Full Mock testingiz 2 daqiqada tayyor.",
         "Start free today. Your first Full Mock test is ready in 2 minutes.",
@@ -188,80 +188,82 @@ export function storyChapters(stats: SiteStats, t: T): StoryChapter[] {
 }
 
 /* -------------------------------------------------------------------------
-   Varaqa (namuna) — ko'rsatiladigan ma'lumotlar
+   Hero sertifikati — ustozning haqiqiy Multilevel sertifikati
+   (public/design/cert-c1.jpg, 1120×1586). Joylar rasmga nisbatan foizda:
+   x, y — chap yuqori burchak, w, h — eni va bo'yi.
    ------------------------------------------------------------------------- */
-export const SHEET = {
-  title: { uz: "Natija varaqasi", en: "Result sheet" },
-  subtitle: { uz: "Multilevel · CEFR", en: "Multilevel · CEFR" },
-  nameLabel: { uz: "Ism, familiya", en: "Full name" },
-  name: { uz: "Sizning ismingiz", en: "Your name" },
-  examLabel: { uz: "Imtihon", en: "Exam" },
-  dateLabel: { uz: "Sana", en: "Date" },
-  overallLabel: { uz: "Umumiy ball", en: "Overall score" },
-  teacherLabel: { uz: "O'qituvchi izohi", en: "Teacher's comment" },
-  teacherNote: { uz: "Coherence a'lo! Murakkab gaplarni mashq qiling.", en: "Great coherence! Practise complex sentences." },
-  signatureLabel: { uz: "Imzo", en: "Signature" },
-  sample: { uz: "Namuna", en: "Sample" },
-} satisfies Record<string, Bi>;
-
 export type SkillKey = "listening" | "reading" | "writing" | "speaking";
 
-export const SHEET_SKILLS: { key: SkillKey; label: string }[] = [
-  { key: "listening", label: "Listening" },
-  { key: "reading", label: "Reading" },
-  { key: "writing", label: "Writing" },
-  { key: "speaking", label: "Speaking" },
-];
+export interface CertRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export const CERT = {
+  src: "/design/cert-c1.jpg",
+  /** Rasm proporsiyasi (bo'y / en) */
+  ratio: 1586 / 1120,
+  name: { x: 37.5, y: 48.3, w: 14.7, h: 5.9 },
+  photo: { x: 78.57, y: 42.69, w: 13.39, h: 11.66 },
+  level: { x: 77.77, y: 57.88, w: 14.29, h: 3.09 },
+  overall: { x: 82.95, y: 62.8, w: 7.77, h: 4.35 },
+  qr: { x: 41.61, y: 80.71, w: 11.25, h: 7.82 },
+  scores: {
+    listening: { x: 36.96, y: 62.74, w: 7.59, h: 4.29 },
+    reading: { x: 57.14, y: 62.74, w: 7.68, h: 4.29 },
+    writing: { x: 37.14, y: 68.79, w: 7.41, h: 4.29 },
+    speaking: { x: 57.14, y: 68.85, w: 7.68, h: 4.35 },
+  } satisfies Record<SkillKey, CertRect>,
+  /** Ism qatorlari (marker bilan bo'yaladi), rasmga nisbatan foizda */
+  nameLines: [
+    { y: 48.4, w: 12.4 },
+    { y: 50.6, w: 10.0 },
+    { y: 52.7, w: 14.6 },
+  ],
+} as const;
+
+export const CERT_TEXT = {
+  alt: {
+    uz: "Mr. Shokirning rasmiy Multilevel sertifikati: C1, umumiy ball 69",
+    en: "Mr. Shokir's official Multilevel certificate: C1, overall score 69",
+  },
+  teacher: { uz: "Ustozingiz", en: "Your teacher" },
+  note: { uz: "Coherence a'lo! Murakkab gaplarni mashq qiling.", en: "Great coherence! Practise complex sentences." },
+  noteLabel: { uz: "O'qituvchi izohi", en: "Teacher's comment" },
+  verified: { uz: "QR orqali tekshiriladi", en: "Verifiable via QR" },
+  verifiedSub: "sertifikat.uzbmb.uz",
+} satisfies Record<string, Bi | string>;
 
 /* -------------------------------------------------------------------------
    Vaqt jadvallari
    ------------------------------------------------------------------------- */
 export type Range = [number, number];
 
-/** Sanaladigan raqamlar: har bir oraliqda from → to */
-export const COUNTS: Record<SkillKey | "overall", { range: Range; from: number; to: number }[]> = {
-  listening: [
-    { range: [0.265, 0.33], from: 0, to: 58 },
-    { range: [0.8, 0.88], from: 58, to: 69 },
-  ],
-  reading: [
-    { range: [0.34, 0.405], from: 0, to: 60 },
-    { range: [0.81, 0.89], from: 60, to: 71 },
-  ],
-  writing: [
-    { range: [0.415, 0.48], from: 0, to: 52 },
-    { range: [0.82, 0.9], from: 52, to: 66 },
-  ],
-  speaking: [
-    { range: [0.49, 0.555], from: 0, to: 55 },
-    { range: [0.83, 0.91], from: 55, to: 67 },
-  ],
-  overall: [
-    { range: [0.56, 0.62], from: 0, to: 56 },
-    { range: [0.84, 0.92], from: 56, to: 68 },
-  ],
-};
-
-/** Qatorni ajratib ko'rsatish (hozir gap qaysi ko'nikma haqida) */
-export const HIGHLIGHTS: Record<SkillKey, Range> = {
+/** Lupa: hozir gap qaysi ballar haqida bo'lsa, o'sha katakcha kattalashtiriladi */
+export const HIGHLIGHTS: Record<SkillKey | "overall", Range> = {
   listening: [0.26, 0.335],
   reading: [0.335, 0.41],
   writing: [0.41, 0.485],
   speaking: [0.485, 0.56],
+  overall: [0.56, 0.68],
 };
 
-/** Chapdan o'ngga "yozilib" chiqadigan matnlar (ruchka bilan) */
+/** Chapdan o'ngga "yozilib" chiqadigan joylar: ism ustidagi marker va o'qituvchi izohi */
 export const REVEALS: Record<"name" | "note", Range> = {
   name: [0.13, 0.24],
-  note: [0.7, 0.79],
+  note: [0.71, 0.79],
 };
 
-/** Chiziladigan chiziqlar (SVG) */
-export const DRAWS: Record<"ulWriting" | "ulSpeaking" | "circle" | "signature", Range> = {
-  ulWriting: [0.69, 0.73],
-  ulSpeaking: [0.72, 0.76],
+/** Chiziladigan chiziqlar (SVG): ballar yonidagi belgilar va umumiy ball atrofidagi doira */
+export const DRAWS: Record<"tickListening" | "tickReading" | "tickWriting" | "tickSpeaking" | "circle" | "tagArrow", Range> = {
+  tagArrow: [0.2, 0.26],
+  tickListening: [0.295, 0.325],
+  tickReading: [0.37, 0.4],
+  tickWriting: [0.445, 0.475],
+  tickSpeaking: [0.52, 0.55],
   circle: [0.62, 0.67],
-  signature: [0.93, 0.985],
 };
 
 /* -------------------------------------------------------------------------
@@ -312,18 +314,36 @@ export const KEYFRAMES: Record<string, Keyframe[]> = {
     { p: 0.79, x: 0, y: 0, r: 0, o: 1 },
     { p: 0.83, x: 0.05, y: -0.1, r: 14, o: 0 },
   ],
-  // Muhrlar: "zarb" — kattadan kichrayib urilib tushadi
-  stampB2: [
-    { p: 0.6, s: 2.4, r: -24, o: 0 },
-    { p: 0.625, s: 0.94, r: -12, o: 1 },
-    { p: 0.64, s: 1, r: -12, o: 1 },
-    { p: 0.85, s: 1, r: -12, o: 1 },
-    { p: 0.88, s: 1.1, r: -12, o: 0 },
-  ],
+  // Oltin C1 muhri: "zarb" — kattadan kichrayib urilib tushadi
   stampC1: [
     { p: 0.88, s: 2.4, r: -2, o: 0 },
     { p: 0.905, s: 0.94, r: 8, o: 1 },
     { p: 0.92, s: 1, r: 8, o: 1 },
+  ],
+  // "Ustozingiz" yorlig'i — rasm yonida, ism yozilgach paydo bo'ladi
+  tag: [
+    { p: 0.19, y: 0.02, r: -10, s: 0.7, o: 0 },
+    { p: 0.23, y: 0, r: -6, s: 1, o: 1 },
+  ],
+  // O'qituvchi yopishqoq qog'ozi: tepadan "shap" etib yopishadi va qoladi
+  note: [
+    { p: 0.66, x: -0.04, y: -0.06, r: -16, s: 1.25, o: 0 },
+    { p: 0.695, x: 0, y: 0, r: -5, s: 0.97, o: 1 },
+    { p: 0.71, r: -6, s: 1, o: 1 },
+  ],
+  // Daraja katakchasi ustidagi oltin nur
+  levelGlow: [
+    { p: 0.8, o: 0 },
+    { p: 0.86, o: 1 },
+  ],
+  // Yakun: QR kod skaneri va "tasdiqlangan" belgisi
+  scan: [
+    { p: 0.9, o: 0 },
+    { p: 0.93, o: 1 },
+  ],
+  verified: [
+    { p: 0.93, y: 0.02, s: 0.6, o: 0 },
+    { p: 0.96, y: 0, s: 1, o: 1 },
   ],
   // Fon ranglari: sovuq (a) → iliq (b) → aralash
   auroraA: [
