@@ -212,23 +212,24 @@ export function SummitTrail({
 
       {/* ------------------------------------------------ Tog' sahnasi */}
       <div className="st-stage" aria-hidden>
+        {/* Tog' ranglari CSS o'zgaruvchilaridan (--st-*): yorug' mavzuda tong manzarasi */}
         {/* cho'qqi ortidagi nur (maska tashqarisida — kesilmaydi) */}
         <div className="st-sun" />
         <div className="st-scene" data-scene>
           <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="st-svg">
             <defs>
               <linearGradient id="st-sky" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#1b2550" stopOpacity="0" />
-                <stop offset="1" stopColor="#1b2550" stopOpacity="0.55" />
+                <stop offset="0" style={{ stopColor: "var(--st-sky, #1b2550)" }} stopOpacity="0" />
+                <stop offset="1" style={{ stopColor: "var(--st-sky, #1b2550)" }} stopOpacity="0.55" />
               </linearGradient>
               <linearGradient id="st-far" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#2c3767" />
-                <stop offset="1" stopColor="#141c38" />
+                <stop offset="0" style={{ stopColor: "var(--st-far-a, #2c3767)" }} />
+                <stop offset="1" style={{ stopColor: "var(--st-far-b, #141c38)" }} />
               </linearGradient>
               <linearGradient id="st-near" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#262e52" />
-                <stop offset="0.55" stopColor="#1a2240" />
-                <stop offset="1" stopColor="#111830" />
+                <stop offset="0" style={{ stopColor: "var(--st-near-a, #262e52)" }} />
+                <stop offset="0.55" style={{ stopColor: "var(--st-near-b, #1a2240)" }} />
+                <stop offset="1" style={{ stopColor: "var(--st-near-c, #111830)" }} />
               </linearGradient>
               <linearGradient id="st-trail" x1="0" y1="1" x2="1" y2="0">
                 <stop offset="0" stopColor="#10bfa6" />

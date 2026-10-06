@@ -75,7 +75,7 @@ export default async function VocabularyBattlePage({
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#0f2a3d] via-[#0c1c33] via-40% to-ink-950">
+    <div className="bg-gradient-to-b from-[var(--tint-top,#0f2a3d)] via-[var(--tint-mid,#0c1c33)] via-40% to-ink-950">
       <PageHero
         eyebrow={t("Jonli so'z maydoni", "Live word arena")}
         title="Vocabulary Battle"
@@ -117,7 +117,7 @@ export default async function VocabularyBattlePage({
                     className={cn(
                       "inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors",
                       p.id === selected?.id
-                        ? "bg-brand-400 text-ink-950"
+                        ? "bg-brand-400 text-on-accent"
                         : "border border-line bg-ink-900 text-muted hover:text-fg",
                     )}
                   >

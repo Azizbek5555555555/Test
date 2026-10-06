@@ -1,11 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { setPremiumAction, setRoleAction } from "@/lib/actions/admin";
+import { setPremiumAction, setReviewCreditsAction, setRoleAction } from "@/lib/actions/admin";
 import type { ActionResult } from "@/lib/actions/profile";
 import type { UserRole } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Field";
+import { Input, Select } from "@/components/ui/Field";
 
 export function PremiumControl({
   userId,
@@ -126,6 +126,42 @@ export function RoleControl({
           {state.message}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/** Qolgan o'qituvchi tekshiruvlari (Writing/Speaking bo'lgan Full Mock'lar) */
+export function ReviewCreditsControl({ userId, credits }: { userId: string; credits: number }) {
+  const [value, setValue] = useState(String(credits));
+  const [state, formAction, pending] = useActionState<ActionResult | null, FormData>(
+    setReviewCreditsAction,
+    null,
+  );
+
+  return (
+    <div className="space-y-1.5">
+      <form action={formAction} className="flex items-center gap-1.5">
+        <input type="hidden" name="user_id" value={userId} />
+        <label className="text-xs font-semibold text-muted" htmlFor={`credits-${userId}`}>
+          Tekshiruv
+        </label>
+        <Input
+          id={`credits-${userId}`}
+          name="credits"
+          type="number"
+          min={0}
+          max={100}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="w-16 py-1.5 text-xs"
+          aria-label="O'qituvchi tekshiruvlari soni"
+          title="O'qituvchi tekshiruvlari soni (Writing/Speaking bo'lgan Full Mock)"
+        />
+        <Button type="submit" size="sm" variant="secondary" disabled={pending || value === String(credits)}>
+          Saqlash
+        </Button>
+      </form>
+      {state ? <p className={`text-xs ${state.ok ? "text-success" : "text-danger"}`}>{state.message}</p> : null}
     </div>
   );
 }

@@ -27,9 +27,10 @@ insert into public.site_settings (key, value) values
   ('cefr_bands', '{"C1": 75, "B2": 60, "B1": 45, "A2": 30}'::jsonb),
   ('premium_plans', $json$
     [
-      { "id": "monthly",   "title": "1 oylik",  "months": 1,  "amount": 99000,  "note": "Sinab ko'rish uchun" },
-      { "id": "quarterly", "title": "3 oylik",  "months": 3,  "amount": 249000, "note": "Eng ko'p tanlanadi", "popular": true },
-      { "id": "yearly",    "title": "12 oylik", "months": 12, "amount": 790000, "note": "Eng foydali" }
+      { "id": "monthly",   "title": "1 oylik",  "months": 1,  "amount": 39000,  "reviews": 0 },
+      { "id": "quarterly", "title": "3 oylik",  "months": 3,  "amount": 109000, "reviews": 1, "popular": true },
+      { "id": "halfyear",  "title": "6 oylik",  "months": 6,  "amount": 219000, "reviews": 3 },
+      { "id": "yearly",    "title": "12 oylik", "months": 12, "amount": 429000, "reviews": 6 }
     ]
   $json$::jsonb),
   ('payment', $json$

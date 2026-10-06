@@ -104,7 +104,7 @@ export async function FeatureGrid({ items, glass = true }: { items: FeatureItem[
                 {item.badge ? (
                   <span
                     className={cn(
-                      "rounded-full px-2.5 py-1 text-[9px] font-bold uppercase leading-none text-ink-950",
+                      "rounded-full px-2.5 py-1 text-[9px] font-bold uppercase leading-none text-on-accent",
                       BADGE_TONE[item.badge.tone],
                     )}
                   >
@@ -348,7 +348,7 @@ function CompareCell({ value, gold, t }: { value: boolean | Bi; gold?: boolean; 
     <span
       className={cn(
         "inline-grid size-6 place-items-center rounded-full text-[13px] font-bold",
-        gold ? "bg-gold-400 text-ink-950" : "bg-success/20 text-success",
+        gold ? "bg-gold-400 text-on-accent" : "bg-success/20 text-success",
       )}
       aria-label={t("bor", "included")}
     >
@@ -376,7 +376,7 @@ export async function CompareTable() {
           {COMPARE.map((row) => (
             <li
               key={row.label.uz}
-              className="grid grid-cols-[1fr_88px_104px] items-center border-b border-line/60 px-5 py-3.5 text-sm transition-colors last:border-0 hover:bg-white/[0.02] sm:grid-cols-[1fr_140px_160px] sm:px-8"
+              className="grid grid-cols-[1fr_88px_104px] items-center border-b border-line/60 px-5 py-3.5 text-sm transition-colors last:border-0 hover:bg-hi/[0.02] sm:grid-cols-[1fr_140px_160px] sm:px-8"
             >
               <span className="pr-3 text-fg">{t(row.label)}</span>
               <span className="text-center">
@@ -392,7 +392,7 @@ export async function CompareTable() {
           <p className="text-sm text-muted">{t("Ro'yxatdan o'tish bepul — Premiumni istalgan payt yoqasiz.", "Signing up is free — turn on Premium whenever you like.")}</p>
           <Link
             href="/premium"
-            className="inline-flex items-center gap-2 rounded-full bg-gold-400 px-6 py-3 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold-300"
+            className="inline-flex items-center gap-2 rounded-full bg-gold-400 px-6 py-3 text-sm font-semibold text-on-accent transition-colors hover:bg-gold-300"
           >
             {t("Premiumni ko'rish", "See Premium")} <ArrowRight size={15} />
           </Link>

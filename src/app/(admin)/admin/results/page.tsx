@@ -95,6 +95,21 @@ export default async function AdminResultsPage({
                         .join(" · ")}
                     </p>
                   ) : null}
+                  <p className="text-xs mt-1 text-faint">
+                    {row.status !== "graded" ? (
+                      "Writing/Speaking o'qituvchi tekshiruvini kutmoqda"
+                    ) : row.graded_by ? (
+                      <>
+                        Baholovchi:{" "}
+                        <span className="font-semibold text-fg">
+                          {row.grader?.full_name || row.grader?.email || "o'qituvchi"}
+                        </span>
+                        {row.graded_at ? ` · ${formatDateTime(row.graded_at)}` : null}
+                      </>
+                    ) : (
+                      "Avtomatik baholangan (Reading/Listening — sayt o'zi tekshirdi)"
+                    )}
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-3">

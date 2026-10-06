@@ -51,7 +51,7 @@ export async function CourseCard({ course, index = 0 }: { course: Course; index?
 
         <Link
           href={`/courses/${course.slug}`}
-          className="mt-4 inline-flex w-full items-center justify-center rounded-full border-[1.5px] border-brand-400 px-6 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-brand-400 hover:text-ink-950"
+          className="mt-4 inline-flex w-full items-center justify-center rounded-full border-[1.5px] border-brand-400 px-6 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-brand-400 hover:text-on-accent"
         >
           {t("Kursga yozilish", "Enrol")}
         </Link>

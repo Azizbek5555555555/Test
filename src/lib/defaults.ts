@@ -26,15 +26,10 @@ export const DEFAULT_CONTACT: ContactSettings = {
 };
 
 export const DEFAULT_PLANS: PremiumPlan[] = [
-  { id: "monthly", title: "1 oylik", months: 1, amount: 99000 },
-  {
-    id: "quarterly",
-    title: "3 oylik",
-    months: 3,
-    amount: 249000,
-    popular: true,
-  },
-  { id: "yearly", title: "12 oylik", months: 12, amount: 790000 },
+  { id: "monthly", title: "1 oylik", months: 1, amount: 39000, reviews: 0 },
+  { id: "quarterly", title: "3 oylik", months: 3, amount: 109000, reviews: 1, popular: true },
+  { id: "halfyear", title: "6 oylik", months: 6, amount: 219000, reviews: 3 },
+  { id: "yearly", title: "12 oylik", months: 12, amount: 429000, reviews: 6 },
 ];
 
 export const DEFAULT_PAYMENT: PaymentSettings = {

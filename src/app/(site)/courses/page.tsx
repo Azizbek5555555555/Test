@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/marketing/PageHero";
 import { CourseCard } from "@/components/marketing/CourseCard";
+import { CourseTimetable } from "@/components/marketing/CourseTimetable";
 import { ContactSection } from "@/components/marketing/ContactSection";
 import { Reveal } from "@/components/motion/Reveal";
 import { getT } from "@/i18n/server";
@@ -17,8 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("Offline kurslar", "Offline courses"),
     description: t(
-      "Multilevel B1, B2 va Intensive tayyorlov kurslari — dars kunlari, vaqti, narxi va manzili.",
-      "Multilevel B1, B2 and Intensive preparation courses — class days, times, prices and address.",
+      "A1 dan B2 gacha guruhlar, CEFR / Multilevel va IELTS tayyorlov kurslari — dars kunlari, vaqti, narxi va manzili.",
+      "Groups from A1 to B2, CEFR / Multilevel and IELTS preparation — class days, times, prices and address.",
     ),
   };
 }
@@ -58,13 +59,18 @@ export default async function CoursesPage() {
             action={<ButtonLink href="/contact">{t("Biz bilan bog'lanish", "Contact us")}</ButtonLink>}
           />
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course, i) => (
-              <Reveal key={course.id} delay={(i % 3) * 80}>
-                <CourseCard course={course} index={i} />
-              </Reveal>
-            ))}
-          </div>
+          <>
+            <Reveal className="mb-10">
+              <CourseTimetable courses={courses} />
+            </Reveal>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {courses.map((course, i) => (
+                <Reveal key={course.id} delay={(i % 3) * 80}>
+                  <CourseCard course={course} index={i} />
+                </Reveal>
+              ))}
+            </div>
+          </>
         )}
       </section>
 

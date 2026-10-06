@@ -43,7 +43,7 @@ export function Avatar({
 
   return (
     <span
-      className={cn(base, "bg-brand-400 text-ink-950 font-display font-semibold")}
+      className={cn(base, "bg-brand-400 text-on-accent font-display font-semibold")}
       aria-hidden
     >
       {initials(name)}

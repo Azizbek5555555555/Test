@@ -5,6 +5,7 @@ import { getUser } from "@/lib/auth";
 import { LoginForm } from "./LoginForm";
 import { BrandMark, BrandWordmark } from "@/components/layout/BrandLogo";
 import { LangSwitch } from "@/components/layout/LangSwitch";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { getT } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -34,7 +35,7 @@ export default async function LoginPage({
   return (
     <div className="flex flex-1 flex-col lg:flex-row">
       {/* ------------------------------------------------ Chap panel: "The summit concept" */}
-      <aside className="relative isolate flex flex-col overflow-hidden bg-gradient-to-b from-[#212d44] via-[#121b2c] via-55% to-[#071427] px-6 pb-10 pt-8 sm:px-10 lg:w-[44.5%] lg:max-w-[640px] lg:shrink-0 lg:px-[60px] lg:py-[60px]">
+      <aside className="theme-keep relative isolate flex flex-col overflow-hidden bg-gradient-to-b from-[#212d44] via-[#121b2c] via-55% to-[#071427] px-6 pb-10 pt-8 sm:px-10 lg:w-[44.5%] lg:max-w-[640px] lg:shrink-0 lg:px-[60px] lg:py-[60px]">
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-[url('/design/summit-hut.jpg')] bg-cover bg-center opacity-30 animate-ken-burns"
@@ -82,7 +83,8 @@ export default async function LoginPage({
 
       {/* ------------------------------------------------ O'ng panel: forma */}
       <section className="relative flex flex-1 items-start justify-center border-line bg-ink-950 px-6 pb-12 pt-20 sm:px-10 lg:items-center lg:border-l lg:py-[60px]">
-        <div className="absolute right-6 top-6 sm:right-10">
+        <div className="absolute right-6 top-6 flex items-center gap-2.5 sm:right-10">
+          <ThemeToggle />
           <LangSwitch />
         </div>
         <div className="w-full max-w-[400px] animate-fade-up">

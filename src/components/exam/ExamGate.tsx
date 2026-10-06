@@ -19,7 +19,7 @@ export async function ExamGateHeader({
   return (
     <div className="flex flex-wrap items-start justify-between gap-6">
       <div className="max-w-xl">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-400 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-ink-950">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-400 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-on-accent">
           <Lock size={11} strokeWidth={2.5} aria-hidden /> {t("Premium imkoniyat", "Premium feature")}
         </span>
         <h2 className="display-title mt-3 text-[36px] sm:text-[40px]">{title}</h2>
@@ -57,7 +57,7 @@ export async function ExamSequence({
             <div className="flex flex-1 flex-col items-center text-center">
               <span
                 className={
-                  "grid size-9 place-items-center rounded-full text-sm font-semibold text-ink-950 " +
+                  "grid size-9 place-items-center rounded-full text-sm font-semibold text-on-accent " +
                   (i % 2 === 0 ? "bg-brand-400" : "bg-gold-400")
                 }
               >

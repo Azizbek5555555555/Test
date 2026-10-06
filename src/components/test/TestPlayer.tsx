@@ -14,7 +14,7 @@ import { SECTION_ICON, SECTION_LABEL } from "@/lib/constants";
 import { cn, formatClock } from "@/lib/format";
 import { saveAnswersAction, submitAttemptAction } from "@/lib/actions/attempts";
 import { Button } from "@/components/ui/Button";
-import { QuestionRenderer, numberQuestions } from "./QuestionRenderer";
+import { QuestionRenderer, asMatchingOptions, numberQuestions } from "./QuestionRenderer";
 import { AudioPlayer } from "./AudioPlayer";
 
 export interface TestPlayerProps {
@@ -193,13 +193,30 @@ export function TestPlayer({
   }, [totalMinutes, handleSubmit]);
 
   /* ---------------------------------------------------------- HARAKAT */
-  function goToPart(index: number) {
+  function goToPart(index: number, questionId?: string) {
     if (index < 0 || index >= parts.length) return;
-    if (sequential && index < partIndex) return; // imtihonda orqaga qaytib bo'lmaydi
+    if (sequential && index !== partIndex) {
+      // imtihonda orqaga qaytib ham, oldinga sakrab ham bo'lmaydi — faqat ketma-ket
+      if (index < partIndex || index > partIndex + 1) return;
+    }
+    if (index === partIndex) {
+      if (questionId) focusQuestion(questionId);
+      return;
+    }
+    pendingQuestion.current = questionId ?? null;
     setPartIndex(index);
     void persist(answersRef.current, index);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (!questionId) window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  // Pastki paneldan boshqa bo'limdagi savol tanlansa — bo'lim chizilgach o'sha savolga o'tiladi
+  const pendingQuestion = useRef<string | null>(null);
+  useEffect(() => {
+    const id = pendingQuestion.current;
+    if (!id) return;
+    pendingQuestion.current = null;
+    requestAnimationFrame(() => focusQuestion(id));
+  }, [partIndex]);
 
   if (!currentPart) {
     return (
@@ -255,40 +272,11 @@ export function TestPlayer({
               {t("Yakunlash", "Finish")}
             </Button>
           </div>
-
-          {/* Bo'limlar navigatsiyasi */}
-          <div className="flex items-center gap-1.5 pb-2.5 overflow-x-auto">
-            {parts.map((part, i) => {
-              const active = i === partIndex;
-              const locked = sequential && i > partIndex;
-              const passed = sequential && i < partIndex;
-              return (
-                <button
-                  key={part.id}
-                  type="button"
-                  onClick={() => goToPart(i)}
-                  disabled={locked || passed}
-                  className={cn(
-                    "shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border",
-                    active
-                      ? "bg-brand-400 text-ink-950 border-brand-400"
-                      : locked || passed
-                        ? "border-line text-muted/60 cursor-not-allowed"
-                        : "border-line text-muted hover:text-fg hover:bg-[var(--bg-subtle)]",
-                  )}
-                >
-                  {passed ? "✓ " : locked ? "🔒 " : ""}
-                  {SECTION_LABEL[part.section]}
-                  {partNumber(part.title)}
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
 
       {/* ================================================= ASOSIY QISM */}
-      <div className="container-page py-6">
+      <div className="container-page pb-32 pt-6">
         {submitError ? (
           <div
             className="mb-5 rounded-xl border p-4 text-sm
@@ -340,13 +328,14 @@ export function TestPlayer({
 
         <div
           className={cn(
-            "grid gap-6",
-            isReadingLike ? "lg:grid-cols-2" : "lg:grid-cols-[1fr_260px]",
+            // grid-cols-1 = minmax(0, 1fr): keng jadvalli matn telefonda sahifani kengaytirib yubormaydi
+            "grid grid-cols-1 gap-6",
+            isReadingLike ? "lg:grid-cols-2" : "mx-auto max-w-[920px]",
           )}
         >
           {/* --------------------------------------- Chap: matn yoki savollar */}
           {isReadingLike ? (
-            <div className="card p-6 lg:max-h-[calc(100dvh-13rem)] lg:overflow-y-auto lg:sticky lg:top-32">
+            <div className="card p-6 lg:max-h-[calc(100dvh-11.5rem)] lg:overflow-y-auto lg:sticky lg:top-20">
               <div
                 className="prose-exam"
                 // Matn admin panel orqali kiritiladi (ishonchli manba)
@@ -410,35 +399,22 @@ export function TestPlayer({
             </div>
           </div>
 
-          {/* --------------------------------------- O'ng: savollar xaritasi */}
-          {!isReadingLike ? (
-            <aside className="lg:sticky lg:top-32 h-fit">
-              <QuestionPalette
-                questions={currentQuestions}
-                numbers={questionNumbers}
-                answers={answers}
-                answeredCount={answeredCount}
-                totalCount={allQuestions.length}
-                t={t}
-              />
-            </aside>
-          ) : null}
         </div>
-
-        {isReadingLike ? (
-          <div className="mt-6">
-            <QuestionPalette
-              questions={currentQuestions}
-              numbers={questionNumbers}
-              answers={answers}
-              answeredCount={answeredCount}
-              totalCount={allQuestions.length}
-              horizontal
-              t={t}
-            />
-          </div>
-        ) : null}
       </div>
+
+      {/* ================================================= PASTKI PANEL: bo'limlar va savollar */}
+      <PartNavigator
+        parts={parts}
+        questionsByPart={questionsByPart}
+        numbers={questionNumbers}
+        answers={answers}
+        partIndex={partIndex}
+        sequential={sequential}
+        answeredCount={answeredCount}
+        totalCount={allQuestions.length}
+        onGo={goToPart}
+        t={t}
+      />
 
       {/* ================================================= TASDIQLASH */}
       {confirmOpen ? (
@@ -536,71 +512,142 @@ function partNumber(title: string): string {
   return match ? ` ${match[1]}` : "";
 }
 
-function QuestionPalette({
-  questions,
+function focusQuestion(questionId: string) {
+  const el = document.getElementById(`q-${questionId}`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  const field = el.querySelector<HTMLElement>("input:not([type=hidden]), textarea, select, button");
+  field?.focus({ preventScroll: true });
+}
+
+/** Matching savoli bir nechta raqamni egallaydi: "14–19" */
+function questionLabel(question: PublicQuestion, first: number): string {
+  if (question.kind !== "matching") return String(first);
+  const count = Math.max(1, asMatchingOptions(question.options).length);
+  return count > 1 ? `${first}–${first + count - 1}` : String(first);
+}
+
+/**
+ * Pastki panel (haqiqiy kompyuterdagi imtihon kabi): barcha bo'limlar ketma-ket,
+ * har birida nechta savolga javob berilgani; ochiq bo'limda savol raqamlari —
+ * bosilsa o'sha savolga o'tiladi. Boshqa bo'lim bosilsa — o'sha bo'lim ochiladi.
+ */
+function PartNavigator({
+  parts,
+  questionsByPart,
   numbers,
   answers,
+  partIndex,
+  sequential,
   answeredCount,
   totalCount,
-  horizontal,
+  onGo,
   t,
 }: {
-  questions: PublicQuestion[];
+  parts: TestPart[];
+  questionsByPart: Record<string, PublicQuestion[]>;
   numbers: Record<string, number>;
   answers: AnswerMap;
+  partIndex: number;
+  sequential: boolean;
   answeredCount: number;
   totalCount: number;
-  horizontal?: boolean;
+  onGo: (index: number, questionId?: string) => void;
   t: T;
 }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // Ochiq bo'lim doim ko'rinib tursin
+  // (scrollIntoView emas — u butun sahifani ham siljitib yuborishi mumkin; faqat panelning o'zi suriladi)
+  useEffect(() => {
+    const track = trackRef.current;
+    const active = track?.querySelector<HTMLElement>("[data-active='true']");
+    if (!track || !active) return;
+    const left = active.offsetLeft - (track.clientWidth - active.offsetWidth) / 2;
+    track.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [partIndex]);
+
+  const canGo = (i: number) => !sequential || i === partIndex || i === partIndex + 1;
+
   return (
-    <div className="card p-4">
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-xs font-bold uppercase tracking-wide text-muted">
-          {t("Savollar", "Questions")}
-        </p>
-        <span className="text-xs font-bold tabular-nums text-muted">
+    <nav className="tnav" aria-label={t("Bo'limlar va savollar", "Sections and questions")}>
+      <div className="tnav-inner">
+        <button
+          type="button"
+          className="tnav-arrow"
+          onClick={() => onGo(partIndex - 1)}
+          disabled={partIndex === 0 || sequential}
+          aria-label={t("Oldingi bo'lim", "Previous section")}
+        >
+          ‹
+        </button>
+
+        <div ref={trackRef} className="tnav-track">
+          {parts.map((part, i) => {
+            const qs = questionsByPart[part.id] ?? [];
+            const done = qs.filter((q) => isAnswered(answers[q.id] ?? null)).length;
+            const active = i === partIndex;
+            const locked = !canGo(i);
+            return (
+              <div
+                key={part.id}
+                className="tnav-part"
+                data-active={active}
+                data-locked={locked}
+                data-complete={qs.length > 0 && done === qs.length}
+              >
+                <button
+                  type="button"
+                  className="tnav-part-btn"
+                  onClick={() => onGo(i)}
+                  disabled={locked}
+                  aria-current={active ? "step" : undefined}
+                >
+                  <span className="tnav-part-name">
+                    {locked && sequential && i < partIndex ? "✓ " : locked ? "🔒 " : ""}
+                    {SECTION_LABEL[part.section]}
+                    {partNumber(part.title)}
+                  </span>
+                  <span className="tnav-part-count">
+                    {done}/{qs.length}
+                  </span>
+                </button>
+
+                {active && qs.length > 0 ? (
+                  <div className="tnav-qs">
+                    {qs.map((q, k) => (
+                      <button
+                        key={q.id}
+                        type="button"
+                        className="tnav-q"
+                        data-answered={isAnswered(answers[q.id] ?? null)}
+                        onClick={() => onGo(i, q.id)}
+                        aria-label={`${t("Savol", "Question")} ${questionLabel(q, numbers[q.id] ?? k + 1)}`}
+                      >
+                        {questionLabel(q, numbers[q.id] ?? k + 1)}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+
+        <span className="tnav-total" title={t("Javob berilgan savollar", "Answered questions")}>
           {answeredCount}/{totalCount}
         </span>
-      </div>
 
-      <div
-        className={cn(
-          "grid gap-1.5",
-          horizontal
-            ? "grid-cols-10 sm:grid-cols-[repeat(auto-fill,minmax(2.25rem,1fr))]"
-            : "grid-cols-5",
-        )}
-      >
-        {questions.map((question, i) => {
-          const answered = isAnswered(answers[question.id] ?? null);
-          return (
-            <a
-              key={question.id}
-              href={`#q-${question.id}`}
-              className={cn(
-                "aspect-square rounded-lg grid place-items-center text-xs font-bold border transition-colors",
-                answered
-                  ? "bg-brand-400 text-ink-950 border-brand-400"
-                  : "border-line text-muted hover:border-brand-400 hover:text-fg",
-              )}
-            >
-              {numbers[question.id] ?? i + 1}
-            </a>
-          );
-        })}
+        <button
+          type="button"
+          className="tnav-arrow"
+          onClick={() => onGo(partIndex + 1)}
+          disabled={partIndex >= parts.length - 1}
+          aria-label={t("Keyingi bo'lim", "Next section")}
+        >
+          ›
+        </button>
       </div>
-
-      <div className="flex items-center gap-4 mt-3 text-[11px] text-muted">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-brand-400" aria-hidden />
-          {t("Javob berilgan", "Answered")}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded border border-line" aria-hidden />
-          {t("Bo'sh", "Empty")}
-        </span>
-      </div>
-    </div>
+    </nav>
   );
 }

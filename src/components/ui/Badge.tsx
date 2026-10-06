@@ -14,12 +14,12 @@ type Tone =
 // Figma: "System badges" — to'la rangli pill, to'q (ink) matn, Inter Bold 11px
 const TONES: Record<Tone, string> = {
   neutral: "bg-ink-800 text-muted border border-line",
-  brand: "bg-brand-400 text-ink-950",
-  success: "bg-success text-ink-950",
-  warning: "bg-warning text-ink-950",
-  danger: "bg-danger text-ink-950",
+  brand: "bg-brand-400 text-on-accent",
+  success: "bg-success text-on-accent",
+  warning: "bg-warning text-on-accent",
+  danger: "bg-danger text-on-accent",
   info: "bg-ink-800 text-ink-200 border border-line",
-  premium: "bg-gold-400 text-ink-950",
+  premium: "bg-gold-400 text-on-accent",
 };
 
 export function Badge({
@@ -88,7 +88,7 @@ export function CefrBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full font-bold text-ink-950 tracking-wide",
+        "inline-flex items-center rounded-full font-bold text-on-accent tracking-wide",
         CEFR_COLOR[level] ?? "bg-ink-500",
         sizes[size],
       )}

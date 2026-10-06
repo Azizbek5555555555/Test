@@ -132,7 +132,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
           <div className="mt-3 grid grid-cols-4 gap-2">
             {quick.map((q) => (
               <Link key={q.href} href={q.href} className="group flex flex-col items-center gap-2 text-center text-[12.5px] text-muted hover:text-fg">
-                <span className="ag-circle !h-14 !w-14 transition-colors group-hover:!bg-white/10">
+                <span className="ag-circle !h-14 !w-14 transition-colors group-hover:!bg-hi/10">
                   <Plus size={18} className="text-fg" />
                 </span>
                 {q.label}
@@ -242,7 +242,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
               />
             </div>
             {topMethod && topMethod.count > 0 ? (
-              <p className="mt-4 rounded-2xl bg-white/5 px-3 py-2 text-center text-[12.5px] text-muted">
+              <p className="mt-4 rounded-2xl bg-hi/5 px-3 py-2 text-center text-[12.5px] text-muted">
                 Eng ko&apos;p ishlatilgan: <b className="font-semibold text-fg">{topMethod.label}</b>
               </p>
             ) : null}
@@ -324,7 +324,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
               </Link>
             </div>
             {pay.recent.length > 0 ? (
-              <ul className="mt-3 divide-y divide-white/5">
+              <ul className="mt-3 divide-y divide-hi/5">
                 {pay.recent.map((r) => (
                   <li key={r.id} className="flex items-center gap-3 py-2.5">
                     <span className="adm-avatar !h-10 !w-10 !text-[12px]">{initials(r.name)}</span>
@@ -389,7 +389,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
                 </span>
                 <span className="ad-cardviz-chip" aria-hidden />
               </div>
-              <p className="mt-auto text-[11px] uppercase tracking-[0.16em] text-white/60">{RANGES.find((r) => r.key === rangeKey)!.label}</p>
+              <p className="mt-auto text-[11px] uppercase tracking-[0.16em] text-hi/60">{RANGES.find((r) => r.key === rangeKey)!.label}</p>
               <div className="flex items-end justify-between gap-3">
                 <p className="whitespace-nowrap text-[23px] font-light tabular-nums">{formatSum(pay.amount)}</p>
                 <Delta value={pay.amount} prev={pay.prevAmount} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { LangSwitch } from "./LangSwitch";
+import { ThemeToggle } from "./ThemeToggle";
 import { useT } from "@/i18n/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -114,7 +115,10 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                 </nav>
 
                 <div className="mnav-foot">
-                  <LangSwitch />
+                  <div className="flex items-center justify-between gap-3">
+                    <LangSwitch />
+                    <ThemeToggle />
+                  </div>
                   {signedIn ? (
                     <div className="grid grid-cols-2 gap-2">
                       <Link onClick={close} href="/profile" className="mnav-btn">

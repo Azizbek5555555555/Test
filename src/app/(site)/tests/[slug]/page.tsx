@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProfile, profileHasPremium } from "@/lib/auth";
+import { getProfile, isStaff, profileHasPremium } from "@/lib/auth";
 import {
   getOpenAttempt,
   getQuestionsForParts,
@@ -84,6 +84,10 @@ export default async function TestOverviewPage({
       (questionsByPart.get(question.part_id) ?? 0) + weightOf(question),
     );
   }
+
+  // Writing/Speaking bor testlarda o'qituvchi tekshiruvi limiti ko'rsatiladi (0010)
+  const hasManual = parts.some((p) => p.section === "writing" || p.section === "speaking");
+  const credits = profile && !isStaff(profile) && hasManual ? profile.review_credits : undefined;
 
   const openAttempt = profile
     ? await getOpenAttempt(testSet.id, profile.id)
@@ -241,6 +245,36 @@ export default async function TestOverviewPage({
                 {startError ? (
                   <div className="mt-4">
                     <Alert tone="danger">{startError}</Alert>
+                  </div>
+                ) : null}
+
+                {credits !== undefined && !locked ? (
+                  <div
+                    className={
+                      credits > 0
+                        ? "mt-4 rounded-xl border border-gold-400/40 bg-gold-400/10 p-3.5 text-[13px] leading-relaxed text-fg"
+                        : "mt-4 rounded-xl border border-warning/40 bg-warning/10 p-3.5 text-[13px] leading-relaxed text-fg"
+                    }
+                  >
+                    {credits > 0 ? (
+                      <>
+                        ✍️{" "}
+                        {t(
+                          `Writing va Speaking'ni o'qituvchi tekshiradi. Sizda ${credits} ta tekshiruv qoldi — test topshirilganda 1 tasi ishlatiladi.`,
+                          `A teacher will review your Writing and Speaking. You have ${credits} review${credits > 1 ? "s" : ""} left — submitting this test uses one.`,
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {t(
+                          "Tarifingizda o'qituvchi tekshiruvi qolmagan: Writing va Speaking tekshirilmaydi, natija Reading va Listening bo'yicha chiqadi.",
+                          "Your plan has no teacher reviews left: Writing and Speaking won't be reviewed, and the result will be based on Reading and Listening.",
+                        )}{" "}
+                        <Link href="/premium#tariflar" className="font-semibold text-gold-400 hover:underline">
+                          {t("Tariflar →", "Plans →")}
+                        </Link>
+                      </>
+                    )}
                   </div>
                 ) : null}
 

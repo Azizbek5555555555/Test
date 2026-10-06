@@ -63,7 +63,7 @@ export default async function ResultPage({
     !profileHasPremium(profile);
 
   return (
-    <div className="bg-gradient-to-b from-[#0f2440] to-ink-950 to-30% print:bg-none">
+    <div className="bg-gradient-to-b from-[var(--tint-top,#0f2440)] to-ink-950 to-30% print:bg-none">
       <div className="container-page pb-10 pt-10 sm:pt-14">
         <div className="mb-8 print:hidden">
           <Link

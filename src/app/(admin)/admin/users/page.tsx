@@ -9,7 +9,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/Card";
-import { PremiumControl, RoleControl } from "@/components/admin/UserActions";
+import { PremiumControl, ReviewCreditsControl, RoleControl } from "@/components/admin/UserActions";
 
 export const metadata: Metadata = {
   title: "Foydalanuvchilar",
@@ -122,6 +122,9 @@ export default async function AdminUsersPage({
                       isPremium={user.is_premium}
                     />
                     <RoleControl userId={user.id} role={user.role} />
+                    {user.review_credits !== undefined ? (
+                      <ReviewCreditsControl userId={user.id} credits={user.review_credits ?? 0} />
+                    ) : null}
                   </div>
                 </div>
               </div>

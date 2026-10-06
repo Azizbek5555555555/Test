@@ -18,7 +18,7 @@ export async function PremiumSideCard({
   if (unlocked) {
     return (
       <div className="card-glass rounded-2xl p-7 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-400 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-ink-950">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-400 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-on-accent">
           <Star size={11} strokeWidth={2.5} aria-hidden /> {t("Premium faol", "Premium active")}
         </span>
         <p className="display-title mt-5 text-[28px]">{t("Hammasi ochiq", "Everything unlocked")}</p>
@@ -43,7 +43,7 @@ export async function PremiumSideCard({
 
   return (
     <div className="rounded-2xl border border-line bg-ink-800 p-7 text-center shadow-[0_24px_60px_-30px_rgba(0,0,0,0.8)]">
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-400 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-ink-950">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-400 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-on-accent">
         <Star size={11} strokeWidth={2.5} aria-hidden /> Premium
       </span>
       <p className="display-title mt-5 text-[30px]">{t("Premium kontent", "Premium content")}</p>

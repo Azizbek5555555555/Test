@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Attempt, SectionBreakdownEntry, SkillSection } from "@/lib/types";
 import { EXAM_SECTION_ORDER, EXAMINER_NAME, REVIEW_HOURS, SECTION_LABEL, SECTIONS, SITE_NAME } from "@/lib/constants";
 import { cefrFromScore, cn, formatDateTime } from "@/lib/format";
@@ -30,6 +31,8 @@ export async function ResultCard({
   ).concat(SECTIONS.filter((s) => !EXAM_SECTION_ORDER.includes(s) && (scores[s] != null || breakdown[s])));
 
   const overall = attempt.overall_score != null ? Math.round(Number(attempt.overall_score)) : null;
+  // 0010: o'qituvchi tekshiruvi limiti tugagan bo'lsa Writing/Speaking baholanmaydi
+  const noReview = (breakdown as Record<string, unknown>)._review === "none";
 
   return (
     <div className="card rounded-2xl p-7 sm:p-10 print:border-ink-300 print:shadow-none">
@@ -64,6 +67,7 @@ export async function ResultCard({
             score={scores[section] ?? null}
             correct={pointsOrCount(breakdown[section], "correct")}
             total={pointsOrCount(breakdown[section], "total")}
+            notReviewed={noReview && scores[section] == null}
             t={t}
           />
         ))}
@@ -78,6 +82,19 @@ export async function ResultCard({
             `Tekshiruvchi ${EXAMINER_NAME} ularni ${REVIEW_HOURS} soat ichida rasmiy mezonlar bo'yicha baholaydi. Shundan keyin yakuniy ball va daraja yangilanadi — natija profilingizda saqlanadi.`,
             `Our examiner ${EXAMINER_NAME} grades them against the official criteria within ${REVIEW_HOURS} hours. Your final score and level will then update — the result is saved in your profile.`,
           )}
+        </div>
+      ) : null}
+
+      {noReview && !attempt.needs_manual_check ? (
+        <div className="mt-6 rounded-xl border border-gold-400/40 bg-gold-400/10 p-4 text-sm leading-relaxed text-fg print:hidden">
+          <strong>{t("Writing va Speaking o'qituvchi tomonidan tekshirilmadi.", "Writing and Speaking were not reviewed by a teacher.")}</strong>{" "}
+          {t(
+            "Tarifingizdagi o'qituvchi tekshiruvlari tugagan, shuning uchun natija Reading va Listening bo'yicha hisoblandi. Javoblaringiz saqlangan.",
+            "Your plan has no teacher reviews left, so the result is based on Reading and Listening. Your answers are saved.",
+          )}{" "}
+          <Link href="/premium#tariflar" className="font-semibold text-gold-400 underline-offset-2 hover:underline print:hidden">
+            {t("Tekshiruvli tariflar →", "Plans with teacher review →")}
+          </Link>
         </div>
       ) : null}
 
@@ -150,12 +167,14 @@ function ScoreRow({
   score,
   correct,
   total,
+  notReviewed,
   t,
 }: {
   section: SkillSection;
   score: number | null;
   correct?: number;
   total?: number;
+  notReviewed?: boolean;
   t: T;
 }) {
   const pending = score == null;
@@ -165,7 +184,9 @@ function ScoreRow({
     <li>
       <div className="flex items-center justify-between gap-2 text-sm">
         <span className="text-fg">{SECTION_LABEL[section]}</span>
-        {pending ? (
+        {pending && notReviewed ? (
+          <span className="text-xs font-semibold text-faint">{t("tekshirilmagan", "not reviewed")}</span>
+        ) : pending ? (
           <span className="text-xs font-semibold text-warning">{t("tekshirilmoqda", "in review")}</span>
         ) : (
           <span className="font-semibold tabular-nums text-fg">

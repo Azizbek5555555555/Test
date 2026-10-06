@@ -1,4 +1,5 @@
 import { LangSwitch } from "./LangSwitch";
+import { ThemeToggle } from "./ThemeToggle";
 import { getT } from "@/i18n/server";
 import Link from "next/link";
 import { getProfile, isStaff, profileHasPremium } from "@/lib/auth";
@@ -50,6 +51,7 @@ export async function Header() {
           <NavLinks items={MAIN_NAV.map((item) => ({ href: item.href, label: t(item.label) }))} />
 
           <div className="ml-auto flex items-center gap-2.5 sm:gap-3">
+            <ThemeToggle />
             <LangSwitch className="hidden sm:inline-grid" />
             {profile ? (
               <UserMenu

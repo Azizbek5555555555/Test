@@ -97,7 +97,7 @@ git pull
 
 Supabase panelida chap menyudan **SQL Editor** ni oching.
 
-Endi loyihadagi `supabase/` papkasidan **6 ta faylni ketma-ket** ishga
+Endi loyihadagi `supabase/` papkasidan **10 ta faylni ketma-ket** ishga
 tushirasiz. Har birida: faylni ochib, **butun matnini nusxalang**, SQL Editor
 oynasiga qo'ying va **RUN** (yoki `Ctrl+Enter`) bosing.
 
@@ -111,6 +111,10 @@ oynasiga qo'ying va **RUN** (yoki `Ctrl+Enter`) bosing.
 | 4 | `supabase/migrations/0004_storage.sql` | Audio fayllar uchun papkalar |
 | 5 | `supabase/migrations/0005_security_hardening.sql` | Qo'shimcha himoya: soxta natija, o'yinda aldash, Premium so'rovni soxtalashtirishdan |
 | 6 | `supabase/migrations/0006_premium_transcripts.sql` | Listening skriptlari faqat Premium uchun |
+| 7 | `supabase/migrations/0007_payments.sql` | Payme / Click to'lovlari |
+| 8 | `supabase/migrations/0008_official_scoring.sql` | Rasmiy 0–75 baholash |
+| 9 | `supabase/migrations/0009_antispam.sql` | Formalarni spamdan himoya |
+| 10 | `supabase/migrations/0010_premium_plans.sql` | 4 ta Premium tarifi va o'qituvchi tekshiruvi limiti |
 
 > 💡 **Bazani oldin yaratgan bo'lsangiz**, faqat hali ishga tushirilmagan
 > yangi fayllarni (masalan **5** va **6**) ishga tushirsangiz kifoya —

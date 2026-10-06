@@ -150,7 +150,7 @@ export default async function FullMockPage({
                         className={cn(
                           "rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors",
                           level === l
-                            ? "bg-brand-400 text-ink-950"
+                            ? "bg-brand-400 text-on-accent"
                             : "border border-line bg-ink-900 text-muted hover:text-fg",
                         )}
                       >
@@ -178,7 +178,7 @@ export default async function FullMockPage({
                     aria-current={access === a ? "true" : undefined}
                     className={cn(
                       "rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors",
-                      access === a ? "bg-brand-400 text-ink-950" : "text-muted hover:text-fg",
+                      access === a ? "bg-brand-400 text-on-accent" : "text-muted hover:text-fg",
                     )}
                   >
                     {a === "all" ? t("Barchasi", "All") : a === "free" ? t("Bepul", "Free") : "Premium"}

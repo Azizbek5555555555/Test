@@ -20,7 +20,7 @@ export function ChipLink({
       className={cn(
         "whitespace-nowrap rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors",
         active
-          ? "bg-brand-400 text-ink-950"
+          ? "bg-brand-400 text-on-accent"
           : "border border-line bg-ink-900 text-muted hover:border-brand-400/40 hover:text-fg",
       )}
     >

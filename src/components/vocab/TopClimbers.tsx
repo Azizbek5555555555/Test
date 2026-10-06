@@ -46,7 +46,7 @@ export async function TopClimbers({
             aria-current={p.id === period ? "true" : undefined}
             className={cn(
               "rounded-full py-1.5 text-center text-xs font-medium transition-colors",
-              p.id === period ? "bg-brand-400 text-ink-950" : "text-muted hover:text-fg",
+              p.id === period ? "bg-brand-400 text-on-accent" : "text-muted hover:text-fg",
             )}
           >
             {p.label}
