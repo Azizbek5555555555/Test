@@ -7973,3 +7973,96 @@ a.sf-channel:hover span {
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Admin panelga login + parol bilan kirish (/admin-login)
+   ========================================================================== */
+.al {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  flex: 1;
+  place-items: center;
+  overflow: hidden;
+  padding: 3rem 1rem;
+}
+.al-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(40% 50% at 20% 20%, rgb(var(--acc, 16 191 166) / 0.16), transparent 70%),
+    radial-gradient(45% 55% at 85% 80%, rgb(var(--gld, 58 160 227) / 0.16), transparent 70%);
+}
+.al-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 1.75rem;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg-elevated) 88%, transparent);
+  padding: 2.25rem 1.75rem 1.75rem;
+  box-shadow: 0 40px 90px -50px rgb(var(--sh, 0 0 0) / calc(0.9 * var(--shk, 1)));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+@media (min-width: 480px) {
+  .al-card {
+    padding: 2.5rem 2.25rem 2rem;
+  }
+}
+.al-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--acc, 16 191 166) / 0.4);
+  background: rgb(var(--acc, 16 191 166) / 0.1);
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.al-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  padding: 0 14px;
+  color: var(--fg-faint);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.al-field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgb(var(--acc, 16 191 166) / 0.18);
+  color: var(--accent);
+}
+.al-input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  background: transparent;
+  font-size: 15px;
+  color: var(--fg);
+  outline: none;
+}
+.al-input::placeholder {
+  color: var(--fg-faint);
+}
+.al-eye {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--fg-muted);
+}
+.al-eye:hover {
+  color: var(--fg);
+  background: rgb(var(--hi, 255 255 255) / 0.06);
+}

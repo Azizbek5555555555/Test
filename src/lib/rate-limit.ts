@@ -45,3 +45,21 @@ export async function clientIp(): Promise<string> {
 export function isBot(formData: FormData): boolean {
   return String(formData.get(HONEYPOT_FIELD) ?? "").trim() !== "";
 }
+
+/**
+ * Faqat muvaffaqiyatsiz urinishlarni sanash uchun (masalan, noto'g'ri parol):
+ * `tooManyFailures` tekshiradi (yozmaydi), `recordFailure` xatodan keyin yozadi.
+ * Shunda to'g'ri parolni bilgan xodim begona urinishlar sababli bloklanib qolmaydi.
+ */
+export function tooManyFailures(key: string, limit: number, windowMs: number): boolean {
+  const now = Date.now();
+  const hits = (buckets.get(key) ?? []).filter((t) => now - t < windowMs);
+  buckets.set(key, hits);
+  return hits.length >= limit;
+}
+
+export function recordFailure(key: string): void {
+  const hits = buckets.get(key) ?? [];
+  hits.push(Date.now());
+  buckets.set(key, hits);
+}

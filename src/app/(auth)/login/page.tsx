@@ -93,6 +93,12 @@ export default async function LoginPage({
             initialError={params.error}
             emailEnabled={process.env.EMAIL_LOGIN === "on"}
           />
+          <p className="mt-8 text-center text-xs text-faint">
+            {t("Xodimlar uchun:", "For staff:")}{" "}
+            <Link href="/admin-login" className="font-semibold text-muted underline-offset-2 hover:text-fg hover:underline">
+              {t("login va parol bilan kirish", "log in with username and password")}
+            </Link>
+          </p>
         </div>
       </section>
     </div>
