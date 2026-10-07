@@ -16,8 +16,8 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile();
 
-  if (!profile) redirect(`/login?next=${encodeURIComponent("/admin")}`);
-  if (!isStaff(profile)) redirect("/");
+  // Kirmagan yoki o'quvchi akkaunti — xodimlar uchun login/parol sahifasiga
+  if (!profile || !isStaff(profile)) redirect("/admin-login");
 
   const admin = isAdmin(profile);
   const counts = await getAdminCounts();
@@ -40,6 +40,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     ...(admin
       ? ([
           { href: "/admin/users", label: "Foydalanuvchilar", icon: "users", group: "Boshqaruv" },
+          { href: "/admin/staff", label: "Xodimlar va parollar", icon: "staff", group: "Boshqaruv" },
           { href: "/admin/payments", label: "To'lovlar", icon: "payments", group: "Boshqaruv" },
           { href: "/admin/premium", label: "Premium so'rovlar", icon: "premium", group: "Boshqaruv", badge: counts.pendingPremium },
           { href: "/admin/settings", label: "Sayt sozlamalari", icon: "settings", group: "Boshqaruv" },

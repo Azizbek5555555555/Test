@@ -145,8 +145,11 @@ export async function proxy(request: NextRequest) {
   );
 
   if (needsAuth && !user) {
+    // Admin panel — xodimlar uchun login/parol sahifasi, qolganlari — oddiy kirish
+    const isAdminArea = STAFF_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+    const loginPath = isAdminArea ? "/admin-login" : "/login";
     return NextResponse.redirect(
-      publicUrl(`/login?next=${encodeURIComponent(pathname)}`, request),
+      publicUrl(`${loginPath}?next=${encodeURIComponent(pathname)}`, request),
     );
   }
 
@@ -163,7 +166,10 @@ export async function proxy(request: NextRequest) {
 
     const role = (profile as { role?: string } | null)?.role;
     if (role !== "admin" && role !== "teacher") {
-      return NextResponse.redirect(publicUrl("/", request));
+      // o'quvchi akkaunti bilan kirilgan — xodim login/parolini kiritish taklif qilinadi
+      return NextResponse.redirect(
+        publicUrl(`/admin-login?next=${encodeURIComponent(pathname)}`, request),
+      );
     }
   }
 

@@ -816,6 +816,19 @@ Kabinetlarda manzillar shu domen bilan yoziladi:
 
 ---
 
+## 14-QADAM · Admin panelga login va parol bilan kirish
+
+Admin panelga endi **levelx.academy/admin-login** sahifasidan login va parol bilan
+kiriladi (Google orqali kirish ham ishlayveradi).
+
+1. Birinchi admin akkauntini SQL bilan yarating (yoki Google'dagi admin akkauntingiz bilan kiring).
+2. **Admin → Xodimlar va parollar**: yangi xodim uchun ism, login, parol va rol
+   (o'qituvchi / administrator) kiriting → **Akkaunt yaratish**.
+3. Login va parolni xodimga o'zingiz yuborasiz. Parolni shu sahifada istalgan payt almashtirasiz.
+
+> 🔒 Himoya: bitta qurilmadan 10 daqiqada 8 ta noto'g'ri urinishdan keyin kirish
+> vaqtincha bloklanadi. O'quvchilar bu sahifadan kira olmaydi.
+
 ## 📞 Keyingi qadamlar
 
 Sayt ishga tushgach:

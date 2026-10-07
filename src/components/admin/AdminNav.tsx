@@ -12,6 +12,7 @@ import {
   FileText,
   Grid,
   Home,
+  Key,
   Mail,
   Settings,
   Star,
@@ -31,6 +32,7 @@ export type NavIcon =
   | "applications"
   | "messages"
   | "users"
+  | "staff"
   | "payments"
   | "premium"
   | "settings";
@@ -46,6 +48,7 @@ const ICONS: Record<NavIcon, Icon> = {
   applications: Clipboard,
   messages: Mail,
   users: Users,
+  staff: Key,
   payments: CreditCard,
   premium: Star,
   settings: Settings,
