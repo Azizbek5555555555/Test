@@ -1,5 +1,5 @@
 -- ============================================================================
--- MULTILEVEL PLUS — DEMO KONTENT (seed)
+-- LEVELXENGLISH — DEMO KONTENT (seed)
 --
 -- Bu fayl saytni "tirik" ko'rsatish uchun namunaviy kontent qo'shadi.
 -- Keyinchalik Admin panel orqali o'z testlaringizni qo'shasiz.

@@ -1,5 +1,5 @@
 -- ============================================================================
--- MULTILEVEL PLUS — 0001 SCHEMA
+-- LEVELXENGLISH — 0001 SCHEMA
 -- Bu faylni Supabase → SQL Editor ga to'liq nusxalab "Run" bosing.
 -- Tartib: 0001_schema.sql → 0002_policies.sql → 0003_functions.sql → seed.sql
 -- ============================================================================

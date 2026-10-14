@@ -1,5 +1,5 @@
 -- ============================================================================
--- MULTILEVEL PLUS — 0002 XAVFSIZLIK (RLS) VA HUQUQLAR
+-- LEVELXENGLISH — 0002 XAVFSIZLIK (RLS) VA HUQUQLAR
 --
 -- Bu fayl eng muhim fayllardan biri. U quyidagilarni kafolatlaydi:
 --   1) To'g'ri javoblar (correct_answer) HECH QACHON brauzerga chiqmaydi.
