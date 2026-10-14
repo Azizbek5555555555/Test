@@ -1,6 +1,6 @@
 /**
  * Saytning HAQIQIY tashqi manzilini aniqlaydi (masalan
- * https://multilevel-plus-production.up.railway.app).
+ * https://levelxenglish-production.up.railway.app).
  *
  * Nega kerak: Railway kabi hostinglarda Next.js server proxy orqasida
  * ishlaydi va `request.url` ichki manzilni (https://0.0.0.0:8080) ko'rsatadi.

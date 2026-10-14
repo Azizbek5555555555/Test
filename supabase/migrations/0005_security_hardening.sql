@@ -1,5 +1,5 @@
 -- ============================================================================
--- MULTILEVEL PLUS — 0005 XAVFSIZLIKNI KUCHAYTIRISH
+-- LEVELXENGLISH — 0005 XAVFSIZLIKNI KUCHAYTIRISH
 --
 -- 0001–0004 dan KEYIN ishga tushiriladi. Qayta ishga tushirsa ham xavfsiz.
 --

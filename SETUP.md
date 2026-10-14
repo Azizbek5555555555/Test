@@ -1,4 +1,4 @@
-# 🚀 MULTILEVEL PLUS — to'liq o'rnatish qo'llanmasi
+# 🚀 LEVELXENGLISH — to'liq o'rnatish qo'llanmasi
 
 Bu qo'llanma **noldan boshlab** saytni ishga tushirishni qadam-baqadam
 tushuntiradi. Dasturlashni bilmasangiz ham, shu ketma-ketlikni bajarsangiz
@@ -48,8 +48,8 @@ Keyin:
 
 ```bash
 cd $HOME\Desktop
-git clone https://github.com/SIZNING-USERNAME/Test.git multilevel-plus
-cd multilevel-plus
+git clone https://github.com/SIZNING-USERNAME/levelxenglish.git levelxenglish
+cd levelxenglish
 npm install
 ```
 
@@ -84,7 +84,7 @@ git pull
 1. [supabase.com](https://supabase.com) ga kiring → **Start your project**
 2. **New project** tugmasini bosing
 3. To'ldiring:
-   - **Name:** `multilevel-plus`
+   - **Name:** `levelxenglish`
    - **Database Password:** kuchli parol o'ylab toping va **saqlab qo'ying**
    - **Region:** `Frankfurt (eu-central-1)` — O'zbekistonga eng yaqin
 4. Agar **Security** yoki **Data API** bo'limi chiqsa — **standart holicha
@@ -452,7 +452,7 @@ O'zgaruvchilarni saqlagach: **Deployments** → yuqoridagi **⋮** →
 1. Railway → loyihangiz → **Settings** → **Networking**
 2. **Generate Domain** tugmasini bosing
 3. Sizga shunday manzil beriladi:
-   `https://multilevel-plus-production.up.railway.app`
+   `https://levelxenglish-production.up.railway.app`
 4. Bu manzilni nusxalab oling
 
 > Agar Railway port so'rasa — **Deployments → oxirgi deploy → Deploy Logs**
@@ -491,14 +491,14 @@ ogohlantirish **bo'lmasligi** kerak. Google orqali kirib ko'ring.
 
 ### 9.7. Google login'ni hamma uchun ochish (Publish app)
 
-Sayt endi real manzilda (masalan `https://multilevel-plus-production.up.railway.app`).
+Sayt endi real manzilda (masalan `https://levelxenglish-production.up.railway.app`).
 
 1. Google Cloud → **Google Auth Platform** → **Branding**:
    - **Application home page:** `https://SIZNING-MANZIL`
    - **Application privacy policy link:** `https://SIZNING-MANZIL/privacy`
    - **Application terms of service link:** `https://SIZNING-MANZIL/terms`
    - **Authorized domains** → **+ Add domain** → manzilingiz, `https://`
-     siz (masalan `multilevel-plus-production.up.railway.app`)
+     siz (masalan `levelxenglish-production.up.railway.app`)
    - **Logo yuklamang** → **Save**
 2. **Audience** → **Publish app** → **Confirm** → holat **In production**
 

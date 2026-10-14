@@ -1,5 +1,5 @@
 -- ============================================================================
--- MULTILEVEL PLUS — 0003 SERVER FUNKSIYALARI
+-- LEVELXENGLISH — 0003 SERVER FUNKSIYALARI
 --
 -- Bu yerda baholash (scoring) mantiqi joylashgan. Barchasi SERVERDA ishlaydi,
 -- shuning uchun foydalanuvchi javoblarni oldindan bila olmaydi va ballni
