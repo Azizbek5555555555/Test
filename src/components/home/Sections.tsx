@@ -230,7 +230,7 @@ export async function Roadmap() {
 /* ----------------------------------------------------------------------------
    Kurslar (Figma: courses-section — rasmli kartalar)
    ---------------------------------------------------------------------------- */
-const COURSE_IMAGES = ["/design/course-1.jpg", "/design/course-2.jpg", "/design/course-3.jpg"];
+const COURSE_IMAGES = ["/design/study-1.jpg", "/design/study-2.jpg", "/design/study-3.jpg"];
 
 export async function CoursesStrip({ courses }: { courses: Course[] }) {
   if (courses.length === 0) return null;

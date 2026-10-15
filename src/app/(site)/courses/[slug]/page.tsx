@@ -58,7 +58,7 @@ export default async function CoursePage({
     <div>
       <section className="relative isolate overflow-hidden">
         <Image
-          src={course.image_url || "/design/course-1.jpg"}
+          src={course.image_url || "/design/study-1.jpg"}
           alt=""
           fill
           priority

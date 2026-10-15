@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Calendar, MapPin } from "react-feather";
 import type { Course } from "@/lib/types";
 
-const COURSE_IMAGES = ["/design/course-1.jpg", "/design/course-2.jpg", "/design/course-3.jpg"];
+const COURSE_IMAGES = ["/design/study-1.jpg", "/design/study-2.jpg", "/design/study-3.jpg"];
 
 /** Figma 10: "Intensive On-Site Programs" kartasi */
 export async function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
